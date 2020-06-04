@@ -31,20 +31,18 @@ class achievement_commandscript : public CommandScript
 public:
     achievement_commandscript() : CommandScript("achievement_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand achievementCommandTable[] =
+        static std::vector<ChatCommand> achievementCommandTable=
         {
-            { "add",            SEC_ADMINISTRATOR,  false,  &HandleAchievementAddCommand,      "", NULL },
-            { "criteria",       SEC_ADMINISTRATOR,  false,  &HandleAchievementCriteriaCommand, "", NULL },
-            { "info",           SEC_ADMINISTRATOR,  false,  &HandleAchievementInfoCommand,     "", NULL },
-            { "delete",         SEC_ADMINISTRATOR,  false,  &HandleAchievementDeleteCommand,   "", NULL },
-            { NULL,             0,                  false,  NULL,                              "", NULL }
+            { "add",            SEC_ADMINISTRATOR,  false,  &HandleAchievementAddCommand,      ""},
+            { "criteria",       SEC_ADMINISTRATOR,  false,  &HandleAchievementCriteriaCommand, ""},
+            { "info",           SEC_ADMINISTRATOR,  false,  &HandleAchievementInfoCommand,     ""},
+            { "delete",         SEC_ADMINISTRATOR,  false,  &HandleAchievementDeleteCommand,   ""}
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "achievement",    SEC_ADMINISTRATOR,  false, NULL,            "", achievementCommandTable },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "achievement",    SEC_ADMINISTRATOR,  false, NULL,            "", achievementCommandTable }
         };
         return commandTable;
     }

@@ -33,23 +33,21 @@ class list_commandscript : public CommandScript
 public:
     list_commandscript() : CommandScript("list_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand listCommandTable[] =
+        static std::vector<ChatCommand> listCommandTable =
         {
-            { "creature",       SEC_ADMINISTRATOR,  true,  &HandleListCreatureCommand,           "", NULL },
-            { "item",           SEC_ADMINISTRATOR,  true,  &HandleListItemCommand,               "", NULL },
-            { "object",         SEC_ADMINISTRATOR,  true,  &HandleListObjectCommand,             "", NULL },
-            { "auras",          SEC_ADMINISTRATOR,  false, &HandleListAurasCommand,              "", NULL },
-            { "mail",           SEC_ADMINISTRATOR,  true,  &HandleListMailCommand,               "", NULL },
-            { "aminfo",         SEC_ADMINISTRATOR,  true,  &HandleListAurasMiniInfoCommand,      "", NULL },
-            { "attacker",       SEC_ADMINISTRATOR,  true,  &HandleListAttacker,                  "", NULL },
-            { NULL,             0,                  false, NULL,                                 "", NULL }
+            { "creature",       SEC_ADMINISTRATOR,  true,  &HandleListCreatureCommand,           ""},
+            { "item",           SEC_ADMINISTRATOR,  true,  &HandleListItemCommand,               ""},
+            { "object",         SEC_ADMINISTRATOR,  true,  &HandleListObjectCommand,             ""},
+            { "auras",          SEC_ADMINISTRATOR,  false, &HandleListAurasCommand,              ""},
+            { "mail",           SEC_ADMINISTRATOR,  true,  &HandleListMailCommand,               ""},
+            { "aminfo",         SEC_ADMINISTRATOR,  true,  &HandleListAurasMiniInfoCommand,      ""},
+            { "attacker",       SEC_ADMINISTRATOR,  true,  &HandleListAttacker,                  ""}
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "list",          SEC_ADMINISTRATOR,   true, NULL,                                 "", listCommandTable },
-            { NULL,            0,                   false, NULL,                                "", NULL }
+            { "list",          SEC_ADMINISTRATOR,   true, NULL,                                 "", listCommandTable }
         };
         return commandTable;
     }

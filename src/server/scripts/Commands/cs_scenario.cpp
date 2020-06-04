@@ -25,19 +25,17 @@ class scenario_commandscript : public CommandScript
 public:
     scenario_commandscript() : CommandScript("scenario_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand scenarioCommandTable[] =
+        static std::vector<ChatCommand> scenarioCommandTable =
         {
-            {    "info",     SEC_GAMEMASTER, false,  &HandleScenarioInfoCommand, "", NULL },
-            {    "step",     SEC_GAMEMASTER, false,  &HandleScenarioStepCommand, "", NULL },
-            {      NULL,         SEC_PLAYER, false,                        NULL, "", NULL }
+            {    "info",     SEC_GAMEMASTER, false,  &HandleScenarioInfoCommand, ""},
+            {    "step",     SEC_GAMEMASTER, false,  &HandleScenarioStepCommand, ""}
         };
 
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
-            {  "scenario",   SEC_GAMEMASTER, false,                        NULL, "", scenarioCommandTable },
-            {  NULL,             SEC_PLAYER, false,                        NULL, "", NULL }
+            {  "scenario",   SEC_GAMEMASTER, false,                        NULL, "", scenarioCommandTable }
         };
         return commandTable;
     }

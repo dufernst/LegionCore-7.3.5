@@ -34,21 +34,19 @@ class instance_commandscript : public CommandScript
 public:
     instance_commandscript() : CommandScript("instance_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand instanceCommandTable[] =
+        static std::vector<ChatCommand> instanceCommandTable =
         {
-            { "listbinds",      SEC_ADMINISTRATOR,  false,  &HandleInstanceListBindsCommand,    "", NULL },
-            { "unbind",         SEC_ADMINISTRATOR,  false,  &HandleInstanceUnbindCommand,       "", NULL },
-            { "stats",          SEC_ADMINISTRATOR,  true,   &HandleInstanceStatsCommand,        "", NULL },
-            { "savedata",       SEC_ADMINISTRATOR,  false,  &HandleInstanceSaveDataCommand,     "", NULL },
-            { NULL,             0,                  false,  NULL,                               "", NULL }
+            { "listbinds",      SEC_ADMINISTRATOR,  false,  &HandleInstanceListBindsCommand,    ""},
+            { "unbind",         SEC_ADMINISTRATOR,  false,  &HandleInstanceUnbindCommand,       ""},
+            { "stats",          SEC_ADMINISTRATOR,  true,   &HandleInstanceStatsCommand,        ""},
+            { "savedata",       SEC_ADMINISTRATOR,  false,  &HandleInstanceSaveDataCommand,     ""}
         };
 
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "instance",       SEC_ADMINISTRATOR,  true,   NULL,                               "", instanceCommandTable },
-            { NULL,             0,                  false,  NULL,                               "", NULL }
+            { "instance",       SEC_ADMINISTRATOR,  true,   NULL,                               "", instanceCommandTable }
         };
 
         return commandTable;

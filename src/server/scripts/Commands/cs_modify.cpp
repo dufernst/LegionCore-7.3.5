@@ -32,52 +32,49 @@ class modify_commandscript : public CommandScript
 public:
     modify_commandscript() : CommandScript("modify_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand modifyspeedCommandTable[] =
+        static std::vector<ChatCommand> modifyspeedCommandTable =
         {
-            { "fly",            SEC_MODERATOR,      false, &HandleModifyFlyCommand,           "", NULL },
-            { "all",            SEC_MODERATOR,      false, &HandleModifyASpeedCommand,        "", NULL },
-            { "walk",           SEC_MODERATOR,      false, &HandleModifySpeedCommand,         "", NULL },
-            { "backwalk",       SEC_MODERATOR,      false, &HandleModifyBWalkCommand,         "", NULL },
-            { "swim",           SEC_MODERATOR,      false, &HandleModifySwimCommand,          "", NULL },
-            { "",               SEC_MODERATOR,      false, &HandleModifyASpeedCommand,        "", NULL },
-            { NULL,             0,                  false, NULL,                              "", NULL }
+            { "fly",            SEC_MODERATOR,      false, &HandleModifyFlyCommand,           ""},
+            { "all",            SEC_MODERATOR,      false, &HandleModifyASpeedCommand,        ""},
+            { "walk",           SEC_MODERATOR,      false, &HandleModifySpeedCommand,         ""},
+            { "backwalk",       SEC_MODERATOR,      false, &HandleModifyBWalkCommand,         ""},
+            { "swim",           SEC_MODERATOR,      false, &HandleModifySwimCommand,          ""},
+            { "",               SEC_MODERATOR,      false, &HandleModifyASpeedCommand,        ""}
         };
-        static ChatCommand modifyCommandTable[] =
+        static std::vector<ChatCommand> modifyCommandTable =
         {
-            { "hp",             SEC_MODERATOR,      false, &HandleModifyHPCommand,            "", NULL },
-            { "mana",           SEC_MODERATOR,      false, &HandleModifyManaCommand,          "", NULL },
-            { "rage",           SEC_MODERATOR,      false, &HandleModifyRageCommand,          "", NULL },
-            { "runicpower",     SEC_MODERATOR,      false, &HandleModifyRunicPowerCommand,    "", NULL },
-            { "energy",         SEC_MODERATOR,      false, &HandleModifyEnergyCommand,        "", NULL },
-            { "money",          SEC_MODERATOR,      false, &HandleModifyMoneyCommand,         "", NULL },
-            { "scale",          SEC_MODERATOR,      false, &HandleModifyScaleCommand,         "", NULL },
-            { "bit",            SEC_MODERATOR,      false, &HandleModifyBitCommand,           "", NULL },
-            { "faction",        SEC_MODERATOR,      false, &HandleModifyFactionCommand,       "", NULL },
-            { "spell",          SEC_MODERATOR,      false, &HandleModifySpellCommand,         "", NULL },
-            { "talentpoints",   SEC_MODERATOR,      false, &HandleModifyTalentCommand,        "", NULL },
-            { "mount",          SEC_MODERATOR,      false, &HandleModifyMountCommand,         "", NULL },
-            { "honor",          SEC_MODERATOR,      false, &HandleModifyHonorCommand,         "", NULL },
-            { "reputation",     SEC_GAMEMASTER,     false, &HandleModifyRepCommand,           "", NULL },
-            { "drunk",          SEC_MODERATOR,      false, &HandleModifyDrunkCommand,         "", NULL },
-            { "standstate",     SEC_GAMEMASTER,     false, &HandleModifyStandStateCommand,    "", NULL },
-            { "phase",          SEC_ADMINISTRATOR,  false, &HandleModifyPhaseCommand,         "", NULL },
-            { "phaseids",       SEC_ADMINISTRATOR,  false, &HandleModifyPhaseIDsCommand, "", NULL },
-            { "gender",         SEC_GAMEMASTER,     false, &HandleModifyGenderCommand,        "", NULL },
-            { "power",          SEC_GAMEMASTER,     false, &HandleModifyPowerCommand,         "", NULL },
-            { "currency",       SEC_GAMEMASTER,     false, &HandleModifyCurrencyCommand,      "", NULL },
+            { "hp",             SEC_MODERATOR,      false, &HandleModifyHPCommand,            ""},
+            { "mana",           SEC_MODERATOR,      false, &HandleModifyManaCommand,          ""},
+            { "rage",           SEC_MODERATOR,      false, &HandleModifyRageCommand,          ""},
+            { "runicpower",     SEC_MODERATOR,      false, &HandleModifyRunicPowerCommand,    ""},
+            { "energy",         SEC_MODERATOR,      false, &HandleModifyEnergyCommand,        ""},
+            { "money",          SEC_MODERATOR,      false, &HandleModifyMoneyCommand,         ""},
+            { "scale",          SEC_MODERATOR,      false, &HandleModifyScaleCommand,         ""},
+            { "bit",            SEC_MODERATOR,      false, &HandleModifyBitCommand,           ""},
+            { "faction",        SEC_MODERATOR,      false, &HandleModifyFactionCommand,       ""},
+            { "spell",          SEC_MODERATOR,      false, &HandleModifySpellCommand,         ""},
+            { "talentpoints",   SEC_MODERATOR,      false, &HandleModifyTalentCommand,        ""},
+            { "mount",          SEC_MODERATOR,      false, &HandleModifyMountCommand,         ""},
+            { "honor",          SEC_MODERATOR,      false, &HandleModifyHonorCommand,         ""},
+            { "reputation",     SEC_GAMEMASTER,     false, &HandleModifyRepCommand,           ""},
+            { "drunk",          SEC_MODERATOR,      false, &HandleModifyDrunkCommand,         ""},
+            { "standstate",     SEC_GAMEMASTER,     false, &HandleModifyStandStateCommand,    ""},
+            { "phase",          SEC_ADMINISTRATOR,  false, &HandleModifyPhaseCommand,         ""},
+            { "phaseids",       SEC_ADMINISTRATOR,  false, &HandleModifyPhaseIDsCommand, ""},
+            { "gender",         SEC_GAMEMASTER,     false, &HandleModifyGenderCommand,        ""},
+            { "power",          SEC_GAMEMASTER,     false, &HandleModifyPowerCommand,         ""},
+            { "currency",       SEC_GAMEMASTER,     false, &HandleModifyCurrencyCommand,      ""},
             { "speed",          SEC_MODERATOR,      false, NULL,           "", modifyspeedCommandTable },
-            { "artifactxp",     SEC_GAMEMASTER,     false, &HandleModifyArtifactXPCommand,    "", NULL },
-            { "ilvl",           SEC_ADMINISTRATOR,  false, &HandleModifyItemsLevel,           "", NULL },
-            { NULL,             0,                  false, NULL,                              "", NULL }
+            { "artifactxp",     SEC_GAMEMASTER,     false, &HandleModifyArtifactXPCommand,    ""},
+            { "ilvl",           SEC_ADMINISTRATOR,  false, &HandleModifyItemsLevel,           ""}
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "morph",          SEC_GAMEMASTER,     false, &HandleModifyMorphCommand,          "", NULL },
-            { "demorph",        SEC_GAMEMASTER,     false, &HandleDeMorphCommand,              "", NULL },
-            { "modify",         SEC_MODERATOR,      false, NULL,                 "", modifyCommandTable },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "morph",          SEC_GAMEMASTER,     false, &HandleModifyMorphCommand,          ""},
+            { "demorph",        SEC_GAMEMASTER,     false, &HandleDeMorphCommand,              ""},
+            { "modify",         SEC_MODERATOR,      false, NULL,                 "", modifyCommandTable }
         };
         return commandTable;
     }

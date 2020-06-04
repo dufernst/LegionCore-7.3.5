@@ -30,34 +30,30 @@ class battlenet_account_commandscript : public CommandScript
 public:
     battlenet_account_commandscript() : CommandScript("battlenet_account_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand accountSetCommandTable[] =
+        static std::vector<ChatCommand> accountSetCommandTable =
         {
-            { "password", SEC_ADMINISTRATOR,                                 true,  &HandleAccountSetPasswordCommand, "", NULL },
-            { NULL,       0,                                                 false, NULL,                             "", NULL }
+            { "password", SEC_ADMINISTRATOR,                                 true,  &HandleAccountSetPasswordCommand, ""}
         };
 
-        static ChatCommand accountLockCommandTable[] =
+        static std::vector<ChatCommand> accountLockCommandTable =
         {
             //{ "country", SEC_ADMINISTRATOR,                                 true, &HandleAccountLockCountryCommand, "", NULL },
-            { "ip",      SEC_ADMINISTRATOR,                                 true, &HandleAccountLockIpCommand, "", NULL },
-            { NULL,      0,                                                 false, NULL,                             "", NULL }
+            { "ip",      SEC_ADMINISTRATOR,                                 true, &HandleAccountLockIpCommand, ""}
         };
 
-        static ChatCommand accountCommandTable[] =
+        static std::vector<ChatCommand> accountCommandTable =
         {
-            { "create",     SEC_ADMINISTRATOR,                                true, &HandleAccountCreateCommand, "", NULL },
+            { "create",     SEC_ADMINISTRATOR,                                true, &HandleAccountCreateCommand, ""},
             { "lock",       SEC_ADMINISTRATOR,                                false, NULL, "", accountLockCommandTable },
             { "set",        SEC_ADMINISTRATOR,                                true, NULL, "", accountSetCommandTable },
-            { "password",   SEC_ADMINISTRATOR,                                false, &HandleAccountPasswordCommand, "", NULL },
-            { NULL,         0,                                                false, NULL,                            "", NULL                    }
+            { "password",   SEC_ADMINISTRATOR,                                false, &HandleAccountPasswordCommand, ""}
         };
 
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "bnetaccount", SEC_ADMINISTRATOR,                    true, NULL, "", accountCommandTable },
-            { NULL,               0,                                    false, NULL, "", NULL                }
+            { "bnetaccount", SEC_ADMINISTRATOR,                    true, NULL, "", accountCommandTable }
         };
 
         return commandTable;

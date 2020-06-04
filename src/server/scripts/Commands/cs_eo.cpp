@@ -33,19 +33,17 @@ class eo_commandscript : public CommandScript
 public:
     eo_commandscript() : CommandScript("eo_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand eoCommandTable[] =
+        static std::vector<ChatCommand> eoCommandTable =
         {
-            { "near",           SEC_GAMEMASTER,     false, &HandleEONearCommand,               "", NULL },
-            { "add",            SEC_GAMEMASTER,     false, &HandleEOAddCommand,                "", NULL },
-            { "delete",         SEC_GAMEMASTER,     false, &HandleEODeleteCommand,             "", NULL },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "near",           SEC_GAMEMASTER,     false, &HandleEONearCommand,               ""},
+            { "add",            SEC_GAMEMASTER,     false, &HandleEOAddCommand,                ""},
+            { "delete",         SEC_GAMEMASTER,     false, &HandleEODeleteCommand,             ""}
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "eventobject",    SEC_MODERATOR,      false, NULL,                    "",  eoCommandTable },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "eventobject",    SEC_MODERATOR,      false, NULL,                    "",  eoCommandTable }
         };
         return commandTable;
     }

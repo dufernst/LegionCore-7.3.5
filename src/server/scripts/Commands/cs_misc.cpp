@@ -45,161 +45,151 @@ class misc_commandscript : public CommandScript
 public:
     misc_commandscript() : CommandScript("misc_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand badWordCommandTable[] =
+        static std::vector<ChatCommand> badWordCommandTable =
         {
-            { "add",                SEC_ADMINISTRATOR,      true,  &HandleBadWordAddCommand,            "", NULL },
-            { "remove",             SEC_ADMINISTRATOR,      true,  &HandleBadWordRemoveCommand,         "", NULL },
-            { "list",               SEC_ADMINISTRATOR,      true,  &HandleBadWordListCommand,           "", NULL },
-            { NULL,                 0,                      false, NULL,                                "", NULL }
+            { "add",                SEC_ADMINISTRATOR,      true,  &HandleBadWordAddCommand,            ""},
+            { "remove",             SEC_ADMINISTRATOR,      true,  &HandleBadWordRemoveCommand,         ""},
+            { "list",               SEC_ADMINISTRATOR,      true,  &HandleBadWordListCommand,           ""}
         };
-        static ChatCommand wordFilterCommandTable[] =
+        static std::vector<ChatCommand> wordFilterCommandTable =
         {
             { "badword",            SEC_ADMINISTRATOR,      true,  NULL,                                "", badWordCommandTable },
-            { "mod",                SEC_ADMINISTRATOR,      true,  &HandleWordFilterModCommand,         "", NULL },
-            { NULL,                 0,                      false, NULL,                                "", NULL }
+            { "mod",                SEC_ADMINISTRATOR,      true,  &HandleWordFilterModCommand,         ""}
         };
-        static ChatCommand groupCommandTable[] =
+        static std::vector<ChatCommand> groupCommandTable =
         {
-            { "leader",         SEC_ADMINISTRATOR,          false,  &HandleGroupLeaderCommand,          "", NULL },
-            { "disband",        SEC_ADMINISTRATOR,          false,  &HandleGroupDisbandCommand,         "", NULL },
-            { "remove",         SEC_ADMINISTRATOR,          false,  &HandleGroupRemoveCommand,          "", NULL },
-            { NULL,             0,                          false,  NULL,                               "", NULL }
+            { "leader",         SEC_ADMINISTRATOR,          false,  &HandleGroupLeaderCommand,          ""},
+            { "disband",        SEC_ADMINISTRATOR,          false,  &HandleGroupDisbandCommand,         ""},
+            { "remove",         SEC_ADMINISTRATOR,          false,  &HandleGroupRemoveCommand,          ""}
         };
-        static ChatCommand petCommandTable[] =
+        static std::vector<ChatCommand> petCommandTable =
         {
-            { "create",             SEC_GAMEMASTER,         false, &HandleCreatePetCommand,             "", NULL },
-            { "learn",              SEC_GAMEMASTER,         false, &HandlePetLearnCommand,              "", NULL },
-            { "unlearn",            SEC_GAMEMASTER,         false, &HandlePetUnlearnCommand,            "", NULL },
-            { NULL,                 0,                      false, NULL,                                "", NULL }
+            { "create",             SEC_GAMEMASTER,         false, &HandleCreatePetCommand,             ""},
+            { "learn",              SEC_GAMEMASTER,         false, &HandlePetLearnCommand,              ""},
+            { "unlearn",            SEC_GAMEMASTER,         false, &HandlePetUnlearnCommand,            ""}
         };
-        static ChatCommand sendCommandTable[] =
+        static std::vector<ChatCommand> sendCommandTable =
         {
-            { "items",              SEC_ADMINISTRATOR,      true,  &HandleSendItemsCommand,             "", NULL },
-            { "mail",               SEC_MODERATOR,          true,  &HandleSendMailCommand,              "", NULL },
-            { "message",            SEC_ADMINISTRATOR,      true,  &HandleSendMessageCommand,           "", NULL },
-            { "money",              SEC_ADMINISTRATOR,      true,  &HandleSendMoneyCommand,             "", NULL },
-            { NULL,                 0,                      false, NULL,                                "", NULL }
+            { "items",              SEC_ADMINISTRATOR,      true,  &HandleSendItemsCommand,             ""},
+            { "mail",               SEC_MODERATOR,          true,  &HandleSendMailCommand,              ""},
+            { "message",            SEC_ADMINISTRATOR,      true,  &HandleSendMessageCommand,           ""},
+            { "money",              SEC_ADMINISTRATOR,      true,  &HandleSendMoneyCommand,             ""}
         };
-        static ChatCommand auraCommandTable[] =
+        static std::vector<ChatCommand> auraCommandTable =
         {
-            { "amount",             SEC_ADMINISTRATOR,      true,  &HandleAuraAmountCommand,            "", NULL },
-            { "duration",           SEC_ADMINISTRATOR,      true,  &HandleAuraDurationCommand,          "", NULL },
-            { "charges",            SEC_ADMINISTRATOR,      true,  &HandleAuraChargesCommand,           "", NULL },
-            { "",                   SEC_ADMINISTRATOR,      true,  &HandleAuraCommand,                  "", NULL },
-            { NULL,                 0,                      false, NULL,                                "", NULL }
+            { "amount",             SEC_ADMINISTRATOR,      true,  &HandleAuraAmountCommand,            ""},
+            { "duration",           SEC_ADMINISTRATOR,      true,  &HandleAuraDurationCommand,          ""},
+            { "charges",            SEC_ADMINISTRATOR,      true,  &HandleAuraChargesCommand,           ""},
+            { "",                   SEC_ADMINISTRATOR,      true,  &HandleAuraCommand,                  ""}
         };
-        static ChatCommand areatriggerCommandTable[] =
+        static std::vector<ChatCommand> areatriggerCommandTable =
         {
-            { "add",                SEC_ADMINISTRATOR,      true,  &HandleAreaTriggerCommand,           "", NULL },
-            { "castaction",         SEC_ADMINISTRATOR,      true,  &HandleCastActionCommand,            "", NULL },
-            { "",                   SEC_ADMINISTRATOR,      true,  &HandleAreaTriggerCommand,           "", NULL },
-            { NULL,                 0,                      false, NULL,                                "", NULL }
+            { "add",                SEC_ADMINISTRATOR,      true,  &HandleAreaTriggerCommand,           ""},
+            { "castaction",         SEC_ADMINISTRATOR,      true,  &HandleCastActionCommand,            ""},
+            { "",                   SEC_ADMINISTRATOR,      true,  &HandleAreaTriggerCommand,           ""}
         };
-        static ChatCommand HandleBGTable[] =
+        static std::vector<ChatCommand> HandleBGTable =
         {
-            { "start",              SEC_ADMINISTRATOR,      true,  &HandleBGStartCommand,               "", NULL },
-            { "finishwin",          SEC_ADMINISTRATOR,      true,  &HandleBGFinishCommand,              "", NULL },
-            { "setarena",           SEC_ADMINISTRATOR,      true,  &HandleBGSetArenaCommand,            "", NULL },
-            { "setskirmish",        SEC_ADMINISTRATOR,      true,  &HandleBGSetSkirmishCommand,         "", NULL },
-            { "setrbg",             SEC_ADMINISTRATOR,      true,  &HandleBGSetRBGCommand,              "", NULL },
-            { "setbg",              SEC_ADMINISTRATOR,      true,  &HandleBGSetBGCommand,               "", NULL },
-            { NULL,                 0,                      false, NULL,                                "", NULL }
+            { "start",              SEC_ADMINISTRATOR,      true,  &HandleBGStartCommand,               ""},
+            { "finishwin",          SEC_ADMINISTRATOR,      true,  &HandleBGFinishCommand,              ""},
+            { "setarena",           SEC_ADMINISTRATOR,      true,  &HandleBGSetArenaCommand,            ""},
+            { "setskirmish",        SEC_ADMINISTRATOR,      true,  &HandleBGSetSkirmishCommand,         ""},
+            { "setrbg",             SEC_ADMINISTRATOR,      true,  &HandleBGSetRBGCommand,              ""},
+            { "setbg",              SEC_ADMINISTRATOR,      true,  &HandleBGSetBGCommand,               ""}
         };
-        static ChatCommand WorldQuestTable[] =
+        static std::vector<ChatCommand> WorldQuestTable =
         {
-            { "add",                SEC_GAMEMASTER,         true,  &HandleWorldQuestAdd,                "", NULL },
-            { "clear",              SEC_GAMEMASTER,         true,  &HandleWorldQuestClear,              "", NULL },
-            { "invasionpoint",      SEC_GAMEMASTER,         true,  &HandleInvasionPointQuest,            "", NULL },
-            { "",                   SEC_GAMEMASTER,         true,  &HandleWorldQuest,                   "", NULL },
-            { NULL,                 0,                      false, NULL,                                "", NULL }
+            { "add",                SEC_GAMEMASTER,         true,  &HandleWorldQuestAdd,                ""},
+            { "clear",              SEC_GAMEMASTER,         true,  &HandleWorldQuestClear,              ""},
+            { "invasionpoint",      SEC_GAMEMASTER,         true,  &HandleInvasionPointQuest,            ""},
+            { "",                   SEC_GAMEMASTER,         true,  &HandleWorldQuest,                   ""}
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "dev",                SEC_ADMINISTRATOR,      false, &HandleDevCommand,                   "", NULL },
-            { "gps",                SEC_ADMINISTRATOR,      false, &HandleGPSCommand,                   "", NULL },
+            { "dev",                SEC_ADMINISTRATOR,      false, &HandleDevCommand,                   ""},
+            { "gps",                SEC_ADMINISTRATOR,      false, &HandleGPSCommand,                   ""},
             { "aura",               SEC_ADMINISTRATOR,      false, NULL,                                "", auraCommandTable },
-            { "unaura",             SEC_ADMINISTRATOR,      false, &HandleUnAuraCommand,                "", NULL },
-            { "appear",             SEC_MODERATOR,          false, &HandleAppearCommand,                "", NULL },
-            { "summon",             SEC_MODERATOR,          false, &HandleSummonCommand,                "", NULL },
-            { "groupsummon",        SEC_MODERATOR,          false, &HandleGroupSummonCommand,           "", NULL },
-            { "commands",           SEC_PLAYER,             true,  &HandleCommandsCommand,              "", NULL },
-            { "die",                SEC_ADMINISTRATOR,      false, &HandleDieCommand,                   "", NULL },
-            { "revive",             SEC_ADMINISTRATOR,      true,  &HandleReviveCommand,                "", NULL },
-            { "dismount",           SEC_PLAYER,             false, &HandleDismountCommand,              "", NULL },
-            { "guid",               SEC_GAMEMASTER,         false, &HandleGUIDCommand,                  "", NULL },
-            { "help",               SEC_PLAYER,             true,  &HandleHelpCommand,                  "", NULL },
-            { "itemmove",           SEC_GAMEMASTER,         false, &HandleItemMoveCommand,              "", NULL },
-            { "cooldown",           SEC_ADMINISTRATOR,      false, &HandleCooldownCommand,              "", NULL },
-            { "distance",           SEC_ADMINISTRATOR,      false, &HandleGetDistanceCommand,           "", NULL },
-            { "recall",             SEC_MODERATOR,          false, &HandleRecallCommand,                "", NULL },
-            { "save",               SEC_PLAYER,             false, &HandleSaveCommand,                  "", NULL },
-            { "saveall",            SEC_MODERATOR,          true,  &HandleSaveAllCommand,               "", NULL },
-            { "kick",               SEC_GAMEMASTER,         true,  &HandleKickPlayerCommand,            "", NULL },
-            { "start",              SEC_PLAYER,             false, &HandleStartCommand,                 "", NULL },
-            { "linkgrave",          SEC_ADMINISTRATOR,      false, &HandleLinkGraveCommand,             "", NULL },
-            { "neargrave",          SEC_ADMINISTRATOR,      false, &HandleNearGraveCommand,             "", NULL },
-            { "showarea",           SEC_ADMINISTRATOR,      false, &HandleShowAreaCommand,              "", NULL },
-            { "hidearea",           SEC_ADMINISTRATOR,      false, &HandleHideAreaCommand,              "", NULL },
-            { "additem",            SEC_ADMINISTRATOR,      false, &HandleAddItemCommand,               "", NULL },
-            { "additemmod",         SEC_ADMINISTRATOR,      false, &HandleAddItemModCommand,            "", NULL },
-            { "additemset",         SEC_ADMINISTRATOR,      false, &HandleAddItemSetCommand,            "", NULL },
-            { "bank",               SEC_ADMINISTRATOR,      false, &HandleBankCommand,                  "", NULL },
-            { "wchange",            SEC_ADMINISTRATOR,      false, &HandleChangeWeather,                "", NULL },
-            { "setskill",           SEC_ADMINISTRATOR,      false, &HandleSetSkillCommand,              "", NULL },
-            { "pinfo",              SEC_GAMEMASTER,         true,  &HandlePInfoCommand,                 "", NULL },
-            { "phaseinfo",          SEC_GAMEMASTER,         true,  &HandlePhaseInfoCommand,             "", NULL },
-            { "respawn",            SEC_ADMINISTRATOR,      false, &HandleRespawnCommand,               "", NULL },
+            { "unaura",             SEC_ADMINISTRATOR,      false, &HandleUnAuraCommand,                ""},
+            { "appear",             SEC_MODERATOR,          false, &HandleAppearCommand,                ""},
+            { "summon",             SEC_MODERATOR,          false, &HandleSummonCommand,                ""},
+            { "groupsummon",        SEC_MODERATOR,          false, &HandleGroupSummonCommand,           ""},
+            { "commands",           SEC_PLAYER,             true,  &HandleCommandsCommand,              ""},
+            { "die",                SEC_ADMINISTRATOR,      false, &HandleDieCommand,                   ""},
+            { "revive",             SEC_ADMINISTRATOR,      true,  &HandleReviveCommand,                ""},
+            { "dismount",           SEC_PLAYER,             false, &HandleDismountCommand,              ""},
+            { "guid",               SEC_GAMEMASTER,         false, &HandleGUIDCommand,                  ""},
+            { "help",               SEC_PLAYER,             true,  &HandleHelpCommand,                  ""},
+            { "itemmove",           SEC_GAMEMASTER,         false, &HandleItemMoveCommand,              ""},
+            { "cooldown",           SEC_ADMINISTRATOR,      false, &HandleCooldownCommand,              ""},
+            { "distance",           SEC_ADMINISTRATOR,      false, &HandleGetDistanceCommand,           ""},
+            { "recall",             SEC_MODERATOR,          false, &HandleRecallCommand,                ""},
+            { "save",               SEC_PLAYER,             false, &HandleSaveCommand,                  ""},
+            { "saveall",            SEC_MODERATOR,          true,  &HandleSaveAllCommand,               ""},
+            { "kick",               SEC_GAMEMASTER,         true,  &HandleKickPlayerCommand,            ""},
+            { "start",              SEC_PLAYER,             false, &HandleStartCommand,                 ""},
+            { "linkgrave",          SEC_ADMINISTRATOR,      false, &HandleLinkGraveCommand,             ""},
+            { "neargrave",          SEC_ADMINISTRATOR,      false, &HandleNearGraveCommand,             ""},
+            { "showarea",           SEC_ADMINISTRATOR,      false, &HandleShowAreaCommand,              ""},
+            { "hidearea",           SEC_ADMINISTRATOR,      false, &HandleHideAreaCommand,              ""},
+            { "additem",            SEC_ADMINISTRATOR,      false, &HandleAddItemCommand,               ""},
+            { "additemmod",         SEC_ADMINISTRATOR,      false, &HandleAddItemModCommand,            ""},
+            { "additemset",         SEC_ADMINISTRATOR,      false, &HandleAddItemSetCommand,            ""},
+            { "bank",               SEC_ADMINISTRATOR,      false, &HandleBankCommand,                  ""},
+            { "wchange",            SEC_ADMINISTRATOR,      false, &HandleChangeWeather,                ""},
+            { "setskill",           SEC_ADMINISTRATOR,      false, &HandleSetSkillCommand,              ""},
+            { "pinfo",              SEC_GAMEMASTER,         true,  &HandlePInfoCommand,                 ""},
+            { "phaseinfo",          SEC_GAMEMASTER,         true,  &HandlePhaseInfoCommand,             ""},
+            { "respawn",            SEC_ADMINISTRATOR,      false, &HandleRespawnCommand,               ""},
             { "send",               SEC_MODERATOR,          true,  NULL,                                "", sendCommandTable },
             { "pet",                SEC_GAMEMASTER,         false, NULL,                                "", petCommandTable },
-            { "mute",               SEC_MODERATOR,          true,  &HandleMuteCommand,                  "", NULL },
-            { "unmute",             SEC_MODERATOR,          true,  &HandleUnmuteCommand,                "", NULL },
-            { "movegens",           SEC_ADMINISTRATOR,      false, &HandleMovegensCommand,              "", NULL },
-            { "cometome",           SEC_ADMINISTRATOR,      false, &HandleComeToMeCommand,              "", NULL },
-            { "damage",             SEC_ADMINISTRATOR,      false, &HandleDamageCommand,                "", NULL },
-            { "combatstop",         SEC_GAMEMASTER,         true,  &HandleCombatStopCommand,            "", NULL },
-            { "flusharenapoints",   SEC_ADMINISTRATOR,      false, &HandleFlushArenaPointsCommand,      "", NULL },
-            { "repairitems",        SEC_GAMEMASTER,         true,  &HandleRepairitemsCommand,           "", NULL },
-            { "freeze",             SEC_MODERATOR,          false, &HandleFreezeCommand,                "", NULL },
-            { "unfreeze",           SEC_MODERATOR,          false, &HandleUnFreezeCommand,              "", NULL },
-            { "listfreeze",         SEC_MODERATOR,          false, &HandleListFreezeCommand,            "", NULL },
+            { "mute",               SEC_MODERATOR,          true,  &HandleMuteCommand,                  ""},
+            { "unmute",             SEC_MODERATOR,          true,  &HandleUnmuteCommand,                ""},
+            { "movegens",           SEC_ADMINISTRATOR,      false, &HandleMovegensCommand,              ""},
+            { "cometome",           SEC_ADMINISTRATOR,      false, &HandleComeToMeCommand,              ""},
+            { "damage",             SEC_ADMINISTRATOR,      false, &HandleDamageCommand,                ""},
+            { "combatstop",         SEC_GAMEMASTER,         true,  &HandleCombatStopCommand,            ""},
+            { "flusharenapoints",   SEC_ADMINISTRATOR,      false, &HandleFlushArenaPointsCommand,      ""},
+            { "repairitems",        SEC_GAMEMASTER,         true,  &HandleRepairitemsCommand,           ""},
+            { "freeze",             SEC_MODERATOR,          false, &HandleFreezeCommand,                ""},
+            { "unfreeze",           SEC_MODERATOR,          false, &HandleUnFreezeCommand,              ""},
+            { "listfreeze",         SEC_MODERATOR,          false, &HandleListFreezeCommand,            ""},
             { "group",              SEC_ADMINISTRATOR,      false, NULL,                                "", groupCommandTable },
-            { "possess",            SEC_ADMINISTRATOR,      false, &HandlePossessCommand,                "", NULL },
-            { "unpossess",          SEC_ADMINISTRATOR,      false, &HandleUnPossessCommand,              "", NULL },
-            { "bindsight",          SEC_ADMINISTRATOR,      false, &HandleBindSightCommand,              "", NULL },
-            { "unbindsight",        SEC_ADMINISTRATOR,      false, &HandleUnbindSightCommand,            "", NULL },
-            { "playall",            SEC_GAMEMASTER,         false, &HandlePlayAllCommand,                "", NULL },
-            { "abortReason",        SEC_GAMEMASTER,         false, &HandleTransferAbortReasonCommand,    "", NULL },
-            { "selectfaction",      SEC_ADMINISTRATOR,      false, &HandleSelectFactionCommand,          "", NULL },
-            { "outItemTemplate",    SEC_ADMINISTRATOR,      false, &HandleOutItemTemplateCommand,        "", NULL },
+            { "possess",            SEC_ADMINISTRATOR,      false, &HandlePossessCommand,                ""},
+            { "unpossess",          SEC_ADMINISTRATOR,      false, &HandleUnPossessCommand,              ""},
+            { "bindsight",          SEC_ADMINISTRATOR,      false, &HandleBindSightCommand,              ""},
+            { "unbindsight",        SEC_ADMINISTRATOR,      false, &HandleUnbindSightCommand,            ""},
+            { "playall",            SEC_GAMEMASTER,         false, &HandlePlayAllCommand,                ""},
+            { "abortReason",        SEC_GAMEMASTER,         false, &HandleTransferAbortReasonCommand,    ""},
+            { "selectfaction",      SEC_ADMINISTRATOR,      false, &HandleSelectFactionCommand,          ""},
+            { "outItemTemplate",    SEC_ADMINISTRATOR,      false, &HandleOutItemTemplateCommand,        ""},
             { "wordfilter",         SEC_ADMINISTRATOR,      false, NULL,                                "", wordFilterCommandTable },
-            { "head",               SEC_ADMINISTRATOR,      true,  &HandleCharDisplayHeadCommand,       "", NULL },
-            { "shoulders",          SEC_ADMINISTRATOR,      true,  &HandleCharDisplayShouldersCommand,  "", NULL },
-            { "chest",              SEC_ADMINISTRATOR,      true,  &HandleCharDisplayChestCommand,      "", NULL },
-            { "waist",              SEC_ADMINISTRATOR,      true,  &HandleCharDisplayWaistCommand,      "", NULL },
-            { "legs",               SEC_ADMINISTRATOR,      true,  &HandleCharDisplayLegsCommand,       "", NULL },
-            { "feet",               SEC_ADMINISTRATOR,      true,  &HandleCharDisplayFeetCommand,       "", NULL },
-            { "wrists",             SEC_ADMINISTRATOR,      true,  &HandleCharDisplayWristsCommand,     "", NULL },
-            { "hands",              SEC_ADMINISTRATOR,      true,  &HandleCharDisplayHandsCommand,      "", NULL },
-            { "back",               SEC_ADMINISTRATOR,      true,  &HandleCharDisplayBackCommand,       "", NULL },
-            { "mainhand",           SEC_ADMINISTRATOR,      true,  &HandleCharDisplayMainhandCommand,   "", NULL },
-            { "offhand",            SEC_ADMINISTRATOR,      true,  &HandleCharDisplayOffhandCommand,    "", NULL },
-            { "ranged",             SEC_ADMINISTRATOR,      true,  &HandleCharDisplayRangedCommand,     "", NULL },
-            { "tabard",             SEC_ADMINISTRATOR,      true,  &HandleCharDisplayTabardCommand,     "", NULL },
-            { "shirt",              SEC_ADMINISTRATOR,      true,  &HandleCharDisplayShirtCommand,      "", NULL },
-            { "itemspec",           SEC_ADMINISTRATOR,      false, &HandleItemSpecCommand,              "", NULL },
-            { "setscenario",        SEC_ADMINISTRATOR,      false, &HandleSetScenarioCommand,           "", NULL },
-            { "conversation",       SEC_ADMINISTRATOR,      false, &HandleConversationCommand,          "", NULL },
+            { "head",               SEC_ADMINISTRATOR,      true,  &HandleCharDisplayHeadCommand,       ""},
+            { "shoulders",          SEC_ADMINISTRATOR,      true,  &HandleCharDisplayShouldersCommand,  ""},
+            { "chest",              SEC_ADMINISTRATOR,      true,  &HandleCharDisplayChestCommand,      ""},
+            { "waist",              SEC_ADMINISTRATOR,      true,  &HandleCharDisplayWaistCommand,      ""},
+            { "legs",               SEC_ADMINISTRATOR,      true,  &HandleCharDisplayLegsCommand,       ""},
+            { "feet",               SEC_ADMINISTRATOR,      true,  &HandleCharDisplayFeetCommand,       ""},
+            { "wrists",             SEC_ADMINISTRATOR,      true,  &HandleCharDisplayWristsCommand,     ""},
+            { "hands",              SEC_ADMINISTRATOR,      true,  &HandleCharDisplayHandsCommand,      ""},
+            { "back",               SEC_ADMINISTRATOR,      true,  &HandleCharDisplayBackCommand,       ""},
+            { "mainhand",           SEC_ADMINISTRATOR,      true,  &HandleCharDisplayMainhandCommand,   ""},
+            { "offhand",            SEC_ADMINISTRATOR,      true,  &HandleCharDisplayOffhandCommand,    ""},
+            { "ranged",             SEC_ADMINISTRATOR,      true,  &HandleCharDisplayRangedCommand,     ""},
+            { "tabard",             SEC_ADMINISTRATOR,      true,  &HandleCharDisplayTabardCommand,     ""},
+            { "shirt",              SEC_ADMINISTRATOR,      true,  &HandleCharDisplayShirtCommand,      ""},
+            { "itemspec",           SEC_ADMINISTRATOR,      false, &HandleItemSpecCommand,              ""},
+            { "setscenario",        SEC_ADMINISTRATOR,      false, &HandleSetScenarioCommand,           ""},
+            { "conversation",       SEC_ADMINISTRATOR,      false, &HandleConversationCommand,          ""},
             { "areatrigger",        SEC_ADMINISTRATOR,      false, NULL,                                "", areatriggerCommandTable },
-            { "adddupe",            SEC_ADMINISTRATOR,      false, &HandleAddDupeCommand,               "", NULL },
+            { "adddupe",            SEC_ADMINISTRATOR,      false, &HandleAddDupeCommand,               ""},
             { "bg",                 SEC_ADMINISTRATOR,      false, NULL,                                "", HandleBGTable },
-            { "pvpReward",          SEC_ADMINISTRATOR,      false, &HandlePvpRewardCommand,             "", NULL },
-            { "addmythickey",       SEC_GAMEMASTER,         false, &HandleAddMythicKeyCommand,          "", NULL },
+            { "pvpReward",          SEC_ADMINISTRATOR,      false, &HandlePvpRewardCommand,             ""},
+            { "addmythickey",       SEC_GAMEMASTER,         false, &HandleAddMythicKeyCommand,          ""},
             { "worldquest",         SEC_GAMEMASTER,         false, NULL,                                "", WorldQuestTable },
-            { "deltransmogbyitem",  SEC_GAMEMASTER,         false, &HandleDelTransmog,                  "", NULL },
-            { "sendscene",          SEC_GAMEMASTER,         false, &HandleSendSpellScene,               "", NULL },
-            { NULL,                 0,                      false, NULL,                                "", NULL }
+            { "deltransmogbyitem",  SEC_GAMEMASTER,         false, &HandleDelTransmog,                  ""},
+            { "sendscene",          SEC_GAMEMASTER,         false, &HandleSendSpellScene,               ""}
         };
         return commandTable;
     }

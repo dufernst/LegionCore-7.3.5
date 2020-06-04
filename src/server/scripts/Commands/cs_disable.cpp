@@ -34,40 +34,36 @@ class disable_commandscript : public CommandScript
 public:
     disable_commandscript() : CommandScript("disable_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand removeDisableCommandTable[] =
+        static std::vector<ChatCommand> removeDisableCommandTable =
         {
-            { "spell",                  SEC_ADMINISTRATOR,      true,   &HandleRemoveDisableSpellCommand,               "", NULL },
-            { "quest",                  SEC_ADMINISTRATOR,      true,   &HandleRemoveDisableQuestCommand,               "", NULL },
-            { "map",                    SEC_ADMINISTRATOR,      true,   &HandleRemoveDisableMapCommand,                 "", NULL },
-            { "battleground",           SEC_ADMINISTRATOR,      true,   &HandleRemoveDisableBattlegroundCommand,        "", NULL },
-            { "achievement_criteria",   SEC_ADMINISTRATOR,      true,   &HandleRemoveDisableAchievementCriteriaCommand, "", NULL },
-            { "outdoorpvp",             SEC_ADMINISTRATOR,      true,   &HandleRemoveDisableOutdoorPvPCommand,          "", NULL },
-            { "vmap",                   SEC_ADMINISTRATOR,      true,   &HandleRemoveDisableVmapCommand,                "", NULL },
-            { NULL,                     0,                      false,  NULL,                                           "", NULL }
+            { "spell",                  SEC_ADMINISTRATOR,      true,   &HandleRemoveDisableSpellCommand,               ""},
+            { "quest",                  SEC_ADMINISTRATOR,      true,   &HandleRemoveDisableQuestCommand,               ""},
+            { "map",                    SEC_ADMINISTRATOR,      true,   &HandleRemoveDisableMapCommand,                 ""},
+            { "battleground",           SEC_ADMINISTRATOR,      true,   &HandleRemoveDisableBattlegroundCommand,        ""},
+            { "achievement_criteria",   SEC_ADMINISTRATOR,      true,   &HandleRemoveDisableAchievementCriteriaCommand, ""},
+            { "outdoorpvp",             SEC_ADMINISTRATOR,      true,   &HandleRemoveDisableOutdoorPvPCommand,          ""},
+            { "vmap",                   SEC_ADMINISTRATOR,      true,   &HandleRemoveDisableVmapCommand,                ""}
         };
-        static ChatCommand addDisableCommandTable[] =
+        static std::vector<ChatCommand> addDisableCommandTable =
         {
-            { "spell",                  SEC_ADMINISTRATOR,      true,   &HandleAddDisableSpellCommand,                  "", NULL },
-            { "quest",                  SEC_ADMINISTRATOR,      true,   &HandleAddDisableQuestCommand,                  "", NULL },
-            { "map",                    SEC_ADMINISTRATOR,      true,   &HandleAddDisableMapCommand,                    "", NULL },
-            { "battleground",           SEC_ADMINISTRATOR,      true,   &HandleAddDisableBattlegroundCommand,           "", NULL },
-            { "achievement_criteria",   SEC_ADMINISTRATOR,      true,   &HandleAddDisableAchievementCriteriaCommand,    "", NULL },
-            { "outdoorpvp",             SEC_ADMINISTRATOR,      true,   &HandleAddDisableOutdoorPvPCommand,             "", NULL },
-            { "vmap",                   SEC_ADMINISTRATOR,      true,   &HandleAddDisableVmapCommand,                   "", NULL },
-            { NULL,                     0,                      false,  NULL,                                           "", NULL }
+            { "spell",                  SEC_ADMINISTRATOR,      true,   &HandleAddDisableSpellCommand,                  ""},
+            { "quest",                  SEC_ADMINISTRATOR,      true,   &HandleAddDisableQuestCommand,                  ""},
+            { "map",                    SEC_ADMINISTRATOR,      true,   &HandleAddDisableMapCommand,                    ""},
+            { "battleground",           SEC_ADMINISTRATOR,      true,   &HandleAddDisableBattlegroundCommand,           ""},
+            { "achievement_criteria",   SEC_ADMINISTRATOR,      true,   &HandleAddDisableAchievementCriteriaCommand,    ""},
+            { "outdoorpvp",             SEC_ADMINISTRATOR,      true,   &HandleAddDisableOutdoorPvPCommand,             ""},
+            { "vmap",                   SEC_ADMINISTRATOR,      true,   &HandleAddDisableVmapCommand,                   ""}
         };
-        static ChatCommand disableCommandTable[] =
+        static std::vector<ChatCommand> disableCommandTable =
         {
             { "add",                    SEC_ADMINISTRATOR,      true,   NULL,                                           "", addDisableCommandTable },
-            { "remove",                 SEC_ADMINISTRATOR,      true,   NULL,                                           "", removeDisableCommandTable },
-            { NULL,                     0,                      false,  NULL,                                           "", NULL }
+            { "remove",                 SEC_ADMINISTRATOR,      true,   NULL,                                           "", removeDisableCommandTable }
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "disable",                SEC_ADMINISTRATOR,     false,   NULL,                                           "", disableCommandTable },
-            { NULL,                     0,                     false,   NULL,                                           "", NULL }
+            { "disable",                SEC_ADMINISTRATOR,     false,   NULL,                                           "", disableCommandTable }
         };
         return commandTable;
     }

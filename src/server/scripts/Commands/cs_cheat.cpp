@@ -30,28 +30,26 @@ class cheat_commandscript : public CommandScript
     public:
         cheat_commandscript() : CommandScript("cheat_commandscript") { }
 
-        ChatCommand* GetCommands() const override
+        std::vector<ChatCommand> GetCommands() const override
         {
 
-            static ChatCommand cheatCommandTable[] =
+            static std::vector<ChatCommand> cheatCommandTable =
             {
-                { "god",        SEC_GAMEMASTER, false, &HandleGodModeCheatCommand,      "", NULL },
-                { "casttime",   SEC_GAMEMASTER, false, &HandleCasttimeCheatCommand,     "", NULL },
-                { "cooldown",   SEC_GAMEMASTER, false, &HandleCoolDownCheatCommand,     "", NULL },
-                { "power",      SEC_GAMEMASTER, false, &HandlePowerCheatCommand,        "", NULL },
-                { "waterwalk",  SEC_GAMEMASTER, false, &HandleWaterWalkCheatCommand,    "", NULL },
-                { "status",     SEC_GAMEMASTER, false, &HandleCheatStatusCommand,       "", NULL },
-                { "taxi",       SEC_GAMEMASTER, false, &HandleTaxiCheatCommand,         "", NULL },
-                { "explore",    SEC_GAMEMASTER, false, &HandleExploreCheatCommand,      "", NULL },
-                { "all",        SEC_GAMEMASTER, false, &HandleAllSpellCheatCommand,     "", NULL },
-                { NULL,         0,              false, NULL,                            "", NULL }
+                { "god",        SEC_GAMEMASTER, false, &HandleGodModeCheatCommand,      ""},
+                { "casttime",   SEC_GAMEMASTER, false, &HandleCasttimeCheatCommand,     ""},
+                { "cooldown",   SEC_GAMEMASTER, false, &HandleCoolDownCheatCommand,     ""},
+                { "power",      SEC_GAMEMASTER, false, &HandlePowerCheatCommand,        ""},
+                { "waterwalk",  SEC_GAMEMASTER, false, &HandleWaterWalkCheatCommand,    ""},
+                { "status",     SEC_GAMEMASTER, false, &HandleCheatStatusCommand,       ""},
+                { "taxi",       SEC_GAMEMASTER, false, &HandleTaxiCheatCommand,         ""},
+                { "explore",    SEC_GAMEMASTER, false, &HandleExploreCheatCommand,      ""},
+                { "all",        SEC_GAMEMASTER, false, &HandleAllSpellCheatCommand,     ""}
 
             };
 
-            static ChatCommand commandTable[] =
+            static std::vector<ChatCommand> commandTable =
             {
-                { "cheat", SEC_GAMEMASTER, false, NULL, "", cheatCommandTable },
-                { NULL, 0, false, NULL, "", NULL }
+                { "cheat", SEC_GAMEMASTER, false, NULL, "", cheatCommandTable }
             };
             return commandTable;
         }

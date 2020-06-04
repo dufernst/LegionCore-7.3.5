@@ -32,21 +32,19 @@ class quest_commandscript : public CommandScript
 public:
     quest_commandscript() : CommandScript("quest_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand questCommandTable[] =
+        static std::vector<ChatCommand> questCommandTable =
         {
-            { "add",            SEC_ADMINISTRATOR,  false, &HandleQuestAdd,                    "", NULL },
-            { "complete",       SEC_ADMINISTRATOR,  false, &HandleQuestComplete,               "", NULL },
-            { "remove",         SEC_ADMINISTRATOR,  false, &HandleQuestRemove,                 "", NULL },
-            { "reward",         SEC_ADMINISTRATOR,  false, &HandleQuestReward,                 "", NULL },
-            { "status",         SEC_PLAYER,         false, &HandleQuestStatus,                 "", NULL },
-            { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
+            { "add",            SEC_ADMINISTRATOR,  false, &HandleQuestAdd,                    ""},
+            { "complete",       SEC_ADMINISTRATOR,  false, &HandleQuestComplete,               ""},
+            { "remove",         SEC_ADMINISTRATOR,  false, &HandleQuestRemove,                 ""},
+            { "reward",         SEC_ADMINISTRATOR,  false, &HandleQuestReward,                 ""},
+            { "status",         SEC_PLAYER,         false, &HandleQuestStatus,                 ""}
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "quest",          SEC_ADMINISTRATOR,  false, NULL,                  "", questCommandTable },
-            { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
+            { "quest",          SEC_ADMINISTRATOR,  false, NULL,                  "", questCommandTable }
         };
         return commandTable;
     }

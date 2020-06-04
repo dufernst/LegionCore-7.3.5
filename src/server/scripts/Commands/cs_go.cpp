@@ -34,28 +34,26 @@ class go_commandscript : public CommandScript
 public:
     go_commandscript() : CommandScript("go_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand goCommandTable[] =
+        static std::vector<ChatCommand> goCommandTable =
         {
-            { "creature",       SEC_MODERATOR,      false, &HandleGoCreatureCommand,          "", NULL },
-            { "graveyard",      SEC_MODERATOR,      false, &HandleGoGraveyardCommand,         "", NULL },
-            { "grid",           SEC_MODERATOR,      false, &HandleGoGridCommand,              "", NULL },
-            { "object",         SEC_MODERATOR,      false, &HandleGoObjectCommand,            "", NULL },
-            { "taxinode",       SEC_MODERATOR,      false, &HandleGoTaxinodeCommand,          "", NULL },
-            { "trigger",        SEC_MODERATOR,      false, &HandleGoTriggerCommand,           "", NULL },
-            { "zonexy",         SEC_MODERATOR,      false, &HandleGoZoneXYCommand,            "", NULL },
-            { "xyz",            SEC_MODERATOR,      false, &HandleGoXYZCommand,               "", NULL },
-            { "ticket",         SEC_MODERATOR,      false, &HandleGoTicketCommand,            "", NULL },
-            { "z",              SEC_MODERATOR,      false, &HandleGoZCommand,                 "", NULL },
-            { "",               SEC_MODERATOR,      false, &HandleGoXYZCommand,               "", NULL },
-            { NULL,             0,                  false, NULL,                              "", NULL }
+            { "creature",       SEC_MODERATOR,      false, &HandleGoCreatureCommand,          ""},
+            { "graveyard",      SEC_MODERATOR,      false, &HandleGoGraveyardCommand,         ""},
+            { "grid",           SEC_MODERATOR,      false, &HandleGoGridCommand,              ""},
+            { "object",         SEC_MODERATOR,      false, &HandleGoObjectCommand,            ""},
+            { "taxinode",       SEC_MODERATOR,      false, &HandleGoTaxinodeCommand,          ""},
+            { "trigger",        SEC_MODERATOR,      false, &HandleGoTriggerCommand,           ""},
+            { "zonexy",         SEC_MODERATOR,      false, &HandleGoZoneXYCommand,            ""},
+            { "xyz",            SEC_MODERATOR,      false, &HandleGoXYZCommand,               ""},
+            { "ticket",         SEC_MODERATOR,      false, &HandleGoTicketCommand,            ""},
+            { "z",              SEC_MODERATOR,      false, &HandleGoZCommand,                 ""},
+            { "",               SEC_MODERATOR,      false, &HandleGoXYZCommand,               ""}
         };
 
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "go",             SEC_MODERATOR,      false, NULL,                     "", goCommandTable },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "go",             SEC_MODERATOR,      false, NULL,                     "", goCommandTable }
         };
         return commandTable;
     }

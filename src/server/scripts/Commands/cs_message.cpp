@@ -32,29 +32,26 @@ class message_commandscript : public CommandScript
 public:
     message_commandscript() : CommandScript("message_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand channelSetCommandTable[] =
+        static std::vector<ChatCommand> channelSetCommandTable =
         {
-            { "ownership",      SEC_ADMINISTRATOR,  false,  &HandleChannelSetOwnership,         "", NULL },
-            { NULL,             0,                  false,  NULL,                               "", NULL }
+            { "ownership",      SEC_ADMINISTRATOR,  false,  &HandleChannelSetOwnership,         ""}
         };
-        static ChatCommand channelCommandTable[] =
+        static std::vector<ChatCommand> channelCommandTable =
         {
-            { "set",            SEC_ADMINISTRATOR,  true,   NULL,                               "", channelSetCommandTable },
-            { NULL,             0,                  false,  NULL,                               "", NULL }
+            { "set",            SEC_ADMINISTRATOR,  true,   NULL,                               "", channelSetCommandTable }
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "channel",        SEC_ADMINISTRATOR,  true,   NULL,                               "", channelCommandTable  },
-            { "nameannounce",   SEC_MODERATOR,      true,   &HandleNameAnnounceCommand,         "", NULL },
-            { "gmnameannounce", SEC_MODERATOR,      true,   &HandleGMNameAnnounceCommand,       "", NULL },
-            { "announce",       SEC_MODERATOR,      true,   &HandleAnnounceCommand,             "", NULL },
-            { "gmannounce",     SEC_MODERATOR,      true,   &HandleGMAnnounceCommand,           "", NULL },
-            { "notify",         SEC_MODERATOR,      true,   &HandleNotifyCommand,               "", NULL },
-            { "gmnotify",       SEC_MODERATOR,      true,   &HandleGMNotifyCommand,             "", NULL },
-            { "whispers",       SEC_MODERATOR,      false,  &HandleWhispersCommand,             "", NULL },
-            { NULL,             0,                  false,  NULL,                               "", NULL }
+            { "nameannounce",   SEC_MODERATOR,      true,   &HandleNameAnnounceCommand,         ""},
+            { "gmnameannounce", SEC_MODERATOR,      true,   &HandleGMNameAnnounceCommand,       ""},
+            { "announce",       SEC_MODERATOR,      true,   &HandleAnnounceCommand,             ""},
+            { "gmannounce",     SEC_MODERATOR,      true,   &HandleGMAnnounceCommand,           ""},
+            { "notify",         SEC_MODERATOR,      true,   &HandleNotifyCommand,               ""},
+            { "gmnotify",       SEC_MODERATOR,      true,   &HandleGMNotifyCommand,             ""},
+            { "whispers",       SEC_MODERATOR,      false,  &HandleWhispersCommand,             ""}
         };
         return commandTable;
     }

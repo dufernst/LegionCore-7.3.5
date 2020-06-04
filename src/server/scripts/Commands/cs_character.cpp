@@ -37,44 +37,40 @@ class character_commandscript : public CommandScript
 public:
     character_commandscript() : CommandScript("character_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand pdumpCommandTable[] =
+        static std::vector<ChatCommand> pdumpCommandTable =
         {
-            { "load",           SEC_ADMINISTRATOR,  true,  &HandlePDumpLoadCommand,                 "", NULL },
-            { "write",          SEC_ADMINISTRATOR,  true,  &HandlePDumpWriteCommand,                "", NULL },
-            { NULL,             0,                  false, NULL,                                    "", NULL }
+            { "load",           SEC_ADMINISTRATOR,  true,  &HandlePDumpLoadCommand,                 ""},
+            { "write",          SEC_ADMINISTRATOR,  true,  &HandlePDumpWriteCommand,                ""}
         };
-        static ChatCommand characterDeletedCommandTable[] =
+        static std::vector<ChatCommand> characterDeletedCommandTable =
         {
-            { "delete",         SEC_CONSOLE,        true,  &HandleCharacterDeletedDeleteCommand,   "", NULL },
-            { "list",           SEC_ADMINISTRATOR,  true,  &HandleCharacterDeletedListCommand,     "", NULL },
-            { "restore",        SEC_ADMINISTRATOR,  true,  &HandleCharacterDeletedRestoreCommand,  "", NULL },
-            { "old",            SEC_CONSOLE,        true,  &HandleCharacterDeletedOldCommand,      "", NULL },
-            { NULL,             0,                  false, NULL,                                   "", NULL }
+            { "delete",         SEC_CONSOLE,        true,  &HandleCharacterDeletedDeleteCommand,   ""},
+            { "list",           SEC_ADMINISTRATOR,  true,  &HandleCharacterDeletedListCommand,     ""},
+            { "restore",        SEC_ADMINISTRATOR,  true,  &HandleCharacterDeletedRestoreCommand,  ""},
+            { "old",            SEC_CONSOLE,        true,  &HandleCharacterDeletedOldCommand,      ""}
         };
 
-        static ChatCommand characterCommandTable[] =
+        static std::vector<ChatCommand> characterCommandTable =
         {
-            { "customize",      SEC_GAMEMASTER,     true,  &HandleCharacterCustomizeCommand,       "", NULL },
-            { "changefaction",  SEC_GAMEMASTER,     true,  &HandleCharacterChangeFactionCommand,   "", NULL },
-            { "changerace",     SEC_GAMEMASTER,     true,  &HandleCharacterChangeRaceCommand,      "", NULL },
+            { "customize",      SEC_GAMEMASTER,     true,  &HandleCharacterCustomizeCommand,       ""},
+            { "changefaction",  SEC_GAMEMASTER,     true,  &HandleCharacterChangeFactionCommand,   ""},
+            { "changerace",     SEC_GAMEMASTER,     true,  &HandleCharacterChangeRaceCommand,      ""},
             { "deleted",        SEC_GAMEMASTER,     true,  NULL,                                   "", characterDeletedCommandTable },
-            { "erase",          SEC_CONSOLE,        true,  &HandleCharacterEraseCommand,           "", NULL },
-            { "level",          SEC_ADMINISTRATOR,  true,  &HandleCharacterLevelCommand,           "", NULL },
-            { "rename",         SEC_GAMEMASTER,     true,  &HandleCharacterRenameCommand,          "", NULL },
-            { "reputation",     SEC_GAMEMASTER,     true,  &HandleCharacterReputationCommand,      "", NULL },
-            { "titles",         SEC_GAMEMASTER,     true,  &HandleCharacterTitlesCommand,          "", NULL },
-            { "getrename",      SEC_GAMEMASTER,     true,  &HandleCharacterGetrenameCommand,    "", NULL },
-            { NULL,             0,                  false, NULL,                                   "", NULL }
+            { "erase",          SEC_CONSOLE,        true,  &HandleCharacterEraseCommand,           ""},
+            { "level",          SEC_ADMINISTRATOR,  true,  &HandleCharacterLevelCommand,           ""},
+            { "rename",         SEC_GAMEMASTER,     true,  &HandleCharacterRenameCommand,          ""},
+            { "reputation",     SEC_GAMEMASTER,     true,  &HandleCharacterReputationCommand,      ""},
+            { "titles",         SEC_GAMEMASTER,     true,  &HandleCharacterTitlesCommand,          ""},
+            { "getrename",      SEC_GAMEMASTER,     true,  &HandleCharacterGetrenameCommand,    ""}
         };
 
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "character",      SEC_GAMEMASTER,     true,  NULL,                                   "", characterCommandTable },
-            { "levelup",        SEC_ADMINISTRATOR,  false, &HandleLevelUpCommand,                  "", NULL },
-            { "pdump",          SEC_ADMINISTRATOR,  true,  NULL,                                   "", pdumpCommandTable },
-            { NULL,             0,                  false, NULL,                                   "", NULL }
+            { "levelup",        SEC_ADMINISTRATOR,  false, &HandleLevelUpCommand,                  ""},
+            { "pdump",          SEC_ADMINISTRATOR,  true,  NULL,                                   "", pdumpCommandTable }
         };
         return commandTable;
     }

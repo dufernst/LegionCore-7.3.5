@@ -31,25 +31,23 @@ class cast_commandscript : public CommandScript
 public:
     cast_commandscript() : CommandScript("cast_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand castCommandTable[] =
+        static std::vector<ChatCommand> castCommandTable =
         {
-            { "back",           SEC_ADMINISTRATOR,  false, &HandleCastBackCommand,              "", NULL },
-            { "dist",           SEC_ADMINISTRATOR,  false, &HandleCastDistCommand,              "", NULL },
-            { "self",           SEC_ADMINISTRATOR,  false, &HandleCastSelfCommand,              "", NULL },
-            { "target",         SEC_ADMINISTRATOR,  false, &HandleCastTargetCommad,             "", NULL },
-            { "dest",           SEC_ADMINISTRATOR,  false, &HandleCastDestCommand,              "", NULL },
-            { "custom",         SEC_ADMINISTRATOR,  false, &HandleCastCustomCommand,            "", NULL },
-            { "visual",         SEC_ADMINISTRATOR,  false, &HandleCastVisualCommand,            "", NULL },
-            { "orphan",         SEC_ADMINISTRATOR,  false, &HandleCastOrphanVisualCommand,      "", NULL },
-            { "",               SEC_ADMINISTRATOR,  false, &HandleCastCommand,                  "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "back",           SEC_ADMINISTRATOR,  false, &HandleCastBackCommand,              ""},
+            { "dist",           SEC_ADMINISTRATOR,  false, &HandleCastDistCommand,              ""},
+            { "self",           SEC_ADMINISTRATOR,  false, &HandleCastSelfCommand,              ""},
+            { "target",         SEC_ADMINISTRATOR,  false, &HandleCastTargetCommad,             ""},
+            { "dest",           SEC_ADMINISTRATOR,  false, &HandleCastDestCommand,              ""},
+            { "custom",         SEC_ADMINISTRATOR,  false, &HandleCastCustomCommand,            ""},
+            { "visual",         SEC_ADMINISTRATOR,  false, &HandleCastVisualCommand,            ""},
+            { "orphan",         SEC_ADMINISTRATOR,  false, &HandleCastOrphanVisualCommand,      ""},
+            { "",               SEC_ADMINISTRATOR,  false, &HandleCastCommand,                  ""}
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "cast",           SEC_ADMINISTRATOR,  false, NULL,                                "", castCommandTable },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "cast",           SEC_ADMINISTRATOR,  false, NULL,                                "", castCommandTable }
         };
         return commandTable;
     }

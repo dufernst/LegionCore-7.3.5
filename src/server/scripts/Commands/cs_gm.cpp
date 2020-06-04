@@ -34,22 +34,20 @@ class gm_commandscript : public CommandScript
 public:
     gm_commandscript() : CommandScript("gm_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand gmCommandTable[] =
+        static std::vector<ChatCommand> gmCommandTable =
         {
-            { "chat",           SEC_MODERATOR,      false, &HandleGMChatCommand,              "", NULL },
-            { "fly",            SEC_ADMINISTRATOR,  false, &HandleGMFlyCommand,               "", NULL },
-            { "ingame",         SEC_PLAYER,         true,  &HandleGMListIngameCommand,        "", NULL },
-            { "list",           SEC_ADMINISTRATOR,  true,  &HandleGMListFullCommand,          "", NULL },
-            { "visible",        SEC_MODERATOR,      false, &HandleGMVisibleCommand,           "", NULL },
-            { "",               SEC_MODERATOR,      false, &HandleGMCommand,                  "", NULL },
-            { NULL,             0,                  false, NULL,                              "", NULL }
+            { "chat",           SEC_MODERATOR,      false, &HandleGMChatCommand,              ""},
+            { "fly",            SEC_ADMINISTRATOR,  false, &HandleGMFlyCommand,               ""},
+            { "ingame",         SEC_PLAYER,         true,  &HandleGMListIngameCommand,        ""},
+            { "list",           SEC_ADMINISTRATOR,  true,  &HandleGMListFullCommand,          ""},
+            { "visible",        SEC_MODERATOR,      false, &HandleGMVisibleCommand,           ""},
+            { "",               SEC_MODERATOR,      false, &HandleGMCommand,                  ""}
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "gm",             SEC_MODERATOR,      false, NULL,                     "", gmCommandTable },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "gm",             SEC_MODERATOR,      false, NULL,                     "", gmCommandTable }
         };
         return commandTable;
     }

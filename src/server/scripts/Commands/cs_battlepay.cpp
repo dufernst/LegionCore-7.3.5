@@ -8,18 +8,16 @@ class battlepay_commandscript : public CommandScript
 public:
     battlepay_commandscript() : CommandScript("battlepay_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand BattlepayCommandTable[] =
+        static std::vector<ChatCommand> BattlepayCommandTable =
         {
-            { "reload",                 SEC_ADMINISTRATOR,  false,  &HandleReloadBattlePay,         "", nullptr },
-            { nullptr,                  0,                  false,  nullptr,                        "", nullptr }
+            { "reload",                 SEC_ADMINISTRATOR,  false,  &HandleReloadBattlePay,         ""}
         };
 
-        static ChatCommand CommandTable[] =
+        static std::vector<ChatCommand> CommandTable =
         {
-             { "battlepay",             SEC_ADMINISTRATOR,  true,   nullptr,                        "", BattlepayCommandTable },
-             { nullptr,                 0,                  false,  nullptr,                        "", nullptr }
+             { "battlepay",             SEC_ADMINISTRATOR,  true,   nullptr,                        "", BattlepayCommandTable }
         };
 
         return CommandTable;

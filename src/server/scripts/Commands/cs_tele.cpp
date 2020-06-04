@@ -34,21 +34,19 @@ class tele_commandscript : public CommandScript
 public:
     tele_commandscript() : CommandScript("tele_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand teleCommandTable[] =
+        static std::vector<ChatCommand> teleCommandTable =
         {
-            { "add",            SEC_ADMINISTRATOR,  false, &HandleTeleAddCommand,             "", NULL },
-            { "del",            SEC_ADMINISTRATOR,  true,  &HandleTeleDelCommand,             "", NULL },
-            { "name",           SEC_MODERATOR,      true,  &HandleTeleNameCommand,            "", NULL },
-            { "group",          SEC_MODERATOR,      false, &HandleTeleGroupCommand,           "", NULL },
-            { "",               SEC_MODERATOR,      false, &HandleTeleCommand,                "", NULL },
-            { NULL,             0,                  false, NULL,                              "", NULL }
+            { "add",            SEC_ADMINISTRATOR,  false, &HandleTeleAddCommand,             ""},
+            { "del",            SEC_ADMINISTRATOR,  true,  &HandleTeleDelCommand,             ""},
+            { "name",           SEC_MODERATOR,      true,  &HandleTeleNameCommand,            ""},
+            { "group",          SEC_MODERATOR,      false, &HandleTeleGroupCommand,           ""},
+            { "",               SEC_MODERATOR,      false, &HandleTeleCommand,                ""}
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "tele",           SEC_MODERATOR,      false, NULL,                   "", teleCommandTable },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "tele",           SEC_MODERATOR,      false, NULL,                   "", teleCommandTable }
         };
         return commandTable;
     }

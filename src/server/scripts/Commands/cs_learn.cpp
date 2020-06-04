@@ -33,31 +33,28 @@ class learn_commandscript : public CommandScript
 public:
     learn_commandscript() : CommandScript("learn_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
 
-        static ChatCommand learnAllCommandTable[] =
+        static std::vector<ChatCommand> learnAllCommandTable =
         {
-            { "gm",             SEC_GAMEMASTER,     false, &HandleLearnAllGMCommand,            "", NULL },
-            { "crafts",         SEC_GAMEMASTER,     false, &HandleLearnAllCraftsCommand,        "", NULL },
-            { "default",        SEC_MODERATOR,      false, &HandleLearnAllDefaultCommand,       "", NULL },
-            { "lang",           SEC_MODERATOR,      false, &HandleLearnAllLangCommand,          "", NULL },
-            { "recipes",        SEC_GAMEMASTER,     false, &HandleLearnAllRecipesCommand,       "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "gm",             SEC_GAMEMASTER,     false, &HandleLearnAllGMCommand,            ""},
+            { "crafts",         SEC_GAMEMASTER,     false, &HandleLearnAllCraftsCommand,        ""},
+            { "default",        SEC_MODERATOR,      false, &HandleLearnAllDefaultCommand,       ""},
+            { "lang",           SEC_MODERATOR,      false, &HandleLearnAllLangCommand,          ""},
+            { "recipes",        SEC_GAMEMASTER,     false, &HandleLearnAllRecipesCommand,       ""}
         };
 
-        static ChatCommand learnCommandTable[] =
+        static std::vector<ChatCommand> learnCommandTable =
         {
             { "all",            SEC_ADMINISTRATOR,  false, NULL,                                "",  learnAllCommandTable },
-            { "",               SEC_ADMINISTRATOR,  false, &HandleLearnCommand,                 "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "",               SEC_ADMINISTRATOR,  false, &HandleLearnCommand,                 ""}
         };
 
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "learn",          SEC_MODERATOR,      false, NULL,                                "", learnCommandTable },
-            { "unlearn",        SEC_ADMINISTRATOR,  false, &HandleUnLearnCommand,               "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "unlearn",        SEC_ADMINISTRATOR,  false, &HandleUnLearnCommand,               ""}
         };
         return commandTable;
     }

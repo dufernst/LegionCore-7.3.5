@@ -32,21 +32,19 @@ class guild_commandscript : public CommandScript
 public:
     guild_commandscript() : CommandScript("guild_commandscript") { }
 
-    ChatCommand* GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand guildCommandTable[] =
+        static std::vector<ChatCommand> guildCommandTable =
         {
-            { "create",         SEC_GAMEMASTER,     true,  &HandleGuildCreateCommand,           "", NULL },
-            { "delete",         SEC_GAMEMASTER,     true,  &HandleGuildDeleteCommand,           "", NULL },
-            { "invite",         SEC_GAMEMASTER,     true,  &HandleGuildInviteCommand,           "", NULL },
-            { "uninvite",       SEC_GAMEMASTER,     true,  &HandleGuildUninviteCommand,         "", NULL },
-            { "rank",           SEC_GAMEMASTER,     true,  &HandleGuildRankCommand,             "", NULL },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "create",         SEC_GAMEMASTER,     true,  &HandleGuildCreateCommand,           ""},
+            { "delete",         SEC_GAMEMASTER,     true,  &HandleGuildDeleteCommand,           ""},
+            { "invite",         SEC_GAMEMASTER,     true,  &HandleGuildInviteCommand,           ""},
+            { "uninvite",       SEC_GAMEMASTER,     true,  &HandleGuildUninviteCommand,         ""},
+            { "rank",           SEC_GAMEMASTER,     true,  &HandleGuildRankCommand,             ""}
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "guild",          SEC_ADMINISTRATOR,  true, NULL,                                 "", guildCommandTable },
-            { NULL,             0,                  false, NULL,                                "", NULL }
+            { "guild",          SEC_ADMINISTRATOR,  true, NULL,                                 "", guildCommandTable }
         };
         return commandTable;
     }
