@@ -52,7 +52,7 @@ using namespace boost::program_options;
 # define _TRINITY_BNET_CONFIG  "bnetserver.conf"
 #endif
 
-#if PLATFORM == PLATFORM_WINDOWS
+#if PLATFORM == TC_PLATFORM_WINDOWS
 #include "ServiceWin32.h"
 char serviceName[] = "bnetserver";
 char serviceLongName[] = "LegionCore bnet service";
@@ -96,7 +96,7 @@ int main(int argc, char** argv)
 
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-#if PLATFORM == PLATFORM_WINDOWS
+#if PLATFORM == TC_PLATFORM_WINDOWS
     if (configService.compare("install") == 0)
         return WinServiceInstall() ? 0 : 1;
     if (configService.compare("uninstall") == 0)
@@ -152,7 +152,7 @@ int main(int argc, char** argv)
     }
 
     boost::asio::signal_set signals(_ioService, SIGINT, SIGTERM);
-#if PLATFORM == PLATFORM_WINDOWS
+#if PLATFORM == TC_PLATFORM_WINDOWS
     signals.add(SIGBREAK);
 #endif
     signals.async_wait(SignalHandler);
@@ -227,7 +227,7 @@ int main(int argc, char** argv)
 
     TC_LOG_INFO(LOG_FILTER_BATTLENET, "%s (bnetserver-daemon) ready...", GitRevision::GetFullVersion());
 
-#if PLATFORM == PLATFORM_WINDOWS
+#if PLATFORM == TC_PLATFORM_WINDOWS
     if (m_ServiceStatus != -1)
     {
         _serviceStatusWatchTimer = new boost::asio::deadline_timer(_ioService);
@@ -338,7 +338,7 @@ void BanExpiryHandler(boost::system::error_code const& error)
     }
 }
 
-#if PLATFORM == PLATFORM_WINDOWS
+#if PLATFORM == TC_PLATFORM_WINDOWS
 void ServiceStatusWatcher(boost::system::error_code const& error)
 {
     if (!error)
@@ -367,7 +367,7 @@ variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile
         ("version,v", "print version build info")
         ("config,c", value<std::string>(&configFile)->default_value(_TRINITY_BNET_CONFIG), "use <arg> as configuration file")
         ;
-#if PLATFORM == PLATFORM_WINDOWS
+#if PLATFORM == TC_PLATFORM_WINDOWS
     options_description win("Windows platform specific options");
     win.add_options()
         ("service,s", value<std::string>(&configService)->default_value(""), "Windows service options: [install | uninstall]")

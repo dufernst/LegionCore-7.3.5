@@ -39,3 +39,7 @@ add_subdirectory(rapidjson)
 add_subdirectory(cds)
 add_subdirectory(protobuf)
 
+if(TOOLS)
+  add_subdirectory(bzip2)
+  add_subdirectory(CascLib)
+endif()

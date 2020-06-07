@@ -50,7 +50,7 @@ char const* GitRevision::GetHotfixesDatabase()
 
 char const* GitRevision::GetFullVersion()
 {
-#if PLATFORM == PLATFORM_WINDOWS
+#if PLATFORM == TC_PLATFORM_WINDOWS
 # ifdef _WIN64
     return VER_PRODUCTVERSION_STR " (Win64, " _BUILD_DIRECTIVE ")";
 # else

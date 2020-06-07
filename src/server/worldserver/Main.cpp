@@ -180,7 +180,7 @@ extern int main(int argc, char **argv)
 
     // Set signal handlers (this must be done before starting io_service threads, because otherwise they would unblock and exit)
     boost::asio::signal_set signals(_ioService, SIGINT, SIGTERM);
-#if PLATFORM == PLATFORM_WINDOWS
+#if PLATFORM == TC_PLATFORM_WINDOWS
     signals.add(SIGBREAK);
 #endif
     signals.async_wait(SignalHandler);

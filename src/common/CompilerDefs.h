@@ -19,22 +19,22 @@
 #ifndef TRINITY_COMPILERDEFS_H
 #define TRINITY_COMPILERDEFS_H
 
-#define PLATFORM_WINDOWS 0
-#define PLATFORM_UNIX    1
-#define PLATFORM_APPLE   2
-#define PLATFORM_INTEL   3
+#define TC_PLATFORM_WINDOWS 0
+#define TC_PLATFORM_UNIX    1
+#define TC_PLATFORM_APPLE   2
+#define TC_PLATFORM_INTEL   3
 
 // must be first (win 64 also define _WIN32)
 #if defined( _WIN64 )
-#  define PLATFORM PLATFORM_WINDOWS
+#  define PLATFORM TC_PLATFORM_WINDOWS
 #elif defined( __WIN32__ ) || defined( WIN32 ) || defined( _WIN32 )
-#  define PLATFORM PLATFORM_WINDOWS
+#  define PLATFORM TC_PLATFORM_WINDOWS
 #elif defined( __APPLE_CC__ )
-#  define PLATFORM PLATFORM_APPLE
+#  define PLATFORM TC_PLATFORM_APPLE
 #elif defined( __INTEL_COMPILER )
-#  define PLATFORM PLATFORM_INTEL
+#  define PLATFORM TC_PLATFORM_INTEL
 #else
-#  define PLATFORM PLATFORM_UNIX
+#  define PLATFORM TC_PLATFORM_UNIX
 #endif
 
 #define COMPILER_MICROSOFT 0

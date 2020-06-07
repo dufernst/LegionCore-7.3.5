@@ -30,7 +30,7 @@
 #include <signal.h>
 #include <assert.h>
 
-#if PLATFORM == PLATFORM_WINDOWS
+#if PLATFORM == TC_PLATFORM_WINDOWS
 #define STRCASECMP stricmp
 #else
 #define STRCASECMP strcasecmp
@@ -53,7 +53,7 @@
 #include <boost/algorithm/clamp.hpp>
 #include "Debugging/Errors.h"
 
-#if PLATFORM == PLATFORM_WINDOWS
+#if PLATFORM == TC_PLATFORM_WINDOWS
 #  include <ws2tcpip.h>
 
 #  if defined(__INTEL_COMPILER)

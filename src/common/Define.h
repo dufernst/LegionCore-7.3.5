@@ -44,14 +44,14 @@
 #  endif
 #endif
 
-#if PLATFORM == PLATFORM_WINDOWS
+#if PLATFORM == TC_PLATFORM_WINDOWS
 #  ifndef DECLSPEC_NORETURN
 #    define DECLSPEC_NORETURN __declspec(noreturn)
 #  endif //DECLSPEC_NORETURN
 #  ifndef DECLSPEC_DEPRECATED
 #    define DECLSPEC_DEPRECATED __declspec(deprecated)
 #  endif //DECLSPEC_DEPRECATED
-#else //PLATFORM != PLATFORM_WINDOWS
+#else //PLATFORM != TC_PLATFORM_WINDOWS
 #  define DECLSPEC_NORETURN
 #  define DECLSPEC_DEPRECATED
 #endif //PLATFORM
