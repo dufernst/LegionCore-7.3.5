@@ -867,7 +867,7 @@ public:
             summons.DespawnAll();
         }
 
-        void MoveInLineOfSight(Unit* who) override  // пњљпњљпњљпњљпњљ пњљпњљ пњљпњљпњљпњљпњљпњљпњљпњљ пњљпњљпњљпњљпњљпњљ, пњљпњљпњљ пњљпњљпњљпњљпњљпњљпњљ.........
+        void MoveInLineOfSight(Unit* who) override
         {
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
@@ -1042,7 +1042,7 @@ public:
         {
             DoCast(224910);
             events.ScheduleEvent(EVENT_1, 7000); // 224907
-            events.ScheduleEvent(EVENT_2, 23000); // 224908 + пњљпњљпњљпњљ
+            events.ScheduleEvent(EVENT_2, 23000); // 224908
         }
 
         void MovementInform(uint32 moveType, uint32 pointId) override
@@ -2691,7 +2691,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (timer <= diff)  // пњљпњљпњљ пњљпњљпњљпњљ пњљпњљпњљпњљпњљ пњљпњљпњљпњљпњљпњљпњљпњљ пњљ 2, пњљ 3 пњљпњљпњљпњљ, пњљпњљпњљпњљпњљпњљпњљпњљ пњљпњљ пњљпњљпњљпњљпњљпњљ пњљ пњљпњљпњљпњљ пњљпњљ пњљпњљпњљпњљпњљпњљ
+            if (timer <= diff)
             {
                 m_player_for_event.clear();
                 timer = 60000;
@@ -2865,7 +2865,7 @@ public:
 
             if (me->GetEntry() == 100442)
             {
-                if (who->ToPlayer()->GetQuestStatus(40522) != QUEST_STATUS_NONE && who->ToPlayer()->GetQuestStatus(40522) == QUEST_STATUS_INCOMPLETE) // пњљпњљ пњљпњљпњљпњљпњљ пњљпњљпњљпњљпњљпњљпњљ
+                if (who->ToPlayer()->GetQuestStatus(40522) != QUEST_STATUS_NONE && who->ToPlayer()->GetQuestStatus(40522) == QUEST_STATUS_INCOMPLETE)
                 {
                     GuidSet::iterator itr = m_player_for_event.find(who->GetGUID());
                     if (itr != m_player_for_event.end())
@@ -2933,7 +2933,7 @@ public:
         {
             if (me->GetEntry() != 100442)
             {
-                if (timer <= diff)  // пњљпњљпњљ пњљпњљпњљпњљ пњљпњљпњљпњљпњљ пњљпњљпњљпњљпњљпњљпњљпњљ пњљ 2, пњљ 3 пњљпњљпњљпњљ, пњљпњљпњљпњљпњљпњљпњљпњљ пњљпњљ пњљпњљпњљпњљпњљпњљ пњљ пњљпњљпњљпњљ пњљпњљ пњљпњљпњљпњљпњљпњљ
+                if (timer <= diff)
                 {
                     m_player_for_event.clear();
                     timer = 60000;
@@ -3330,9 +3330,9 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (me->GetEntry() == 90709) // пњљпњљпњљпњљпњљпњљпњљпњљ
+            if (me->GetEntry() == 90709)
             {
-                if (me->GetPositionZ() >= 135.23f) // пњљпњљпњљпњљпњљ пњљ пњљпњљпњљпњљпњљпњљпњљпњљпњљ пњљпњљпњљпњљпњљпњљпњљпњљпњљ
+                if (me->GetPositionZ() >= 135.23f)
                 {
                     if (timerforevent <= diff)
                     {

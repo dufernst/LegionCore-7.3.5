@@ -25037,14 +25037,12 @@ void Player::SaveToDB(bool create /*=false*/)
 
 bool Player::HandleChangeSlotModel(uint32 newItem, uint16 pos)
 {
-    if (newItem == 0 && pos != EQUIPMENT_SLOT_RANGED)    // отключаем для слота отображение модельки вообще.
+    if (newItem == 0 && pos != EQUIPMENT_SLOT_RANGED)
     {
         SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + pos * 2, 0);
         return true;
     }
     if (newItem == 1)
-        // восстанавливаем значение по реальному итему даже с display on.
-        // впрочем, оно не будет обновляться при смене этого самого реального итема, пока display on. Не критично, но потом надо переделать.
     {
         Item const* realItem = GetItemByPos(255, pos);
         if (realItem)
@@ -25053,7 +25051,6 @@ bool Player::HandleChangeSlotModel(uint32 newItem, uint16 pos)
             SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + pos * 2, 0);
         return true;
     }
-        // не 0 и не 1 - следовательно, ид итема. Ищем, проверяем...
     //ItemEntry const* itemProto = sItemStore.LookupEntry(newItem);
     ItemSparseEntry const* itemProto = sItemSparseStore.LookupEntry(newItem);
 
@@ -25061,14 +25058,12 @@ bool Player::HandleChangeSlotModel(uint32 newItem, uint16 pos)
         return false;
 
     if (itemProto->OverallQualityID != ITEM_QUALITY_LEGENDARY)
-        // общая проверка для шмоток. По конкретным типам - дальше.
-        // спец. исключения типа corrupted ashbringer лучше, наверное, прописать сразу в командах
     {
         bool condition = false;
         switch (pos)
         {
             case EQUIPMENT_SLOT_HEAD:
-                // head - спасибо, Кэп!
+                // head
                 if (itemProto->InventoryType == INVTYPE_HEAD)
                     condition = true;
                 break;
@@ -25127,7 +25122,7 @@ bool Player::HandleChangeSlotModel(uint32 newItem, uint16 pos)
             default:
                 break;
         }
-        if (condition)    // все окей, меняем модельку
+        if (condition)
         {
             SetUInt32Value(PLAYER_FIELD_VISIBLE_ITEMS + pos * 2, newItem);
             return true;
@@ -25139,7 +25134,7 @@ bool Player::HandleChangeSlotModel(uint32 newItem, uint16 pos)
 
 void Player::HandleAltVisSwitch()
 {
-    if (!m_vis)    // display off, восстанавливаем значения для всех шмоток на персонаже.
+    if (!m_vis)    // display off
     {
         for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
         {
@@ -25152,8 +25147,6 @@ void Player::HandleAltVisSwitch()
     }
     else
     {
-        // сразу не подставляем сохраненные значения, проверим их на всякий случай
-        // впрочем, выглядит эта хренотень ужасно. Надо бы переписать...
         uint32 *currItem = &m_vis->m_visHead;
         for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
         {

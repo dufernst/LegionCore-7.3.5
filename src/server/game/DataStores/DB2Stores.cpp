@@ -2338,7 +2338,6 @@ void DB2Manager::LoadingExtraHotfixData()
                 entry->ModifierTreeID = 0;
             }, true);
         }
-        // Испытание: королева-богиня
         if (itr->ID == 50389 || itr->ID == 44158 ||
             itr->ID == 50405 || itr->ID == 44692 ||
             itr->ID == 50408 || itr->ID == 44177 ||
@@ -2351,7 +2350,6 @@ void DB2Manager::LoadingExtraHotfixData()
                 entry->ModifierTreeID = 0;
             }, true);
         }
-        // Испытание: близнецы
         if (itr->ID == 44166 || itr->ID == 50382 ||
             itr->ID == 44176 || itr->ID == 50387 ||
             itr->ID == 44680 || itr->ID == 50391 ||
@@ -2364,7 +2362,6 @@ void DB2Manager::LoadingExtraHotfixData()
                 entry->ModifierTreeID = 0;
             }, true);
         }
-        // Возвращение верховного лорда
         if (itr->ID == 44540 || itr->ID == 50377 ||
             itr->ID == 44678 || itr->ID == 50381 ||
             itr->ID == 44682 || itr->ID == 50384 ||
@@ -2378,7 +2375,6 @@ void DB2Manager::LoadingExtraHotfixData()
                 entry->ModifierTreeID = 0;
             }, true);
         }
-        // Угроза Черной Ладьи
         if (itr->ID == 44683 || itr->ID == 50385 ||
             itr->ID == 44686 || itr->ID == 50393 ||
             itr->ID == 44694 || itr->ID == 50395 ||
@@ -2391,7 +2387,6 @@ void DB2Manager::LoadingExtraHotfixData()
                 entry->ModifierTreeID = 0;
             }, true);
         }
-        // Испытание: мать бесов
         if (itr->ID == 44162 || itr->ID == 50379 ||
             itr->ID == 44542 || itr->ID == 50383 ||
             itr->ID == 44681 || itr->ID == 50390 ||
@@ -2405,7 +2400,6 @@ void DB2Manager::LoadingExtraHotfixData()
                 entry->ModifierTreeID = 0;
             }, true);
         }
-        // Угроза червей скверны
         if (itr->ID == 44178 || itr->ID == 50386 ||
             itr->ID == 44684 || itr->ID == 50394 ||
             itr->ID == 44687 || itr->ID == 50398 ||
@@ -2417,7 +2411,6 @@ void DB2Manager::LoadingExtraHotfixData()
                 entry->ModifierTreeID = 0;
             }, true);
         }
-        // Испытание: Ксилем
         if (itr->ID == 44541 || itr->ID == 50378 ||
             itr->ID == 44679 || itr->ID == 50380 ||
             itr->ID == 44690 || itr->ID == 50388 ||

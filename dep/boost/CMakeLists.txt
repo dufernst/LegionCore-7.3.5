@@ -1,5 +1,4 @@
 if(WIN32)
- set(ENV{BOOST_ROOT} "${PROJECT_SOURCE_DIR}/../Requirements/Win64/Boost_1.64_Win64")
  set(BOOST_DEBUG ON)
   if(DEFINED ENV{BOOST_ROOT})
     set(BOOST_ROOT $ENV{BOOST_ROOT})

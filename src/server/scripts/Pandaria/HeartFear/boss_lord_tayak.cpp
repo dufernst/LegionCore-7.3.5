@@ -32,11 +32,11 @@ enum eSpells
     SPELL_UNSEEN_STRIKE_DMG     = 122994,
     SPELL_UNSEEN_STRIKE_TARGET  = 123017,
     //Phase 2
-    SPELL_STORM_UNLEASHED_JUMP  = 123805, // Прыжок игрока в центр, затем суммон вехикла.
-    SPELL_STORM_UNLEASHED_VIS_1 = 123814, // Визуалка вихря босса - 62543
-    SPELL_STORM_UNLEASHED_VIS_2 = 124024, // Визуалка вихря вехикла - 63567
-    SPELL_STORM_UNLEASHED_DMG   = 124785, // Постоянный АОЕ урон по рейду
-    SPELL_STORM_UNLEASHED_AURA  = 123815, // Тригерим спелл и рандомим суммон моба
+    SPELL_STORM_UNLEASHED_JUMP  = 123805,
+    SPELL_STORM_UNLEASHED_VIS_1 = 123814, // 62543
+    SPELL_STORM_UNLEASHED_VIS_2 = 124024, // 63567
+    SPELL_STORM_UNLEASHED_DMG   = 124785,
+    SPELL_STORM_UNLEASHED_AURA  = 123815,
     SPELL_RIDE_VEHICLE          = 124026,
     SPELL_RIDE_VEHICLE_2        = 123598,
     //Heroic

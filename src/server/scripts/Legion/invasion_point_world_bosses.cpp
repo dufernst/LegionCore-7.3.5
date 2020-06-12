@@ -91,7 +91,7 @@ enum Phase
     PHASE_2
 };
 
-//Госпожа Аллюрадель
+//пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 struct boss_mistress_alluradel : public ScriptedAI
 {
     boss_mistress_alluradel(Creature* creature) : ScriptedAI(creature) {}
@@ -177,7 +177,7 @@ struct boss_mistress_alluradel : public ScriptedAI
     }
 };
 
-//Властитель преисподней Веролом
+//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 struct boss_pit_lor_vilemus : public ScriptedAI
 {
     boss_pit_lor_vilemus(Creature* creature) : ScriptedAI(creature) {}
@@ -240,7 +240,6 @@ struct boss_pit_lor_vilemus : public ScriptedAI
     }
 };
 
-//Окулярус
 struct boss_occularus : public ScriptedAI
 {
     boss_occularus(Creature* creature) : ScriptedAI(creature) {}
@@ -331,7 +330,7 @@ struct boss_occularus : public ScriptedAI
     }
 };
 
-//Инквизитор Мето
+//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 struct boss_inquisitor_meto : public ScriptedAI
 {
     boss_inquisitor_meto(Creature* creature) : ScriptedAI(creature) {}
@@ -419,7 +418,7 @@ struct boss_inquisitor_meto : public ScriptedAI
     }
 };
 
-//Сотанатор
+//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 struct boss_sotanathor : public ScriptedAI
 {
     boss_sotanathor(Creature* creature) : ScriptedAI(creature) {}
@@ -516,7 +515,7 @@ uint32 RANDOM_GROTESQUE_SPAWN[2] =
     SPELL_GROTESQUE_RED
 };
 
-//Госпожа Фолнуна
+//пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 struct boss_matron_folnuna : public ScriptedAI
 {
     boss_matron_folnuna(Creature* creature) : ScriptedAI(creature)

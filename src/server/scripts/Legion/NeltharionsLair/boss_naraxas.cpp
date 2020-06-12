@@ -14,7 +14,7 @@ enum Says
 
 enum Spells
 {
-    SPELL_INTRO_MYSTIC          = 209625, //Boss 03 Intro Mystic Cast - визуально прячется?
+    SPELL_INTRO_MYSTIC          = 209625, //Boss 03 Intro Mystic Cast
     SPELL_INTRO_EMERGE          = 209641, //Boss 03 Intro Emerge - hit npc 105766
     SPELL_GAIN_ENERGY           = 200086,
     SPELL_PUTRID_SKIES          = 198963,
@@ -112,7 +112,7 @@ struct boss_naraxas : public BossAI
         events.RescheduleEvent(EVENT_SUM_WORMSPEAKER, 7000);
 
         //Heroic
-        events.RescheduleEvent(EVENT_CALL_ANGRY_CROWD, 4000); //Не повторяется
+        events.RescheduleEvent(EVENT_CALL_ANGRY_CROWD, 4000);
     }
 
     void EnterEvadeMode()

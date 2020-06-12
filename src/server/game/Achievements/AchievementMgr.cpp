@@ -593,7 +593,7 @@ void AchievementMgr<T>::ResetAchievementCriteria(CriteriaTypes type, uint32 misc
     // TC_LOG_DEBUG(LOG_FILTER_ACHIEVEMENTSYS, "AchievementMgr::ResetAchievementCriteria(%u, %u, %u)", type, miscValue1, miscValue2);
 
     // disable for gamemasters with GM-mode enabled
-    if (GetOwner()->isGameMaster()/* || !GetOwner()->CanContact() */) //CanContact - все ломает
+    if (GetOwner()->isGameMaster()/* || !GetOwner()->CanContact() */) //CanContact
         return;
 
     CriteriaTreeList const& criteriaTreeList = sAchievementMgr->GetCriteriaTreeByType(type, GetCriteriaSort());

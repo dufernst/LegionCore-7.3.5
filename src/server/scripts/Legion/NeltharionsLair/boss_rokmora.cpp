@@ -170,7 +170,7 @@ struct boss_rokmora : public BossAI
                     DoCast(SPELL_CRYSTALLINE_GROUND);
                     break;
                 case EVENT_DEAD_CONVERSATION:
-                    //DoCast(199392); пока офф, крашит
+                    //DoCast(199392);
                     break;
             }
         }

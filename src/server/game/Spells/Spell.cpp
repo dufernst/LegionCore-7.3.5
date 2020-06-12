@@ -1564,7 +1564,7 @@ void Spell::SelectImplicitDestDestTargets(SpellEffIndex effIndex, SpellImplicitT
 
     Position pos = static_cast<Position>(*m_targets.GetDstPos());
 
-    if (canHitTargetInLOS && m_caster->IsCreature() && dist < 200.0f) //Возможно стоит добавить проверку на лос
+    if (canHitTargetInLOS && m_caster->IsCreature() && dist < 200.0f)
     {
         Position tempPos;
         pos.SimplePosXYRelocationByAngle(tempPos, dist, angle);

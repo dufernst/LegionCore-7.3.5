@@ -19,13 +19,13 @@ public:
         if (creature->isQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());     
         
-        player->ADD_GOSSIP_ITEM_DB(18778, 0, GOSSIP_SENDER_MAIN, 1);  // магазин
+        player->ADD_GOSSIP_ITEM_DB(18778, 0, GOSSIP_SENDER_MAIN, 1);
         if(sGameEventMgr->IsActiveEvent(81))
-            player->ADD_GOSSIP_ITEM_DB(18778, 1, GOSSIP_SENDER_MAIN, 2);  // Отзови стражу
+            player->ADD_GOSSIP_ITEM_DB(18778, 1, GOSSIP_SENDER_MAIN, 2);
         else if(sGameEventMgr->IsActiveEvent(80))
         {
-            player->ADD_GOSSIP_ITEM_DB(18778, 2, GOSSIP_SENDER_MAIN, 3);  // Зови стражу
-            player->ADD_GOSSIP_ITEM_DB(18778, 3, GOSSIP_SENDER_MAIN, 4);  // Найм
+            player->ADD_GOSSIP_ITEM_DB(18778, 2, GOSSIP_SENDER_MAIN, 3);
+            player->ADD_GOSSIP_ITEM_DB(18778, 3, GOSSIP_SENDER_MAIN, 4);
         }
         
         player->SEND_GOSSIP_MENU(27321, creature->GetGUID());
