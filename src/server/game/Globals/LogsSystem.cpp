@@ -4,7 +4,7 @@
 
 using namespace LogsSystem;
 
-std::string const& MainData::Serealize() const
+std::string const MainData::Serealize() const
 {
     EasyJSon::Node<std::string> data;
 
