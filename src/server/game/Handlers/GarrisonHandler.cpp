@@ -182,12 +182,21 @@ void WorldSession::HandleGarrisonOpenMissionNpc(WorldPackets::Garrison::Garrison
     {
     case GarrisonConst::FollowerType::Garrison:
     {
-        if (!_player->GetNPCIfCanInteractWith(packet.NpcGUID, UNIT_NPC_FLAG_NONE, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC))
+        if (!_player->GetNPCIfCanInteractWith(packet.NpcGUID, UNIT_NPC_FLAG_NONE, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC | UNIT_NPC_FLAG2_SHIPMENT_CRAFTER))
             return;
 
         WorldPackets::Garrison::GarrisonOpenMissionNpc response;
         response.GarrTypeID = GARRISON_TYPE_GARRISON;
-        response.PreventXmlOpenMissionEvent = true;
+        //response.PreventXmlOpenMissionEvent = true;
+
+        if (Garrison* garrison = _player->GetGarrison())
+        {
+            for (const std::pair<uint64, Mission>& mission : garrison->GetMissions(GARRISON_TYPE_GARRISON))
+            {
+                // TODO: going from uint64 to int32 (see GarrisonPackets.cpp), will this ever be a problem?
+                response.Missions.push_back(static_cast<int32>(mission.first));
+            }
+        }
         SendPacket(response.Write());
 
         if (auto garrison = _player->GetGarrison())

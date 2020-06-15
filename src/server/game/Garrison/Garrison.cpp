@@ -256,9 +256,7 @@ bool Garrison::LoadFromDB(PreparedQueryResult const& garrison, PreparedQueryResu
 
             plot->db_state_building = DB_STATE_UNCHANGED;
 
-            if (!plot->BuildingInfo.PacketInfo->Active)
-                plot->buildingActivationWaiting = true;
-            else
+            if (plot->BuildingInfo.PacketInfo->Active)
             {
                 // only garrison.
                 if (!_siteLevel[GARRISON_TYPE_GARRISON])
@@ -948,34 +946,6 @@ void Garrison::Update(uint32 diff)
 
     updateTimer.Reset();
 
-    //! could be null
-    Map* map = FindMap();
-    for (auto& p : _plots)
-    {
-        if (p.second.buildingActivationWaiting && map && p.second.BuildingInfo.CanActivate() && p.second.BuildingInfo.PacketInfo && !p.second.BuildingInfo.PacketInfo->Active)
-        {
-            p.second.buildingActivationWaiting = false;
-
-            if (FinalizeGarrisonPlotGOInfo const* finalizeInfo = sGarrisonMgr.GetPlotFinalizeGOInfo(p.second.PacketInfo.GarrPlotInstanceID))
-            {
-                Position const& pos2 = finalizeInfo->FactionInfo[GetFaction()].Pos;
-                GameObject* finalizer = sObjectMgr->IsStaticTransport(finalizeInfo->FactionInfo[GetFaction()].GameObjectId) ? new StaticTransport : new GameObject;
-                if (finalizer->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), finalizeInfo->FactionInfo[GetFaction()].GameObjectId, map, 1, pos2, G3D::Quat(), 255, GO_STATE_READY))
-                {
-                    // set some spell id to make the object delete itself after use
-                    finalizer->SetSpellId(finalizer->GetGOInfo()->goober.spell);
-                    finalizer->SetRespawnTime(0);
-
-                    finalizer->SetAnimKitId(1696);
-
-                    map->AddToMap(finalizer);
-                }
-                else
-                    delete finalizer;
-            }
-        }
-    }
-
     for (auto data : _shipments)
     {
         for (WorldPackets::Garrison::Shipment &ship_data : _shipments[data.first])
@@ -1199,7 +1169,6 @@ void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId, b
         placeBuildingResult.BuildingInfo.TimeBuilt = time(nullptr);
 
         Plot* plot = GetPlot(garrPlotInstanceId);
-        plot->buildingActivationWaiting = true;
 
         uint32 oldBuildingId = 0;
         Map* map = FindMap();
@@ -1330,6 +1299,9 @@ void Garrison::ActivateBuilding(uint32 garrPlotInstanceId)
             _owner->SendDirectMessage(buildingActivated.Write());
 
             _owner->UpdateAchievementCriteria(CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING, plot->BuildingInfo.PacketInfo->GarrBuildingID);
+
+            plot->db_state_building = DB_STATE_CHANGED;
+            SendInfo();
         }
     }
 }
@@ -2018,7 +1990,7 @@ void Garrison::SendGarrisonUpgradebleResult(Player* receiver, int32 garrTypeID) 
 Map* Garrison::FindMap() const
 {
     if (auto site = _siteLevel[GARRISON_TYPE_GARRISON])
-        return sMapMgr->FindMap(site->MapID, _owner->GetGUIDLow() | 1 << 0x1E);
+        return sMapMgr->FindMap(site->MapID, _owner->GetGUIDLow());
     return nullptr;
 }
 
@@ -2580,9 +2552,9 @@ The Garrison Cache next to your Town Hall accumulates  Garrison Resources (GR)
 at a rate of 1 GR every 10 minutes of real time (6 per hour),
 which works out to 144 GR every full day (6 x 24hrs = 144 GR).
 
-За 3-е суток и 10 часов будет достигнут лимит в 500 ресурсов.
+пїЅпїЅ 3-пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ 10 пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ 500 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
 
-При покупке и использовании  Торговое соглашение: араккоа-изгои (продается в Танаанских джунглях) лимит склада становится равным 1000 ресурсов. = 6 суток 20 часов.
+пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ  пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ) пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ 1000 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. = 6 пїЅпїЅпїЅпїЅпїЅ 20 пїЅпїЅпїЅпїЅпїЅ.
 */
 uint32 Garrison::GetResNumber() const
 {

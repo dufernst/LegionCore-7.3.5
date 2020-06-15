@@ -30814,7 +30814,7 @@ void Player::UpdateForQuestWorldObjects()
                     if (garr->GetCountOfBluePrints())
                         buildUpdateBlock = true;
             }
-            if (!buildUpdateBlock && obj->HasFlag(UNIT_FIELD_NPC_FLAGS2, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC))
+            if (!buildUpdateBlock && obj->HasFlag(UNIT_FIELD_NPC_FLAGS2, UNIT_NPC_FLAG2_GARRISON_MISSION_NPC | UNIT_NPC_FLAG2_SHIPMENT_CRAFTER))
             {
                 if (Garrison* garr = GetGarrisonPtr())
                     if (garr->GetCountOFollowers())

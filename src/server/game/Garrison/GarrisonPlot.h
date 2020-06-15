@@ -31,7 +31,6 @@ struct Plot
     uint32 GarrSiteLevelPlotInstId = 0;
     Building BuildingInfo;
     ObjectDBState db_state_building = DB_STATE_NEW;
-    bool buildingActivationWaiting = false;
 };
 
 #endif // GarrisonPlot_h_

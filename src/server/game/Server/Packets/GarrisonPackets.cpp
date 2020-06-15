@@ -892,11 +892,11 @@ void WorldPackets::Garrison::GarrisonRequestClassSpecCategoryInfo::Read()
 
 WorldPacket const* WorldPackets::Garrison::GarrisonOpenMissionNpc::Write()
 {
-    _worldPacket << GarrTypeID;
-    _worldPacket << Result;
+    _worldPacket << int32(GarrTypeID);
+    _worldPacket << int32(Result);
     _worldPacket << static_cast<uint32>(Missions.size());
     for (auto const& missionID : Missions)
-        _worldPacket << missionID;
+        _worldPacket << int32(missionID);
 
     _worldPacket.WriteBit(UnkBit1);
     _worldPacket.WriteBit(PreventXmlOpenMissionEvent);

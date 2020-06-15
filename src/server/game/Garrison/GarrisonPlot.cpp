@@ -120,9 +120,32 @@ GameObject* Plot::CreateGameObject(Map* map, GarrisonFactionIndex faction, Garri
         return nullptr;
     }
 
+    if (BuildingInfo.CanActivate() && BuildingInfo.PacketInfo && !BuildingInfo.PacketInfo->Active)
+    {
+        if (FinalizeGarrisonPlotGOInfo const* finalizeInfo = sGarrisonMgr.GetPlotFinalizeGOInfo(PacketInfo.GarrPlotInstanceID))
+        {
+            Position const& pos2 = finalizeInfo->FactionInfo[faction].Pos;
+            GameObject* finalizer = sObjectMgr->IsStaticTransport(finalizeInfo->FactionInfo[faction].GameObjectId) ? new StaticTransport : new GameObject;
+            if (finalizer->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), finalizeInfo->FactionInfo[faction].GameObjectId, map, 1, pos2, G3D::Matrix3::fromEulerAnglesZYX(pos2.GetOrientation(), 0.0f, 0.0f), 255, GO_STATE_READY))
+            {
+                // set some spell id to make the object delete itself after use
+                finalizer->SetSpellId(finalizer->GetGOInfo()->goober.spell);
+                finalizer->SetRespawnTime(0);
+
+                if (uint16 animKit = finalizeInfo->FactionInfo[faction].AnimKitId)
+                    finalizer->SetAnimKitId(animKit, false);
+
+                map->AddToMap(finalizer);
+            }
+            else
+                delete finalizer;
+        }
+    }
+
     if ((building->GetGoType() == GAMEOBJECT_TYPE_GARRISON_BUILDING || building->GetGoType() == GAMEOBJECT_TYPE_GARRISON_PLOT)/* && building->GetGOInfo()->garrisonBuilding.mapID*/)
     {
         if (auto goList = sGarrisonMgr.GetGoSpawnBuilding(PacketInfo.GarrPlotInstanceID, BuildingInfo.PacketInfo && BuildingInfo.PacketInfo->Active ? BuildingInfo.PacketInfo->GarrBuildingID : 0))
+        {
             for (auto const& data : *goList)
             {
                 if (GarrisonMgr::getFirstMap(map->GetId()) != data.mapid)
@@ -159,8 +182,10 @@ GameObject* Plot::CreateGameObject(Map* map, GarrisonFactionIndex faction, Garri
                 linkGO->SetRespawnDelayTime(RESP_GO_LOOT);
                 BuildingInfo.Spawns.insert(linkGO->GetGUID());
             }
+        }
 
         if (auto npcList = sGarrisonMgr.GetNpcSpawnBuilding(PacketInfo.GarrPlotInstanceID, BuildingInfo.PacketInfo && BuildingInfo.PacketInfo->Active ? BuildingInfo.PacketInfo->GarrBuildingID : 0))
+        {
             for (auto const& data : *npcList)
             {
                 if (GarrisonMgr::getFirstMap(map->GetId()) != data.mapid)
@@ -187,6 +212,7 @@ GameObject* Plot::CreateGameObject(Map* map, GarrisonFactionIndex faction, Garri
 
                 BuildingInfo.Spawns.insert(linkNPC->GetGUID());
             }
+        }
     }
 
     BuildingInfo.Guid = building->GetGUID();

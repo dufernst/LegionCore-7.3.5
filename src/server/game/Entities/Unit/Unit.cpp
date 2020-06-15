@@ -25239,6 +25239,11 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
                         if (!garr->GetCountOFollowers())
                             appendValue &= ~UNIT_NPC_FLAG2_GARRISON_MISSION_NPC;
 
+                if (appendValue & UNIT_NPC_FLAG2_SHIPMENT_CRAFTER)
+                    if (Garrison* garr = target->GetGarrisonPtr())
+                        if (!garr->GetCountOFollowers())
+                            appendValue &= ~UNIT_NPC_FLAG2_SHIPMENT_CRAFTER;
+
                 *data << uint32(appendValue);
             }
             else if (index == UNIT_FIELD_AURA_STATE)
