@@ -1908,6 +1908,7 @@ public:
 
         void Reset() override
         {
+            me->InitCharmInfo();
             me->GetCharmInfo()->InitEmptyActionBar(false);
             me->GetCharmInfo()->SetActionBar(0, SPELL_ATTACK_LURKER, ACT_PASSIVE);
             me->SetReactState(REACT_DEFENSIVE);
@@ -1916,23 +1917,33 @@ public:
 
         void UpdateAI(uint32 /*diff*/) override
         {
-            Player* player = me->GetOwner()->ToPlayer();
-            if (!player)
-                return;
-
-            if (player->GetQuestStatus(QUEST_FROM_THE_SHADOWS) == QUEST_STATUS_REWARDED)
+            if (me->GetOwner())
             {
-                me->DespawnOrUnsummon(1);
-            }
+                Player* player = me->GetOwner()->ToPlayer();
+                if (!player)
+                    return;
 
-            if (!UpdateVictim())
+                if (player->GetQuestStatus(QUEST_FROM_THE_SHADOWS) == QUEST_STATUS_REWARDED)
+                {
+                    me->DespawnOrUnsummon(1);
+                }
+
+                if (!UpdateVictim())
+                {
+                    me->GetCharmInfo()->SetIsFollowing(true);
+                    me->SetReactState(REACT_DEFENSIVE);
+                    return;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+            else
             {
-                me->GetCharmInfo()->SetIsFollowing(true);
-                me->SetReactState(REACT_DEFENSIVE);
-                return;
-            }
+                if (!UpdateVictim())
+                    return;
 
-            DoMeleeAttackIfReady();
+                DoMeleeAttackIfReady();
+            }
         }
 
         void SpellHitTarget(Unit* Mastiff, SpellInfo const* cSpell) override
