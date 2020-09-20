@@ -450,7 +450,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateChar& c
             TC_LOG_INFO(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), GetRemoteAddress().c_str(), createInfo->Name.c_str(), newChar.GetGUIDLow());
             sScriptMgr->OnPlayerCreate(&newChar);
             sWorld->AddCharacterInfo(newChar.GetGUIDLow(), std::string(newChar.GetName()), newChar.getGender(), newChar.getRace(), newChar.getClass(), newChar.getLevel(), GetAccountId());
-            sWorld->UpdateCharacterAccount(newChar.GetGUIDLow(), GetBattlenetAccountId());
+            sWorld->UpdateCharacterAccount(newChar.GetGUIDLow(), GetAccountId());
 
             newChar.GetAchievementMgr()->ClearMap();
             newChar.CleanupsBeforeDelete();
@@ -585,7 +585,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     SendTutorialsData();
 
-    sWorld->UpdateCharacterAccount(playerGuid.GetGUIDLow(), GetBattlenetAccountId());
+    sWorld->UpdateCharacterAccount(playerGuid.GetGUIDLow(), GetAccountId());
 
     pCurrChar->GetMotionMaster()->Initialize();
     pCurrChar->SendDungeonDifficulty();
@@ -2128,7 +2128,7 @@ void WorldSession::HandleUndeleteCharacter(WorldPackets::Character::UndeleteChar
     }
 
     auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_LAST_CHAR_UNDELETE);
-    stmt->setUInt32(0, GetBattlenetAccountId());
+    stmt->setUInt32(0, GetAccountId());
 
     auto undeleteInfo = packet.UndeleteInfo;
     _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithChainingPreparedCallback([undeleteInfo, SendUndeleteCharacterResponse](QueryCallback& queryCallback, PreparedQueryResult result)
@@ -2194,7 +2194,7 @@ void WorldSession::HandleUndeleteCharacter(WorldPackets::Character::UndeleteChar
         CharacterDatabase.Execute(stmt);
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_LAST_CHAR_UNDELETE);
-        stmt->setUInt32(0, GetBattlenetAccountId());
+        stmt->setUInt32(0, GetAccountId());
         CharacterDatabase.Execute(stmt);
 
         sWorld->UpdateCharacterInfoDeleted(undeleteInfo->CharacterGuid.GetCounter(), false, &undeleteInfo->Name);
@@ -2207,7 +2207,7 @@ void WorldSession::HandleUndeleteCharacter(WorldPackets::Character::UndeleteChar
 void WorldSession::HandleGetUndeleteCharacterCooldownStatus(WorldPackets::Character::GetUndeleteCharacterCooldownStatus& /*packet*/)
 {
     auto stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_LAST_CHAR_UNDELETE);
-    stmt->setUInt32(0, GetBattlenetAccountId());
+    stmt->setUInt32(0, GetAccountId());
     _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSession::HandleUndeleteCooldownStatusCallback, this, std::placeholders::_1)));
 }
 

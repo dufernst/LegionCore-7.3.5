@@ -637,12 +637,10 @@ struct AccountInfo
 {
     struct
     {
-        uint32 Id;
         bool IsLockedToIP;
         std::string LastIP;
         std::string LockCountry;
         LocaleConstant Locale;
-        bool IsBanned;
 
     } BattleNet;
 
@@ -663,17 +661,16 @@ struct AccountInfo
 
     bool IsBanned() const
     {
-        return BattleNet.IsBanned || Game.IsBanned;
+        return Game.IsBanned;
     }
 
     explicit AccountInfo(Field* fields)
     {
-        //           0             1           2          3                4            5           6          7            8     9     10          11  12
-        // SELECT a.id, a.sessionkey, ba.last_ip, ba.locked, ba.lock_country, a.expansion, a.mutetime, ba.locale, a.recruiter, a.os, ba.id, aa.gmLevel, aa.AtAuthFlag,
-        //                                                              13                                                            14    15     16
-        // bab.unbandate > UNIX_TIMESTAMP() OR bab.unbandate = bab.bandate, ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate, r.id, a.hwid
-        // FROM account a LEFT JOIN battlenet_accounts ba ON a.battlenet_account = ba.id LEFT JOIN account_access aa ON a.id = aa.id AND aa.RealmID IN (-1, ?)
-        // LEFT JOIN battlenet_account_bans bab ON ba.id = bab.id LEFT JOIN account_banned ab ON a.id = ab.id LEFT JOIN account r ON a.id = r.recruiter
+        //          0          1            2          3               4           5           6          7           8     9           10          11
+        // SELECT a.id, a.sessionkey, a.last_ip, a.locked, a.lock_country, a.expansion, a.mutetime, a.locale, a.recruiter, a.os, aa.gmLevel, a.AtAuthFlag,
+        //                                                           12   13       14
+        // ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate, r.id, a.hwid
+        // FROM account a LEFT JOIN account r ON a.id = r.recruiter LEFT JOIN account_access aa ON a.id = aa.id AND aa.RealmID IN (-1, ?) LEFT JOIN account_banned ab ON a.id = ab.id AND ab.active = 1
         // WHERE a.username = ? ORDER BY aa.RealmID DESC LIMIT 1
         Game.Id = fields[0].GetUInt32();
         HexStrToByteArray(fields[1].GetString(), Game.KeyData.data());
@@ -685,13 +682,11 @@ struct AccountInfo
         BattleNet.Locale = LocaleConstant(fields[7].GetUInt8());
         Game.Recruiter = fields[8].GetUInt32();
         Game.OS = fields[9].GetString();
-        BattleNet.Id = fields[10].GetUInt32();
-        Game.Security = AccountTypes(fields[11].GetUInt8());
-        BattleNet.IsBanned = fields[13].GetUInt64() != 0;
-        Game.IsBanned = fields[14].GetUInt64() != 0;
-        Game.IsRectuiter = fields[15].GetUInt32() != 0;
-        Game.AtAuthFlag = AuthFlags(fields[12].GetUInt16());
-        Game.Hwid = fields[16].GetUInt64();
+        Game.Security = AccountTypes(fields[10].GetUInt8());
+        Game.IsBanned = fields[12].GetUInt64() != 0;
+        Game.IsRectuiter = fields[13].GetUInt32() != 0;
+        Game.AtAuthFlag = AuthFlags(fields[11].GetUInt16());
+        Game.Hwid = fields[14].GetUInt64();
         if (BattleNet.Locale >= MAX_LOCALES)
             BattleNet.Locale = LOCALE_enUS;
     }
@@ -866,7 +861,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
 
     _authed = true;
 
-    _worldSession = std::make_shared<WorldSession>(account.Game.Id, std::move(authSession->RealmJoinTicket), account.BattleNet.Id, shared_from_this(), account.Game.Security,
+    _worldSession = std::make_shared<WorldSession>(account.Game.Id, std::move(authSession->RealmJoinTicket), shared_from_this(), account.Game.Security,
         account.Game.Expansion, mutetime, account.Game.OS, account.BattleNet.Locale, account.Game.Recruiter, account.Game.IsRectuiter, AuthFlags(account.Game.AtAuthFlag));
 
     _worldSession->_realmID = authSession->RealmID;

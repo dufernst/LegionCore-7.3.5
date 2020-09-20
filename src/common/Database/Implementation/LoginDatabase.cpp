@@ -34,8 +34,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PrepareStatement(LOGIN_DEL_ACCOUNT_BANNED, "DELETE FROM account_banned WHERE id = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_SEL_ACCOUNT_ID_BY_NAME, "SELECT id, hwid FROM account WHERE username = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_SEL_ACCOUNT_LIST_BY_NAME, "SELECT id, username FROM account WHERE username = ?", CONNECTION_BOTH);
-    PrepareStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME, "SELECT a.id, a.sessionkey, ba.last_ip, ba.locked, ba.lock_country, a.expansion, a.mutetime, ba.locale, a.recruiter, a.os, ba.id, aa.gmLevel, a.AtAuthFlag, bab.unbandate > UNIX_TIMESTAMP() OR bab.unbandate = bab.bandate, ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate, r.id, a.hwid FROM account a LEFT JOIN account r ON a.id = r.recruiter LEFT JOIN battlenet_accounts ba ON a.battlenet_account = ba.id LEFT JOIN account_access aa ON a.id = aa.id AND aa.RealmID IN (-1, ?) LEFT JOIN battlenet_account_bans bab ON ba.id = bab.id LEFT JOIN account_banned ab ON a.id = ab.id AND ab.active = 1 WHERE a.username = ? ORDER BY aa.RealmID DESC LIMIT 1", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_SEL_ACCOUNT_LIST_BY_EMAIL, "SELECT a.id, a.username FROM account a LEFT JOIN battlenet_accounts ba on (ba.id = a.battlenet_account) WHERE ba.email = ?", CONNECTION_BOTH);
+    PrepareStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME, "SELECT a.id, a.sessionkey, a.last_ip, a.locked, a.lock_country, a.expansion, a.mutetime, a.locale, a.recruiter, a.os, aa.gmLevel, a.AtAuthFlag, ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate, r.id, a.hwid FROM account a LEFT JOIN account r ON a.id = r.recruiter LEFT JOIN account_access aa ON a.id = aa.id AND aa.RealmID IN (-1, ?) LEFT JOIN account_banned ab ON a.id = ab.id AND ab.active = 1 WHERE a.username = ? ORDER BY aa.RealmID DESC LIMIT 1", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_SEL_ACCOUNT_BY_IP, "SELECT id, username FROM account WHERE last_ip = ?", CONNECTION_BOTH);
     PrepareStatement(LOGIN_SEL_ACCOUNT_BY_ID, "SELECT 1 FROM account WHERE id = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_INS_IP_BANNED, "INSERT INTO ip_banned VALUES (?, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()+?, ?, ?)", CONNECTION_ASYNC);
@@ -47,7 +46,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PrepareStatement(LOGIN_DEL_REALM_CHARACTERS, "DELETE FROM realmcharacters WHERE acctid = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_INS_REALM_CHARACTERS, "REPLACE INTO realmcharacters (numchars, acctid, realmid) VALUES (?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_SEL_SUM_REALM_CHARACTERS, "SELECT SUM(numchars) FROM realmcharacters WHERE acctid = ?", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_INS_ACCOUNT, "INSERT INTO account(username, sha_pass_hash, battlenet_account, joindate) VALUES(?, ?, ?, NOW())", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_INS_ACCOUNT, "INSERT INTO account(username, sha_pass_hash, joindate) VALUES(?, ?, NOW())", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_INS_REALM_CHARACTERS_INIT, "INSERT INTO realmcharacters (realmid, acctid, numchars) SELECT realmlist.id, account.id, 0 FROM realmlist, account LEFT JOIN realmcharacters ON acctid=account.id WHERE acctid IS NULL", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_UPD_EXPANSION, "UPDATE account SET expansion = ? WHERE id = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_UPD_ACCOUNT_LOCK, "UPDATE account SET locked = ? WHERE id = ?", CONNECTION_ASYNC);
@@ -68,7 +67,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PrepareStatement(LOGIN_GET_USERNAME_BY_ID, "SELECT username FROM account WHERE id = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_SEL_CHECK_PASSWORD, "SELECT 1 FROM account WHERE id = ? AND sha_pass_hash = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_SEL_CHECK_PASSWORD_BY_NAME, "SELECT 1 FROM account WHERE username = ? AND sha_pass_hash = ?", CONNECTION_SYNCH);
-    PrepareStatement(LOGIN_SEL_PINFO, "SELECT a.username, aa.gmlevel, a.email, a.last_ip, DATE_FORMAT(a.last_login, '%Y-%m-%d %T'), a.mutetime, ba.id AS bid FROM account a LEFT JOIN account_access aa ON (a.id = aa.id AND (aa.RealmID = ? OR aa.RealmID = -1)) JOIN battlenet_accounts ba ON ba.id = a.battlenet_account WHERE a.id = ?", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_SEL_PINFO, "SELECT a.username, aa.gmlevel, a.email, a.last_ip, DATE_FORMAT(a.last_login, '%Y-%m-%d %T'), a.mutetime FROM account a LEFT JOIN account_access aa ON (a.id = aa.id AND (aa.RealmID = ? OR aa.RealmID = -1)) WHERE a.id = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_SEL_PINFO_BANS, "SELECT unbandate, bandate = unbandate, bannedby, banreason FROM account_banned WHERE id = ? AND active ORDER BY bandate ASC LIMIT 1", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_SEL_GM_ACCOUNTS, "SELECT a.username, aa.gmlevel FROM account a, account_access aa WHERE a.id=aa.id AND aa.gmlevel >= ? AND (aa.realmid = -1 OR aa.realmid = ?)", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_SEL_ACCOUNT_INFO, "SELECT a.username, a.last_ip, aa.gmlevel, a.expansion FROM account a LEFT JOIN account_access aa ON (a.id = aa.id) WHERE a.id = ?", CONNECTION_SYNCH);
@@ -82,21 +81,8 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PrepareStatement(LOGIN_UPD_DUMP, "UPDATE transferts SET dump = ? ,state = ? WHERE id = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_ADD_TRANSFERTS_LOGS, "INSERT INTO transferts_logs (`id`, `account`, `perso_guid`, `from`, `to`, `dump`, `toacc`, `newguid`, `transferId`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
 
-#define BnetAccountInfo "ba.id, ba.email, ba.locked, ba.lock_country, ba.last_ip, ba.failed_logins, bab.unbandate > UNIX_TIMESTAMP() OR bab.unbandate = bab.bandate, bab.unbandate = bab.bandate, ba.activate, ba.access_ip"
-#define BnetGameAccountInfo "a.id, a.username, ab.unbandate, ab.unbandate = ab.bandate, aa.gmlevel"
-
-    PrepareStatement(LOGIN_SEL_BNET_ACCOUNT_INFO, "SELECT " BnetAccountInfo ", " BnetGameAccountInfo " FROM battlenet_accounts ba LEFT JOIN battlenet_account_bans bab ON ba.id = bab.id LEFT JOIN account a ON ba.id = a.battlenet_account LEFT JOIN account_banned ab ON a.id = ab.id AND ab.active = 1 LEFT JOIN account_access aa ON a.id = aa.id AND aa.RealmID = -1 WHERE ba.email = ? AND ba.sha_pass_hash = ?", CONNECTION_SYNCH);
-    PrepareStatement(LOGIN_SEL_BNET_ACCOUNT_INFO_BY_ACC, "SELECT " BnetAccountInfo ", " BnetGameAccountInfo " FROM battlenet_accounts ba LEFT JOIN battlenet_account_bans bab ON ba.id = bab.id LEFT JOIN account a ON ba.id = a.battlenet_account LEFT JOIN account_banned ab ON a.id = ab.id AND ab.active = 1 LEFT JOIN account_access aa ON a.id = aa.id AND aa.RealmID = -1 WHERE a.username = ? AND ba.sha_pass_hash = ?", CONNECTION_SYNCH);
-    PrepareStatement(LOGIN_UPD_BNET_LAST_LOGIN_INFO, "UPDATE battlenet_accounts SET last_ip = ?, last_login = NOW(), locale = ?, failed_logins = 0, os = ? WHERE id = ?", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_INS_BNET_ACCOUNT, "INSERT INTO battlenet_accounts (`email`,`sha_pass_hash`) VALUES (?, ?)", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_SEL_BNET_ACCOUNT_EMAIL_BY_ID, "SELECT email FROM battlenet_accounts WHERE id = ?", CONNECTION_SYNCH);
-    PrepareStatement(LOGIN_SEL_BNET_ACCOUNT_ID_BY_EMAIL, "SELECT id FROM battlenet_accounts WHERE email = ?", CONNECTION_SYNCH);
-    PrepareStatement(LOGIN_UPD_BNET_PASSWORD, "UPDATE battlenet_accounts SET sha_pass_hash = ? WHERE id = ?", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_SEL_BNET_CHECK_PASSWORD, "SELECT 1 FROM battlenet_accounts WHERE id = ? AND sha_pass_hash = ?", CONNECTION_SYNCH);
-    PrepareStatement(LOGIN_UPD_BNET_ACCOUNT_LOCK, "UPDATE battlenet_accounts SET locked = ? WHERE id = ?", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_UPD_BNET_ACCOUNT_LOCK_CONTRY, "UPDATE battlenet_accounts SET lock_country = ? WHERE id = ?", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_SEL_BNET_ACCOUNT_ID_BY_GAME_ACCOUNT, "SELECT battlenet_account FROM account WHERE id = ?", CONNECTION_SYNCH);
-    PrepareStatement(LOGIN_SEL_BNET_ACCOUNT_EMAIL_BY_ACC, "SELECT ba.email FROM battlenet_accounts ba JOIN account a ON ba.id = a.battlenet_account WHERE a.username = ?", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_SEL_BNET_ACCOUNT_INFO, "SELECT a.id, a.username, a.locked, a.lock_country, a.last_ip, a.failed_logins, ab.unbandate > UNIX_TIMESTAMP(), ab.unbandate = ab.bandate, a.activate, a.access_ip, ab.unbandate, aa.gmlevel FROM account a LEFT JOIN account_banned ab ON a.id = ab.id AND ab.active = 1 LEFT JOIN account_access aa ON a.id = aa.id AND aa.RealmID = -1 WHERE a.username = ? AND a.sha_pass_hash = ?", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_UPD_LAST_LOGIN_INFO, "UPDATE account SET last_ip = ?, last_login = NOW(), locale = ?, failed_logins = 0, os = ? WHERE id = ?", CONNECTION_ASYNC);
 
     PrepareStatement(LOGIN_UPD_AT_AUTH_FLAG, "UPDATE account SET AtAuthFlag = ? WHERE id = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_SEL_BATTLEPAY_COINS, "SELECT coins FROM account WHERE id = ?", CONNECTION_SYNCH);
@@ -105,29 +91,28 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PrepareStatement(LOGIN_UPD_ACCOUNT_INFO_CONTINUED_SESSION, "UPDATE account SET sessionkey = ? WHERE id = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_SEL_ACCOUNT_INFO_CONTINUED_SESSION, "SELECT username, sessionkey FROM account WHERE id = ?", CONNECTION_ASYNC);
 
-    PrepareStatement(LOGIN_UPD_BNET_GAME_ACCOUNT_LOGIN_INFO, "UPDATE account SET sessionkey = ?, last_ip = ?, last_login = NOW(), locale = ?, failed_logins = 0, os = ? WHERE username = ?", CONNECTION_SYNCH);
-    PrepareStatement(LOGIN_SEL_BNET_LAST_PLAYER_CHARACTERS, "SELECT lpc.accountId, lpc.region, lpc.battlegroup, lpc.realmId, lpc.characterName, lpc.characterGUID, lpc.lastPlayedTime FROM account_last_played_character lpc LEFT JOIN account a ON lpc.accountId = a.id WHERE a.battlenet_account = ?", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_UPD_ACCOUNT_LOGIN_INFO, "UPDATE account SET sessionkey = ?, last_ip = ?, last_login = NOW(), locale = ?, failed_logins = 0, os = ? WHERE username = ?", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_SEL_BNET_LAST_PLAYER_CHARACTERS, "SELECT lpc.accountId, lpc.region, lpc.battlegroup, lpc.realmId, lpc.characterName, lpc.characterGUID, lpc.lastPlayedTime FROM account_last_played_character lpc WHERE lpc.accountId = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_DEL_BNET_LAST_PLAYER_CHARACTERS, "DELETE FROM account_last_played_character WHERE accountId = ? AND region = ? AND battlegroup = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_INS_BNET_LAST_PLAYER_CHARACTERS, "INSERT INTO account_last_played_character (accountId, region, battlegroup, realmId, characterName, characterGUID, lastPlayedTime) VALUES (?,?,?,?,?,?,?)", CONNECTION_ASYNC);
     
-    PrepareStatement(LOGIN_SEL_BNET_CHARACTER_COUNTS_BY_BNET_ID, "SELECT rc.acctid, rc.numchars, r.id, r.Region, r.Battlegroup FROM realmcharacters rc INNER JOIN realmlist r ON rc.realmid = r.id LEFT JOIN account a ON rc.acctid = a.id WHERE a.battlenet_account = ?", CONNECTION_SYNCH);
-    PrepareStatement(LOGIN_SEL_BNET_CHARACTER_COUNTS_BY_ACCOUNT_ID, "SELECT rc.acctid, rc.numchars, r.id, r.Region, r.Battlegroup FROM realmcharacters rc INNER JOIN realmlist r ON rc.realmid = r.id WHERE rc.acctid = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_SEL_BNET_CHARACTER_COUNTS_BY_ACCOUNT_ID, "SELECT rc.acctid, rc.numchars, r.id, r.Region, r.Battlegroup FROM realmcharacters rc INNER JOIN realmlist r ON rc.realmid = r.id WHERE rc.acctid = ?", CONNECTION_BOTH);
     
     PrepareStatement(LOGIN_SEL_ACCOUNT_IP_ACCESS, "select min, max from account_ip_access WHERE pid = ? AND enable = 1", CONNECTION_SYNCH);
     
-    PrepareStatement(LOGIN_SELECT_DONATE_TOKEN, "SELECT `balans` from battlenet_accounts WHERE id = ?;", CONNECTION_SYNCH);
-    PrepareStatement(LOGIN_UPD_DESTROY_DONATE_TOKEN, "UPDATE battlenet_accounts SET balans = balans - ? WHERE id = ?;", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_UPD_ADD_DONATE_TOKEN, "UPDATE battlenet_accounts SET balans = balans + ? WHERE id = ?;", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_INS_STORE_ADD_ITEM_LOG, "INSERT INTO `store_history` (`realm`, `account`, `bnet_account`, `char_guid`, `item_guid`, `item`, `count`, `token`, `char_level`, `product`, `bonus`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (select `bonus` from `store_products` where id = ?));", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_INS_STORE_ADD_ITEM_LOG_SERVICE, "INSERT INTO `store_history` (`realm`, `account`, `bnet_account`, `char_guid`, `item_guid`, `item`, `count`, `token`, `char_level`, `product`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, (select `id` from `store_products` where `item` = ?));", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_INS_STORE_ADD_ITEM_LOG_BONUS, "INSERT INTO `store_history` (`realm`, `account`, `bnet_account`, `char_guid`, `item_guid`, `item`, `count`, `token`, `char_level`, `product`, `bonus`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, (select `id` from `store_products` where `item` = ?), ?);", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_INS_STORE_ADD_ITEM_LOG_ADDITIONAL, "INSERT INTO `store_history` (`realm`, `account`, `bnet_account`, `char_guid`, `item_guid`, `item`, `count`, `token`, `char_level`, `product`, `bonus`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_SELECT_DONATE_TOKEN, "SELECT `balans` from account WHERE id = ?;", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_UPD_DESTROY_DONATE_TOKEN, "UPDATE account SET balans = balans - ? WHERE id = ?;", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_UPD_ADD_DONATE_TOKEN, "UPDATE account SET balans = balans + ? WHERE id = ?;", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_INS_STORE_ADD_ITEM_LOG, "INSERT INTO `store_history` (`realm`, `account`, `char_guid`, `item_guid`, `item`, `count`, `token`, `char_level`, `product`, `bonus`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, (select `bonus` from `store_products` where id = ?));", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_INS_STORE_ADD_ITEM_LOG_SERVICE, "INSERT INTO `store_history` (`realm`, `account`, `char_guid`, `item_guid`, `item`, `count`, `token`, `char_level`, `product`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, (select `id` from `store_products` where `item` = ?));", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_INS_STORE_ADD_ITEM_LOG_BONUS, "INSERT INTO `store_history` (`realm`, `account`, `char_guid`, `item_guid`, `item`, `count`, `token`, `char_level`, `product`, `bonus`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, (select `id` from `store_products` where `item` = ?), ?);", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_INS_STORE_ADD_ITEM_LOG_ADDITIONAL, "INSERT INTO `store_history` (`realm`, `account`, `char_guid`, `item_guid`, `item`, `count`, `token`, `char_level`, `product`, `bonus`) VALUES (?, ?,?, ?, ?, ?, ?, ?, ?, ?);", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_UPD_HISTORY_GUID, "UPDATE `store_history` SET item_guid = ? WHERE id = ? AND item = ?;", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_UPD_HISTORY_STATUS, "UPDATE `store_history` SET `status` = ? WHERE `item_guid` = ? and `realm` = ? and (`status` = 0 or `status` = 6)", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_UPD_HISTORY_STATUS_AND_GUID_BY_STATUS, "UPDATE `store_history` SET `status` = ?, `item_guid` = ? WHERE `item_guid` = ? and `realm` = ? and `status` = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_UPD_HISTORY_RETURN, "UPDATE `store_history` SET `status` = 7, dt_return = NOW() WHERE `item_guid` = ? and `realm` = ? and (`status` = 0 or `status` = 6)", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_INS_STORE_ADD_ITEM_LOG_SERVICE_ART, "INSERT INTO `store_history` (`realm`, `account`, `bnet_account`, `char_guid`, `item_guid`, `item`, `count`, `token`, `char_level`, `product`, art_level) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, (select `id` from `store_products` where `item` = ?), ?);", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_INS_STORE_ADD_ITEM_LOG_GUILD_RENAME, "INSERT INTO `store_history` (`realm`, `account`, `bnet_account`, `char_guid`, `item_guid`, `item`, `count`, `token`, `char_level`, `product`, `guild_name`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, (select `id` from `store_products` where `item` = ?), ?);", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_INS_STORE_ADD_ITEM_LOG_SERVICE_ART, "INSERT INTO `store_history` (`realm`, `account`, `char_guid`, `item_guid`, `item`, `count`, `token`, `char_level`, `product`, art_level) VALUES (?, ?, ?, ?, ?, ?, ?, ?, (select `id` from `store_products` where `item` = ?), ?);", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_INS_STORE_ADD_ITEM_LOG_GUILD_RENAME, "INSERT INTO `store_history` (`realm`, `account`, `char_guid`, `item_guid`, `item`, `count`, `token`, `char_level`, `product`, `guild_name`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, (select `id` from `store_products` where `item` = ?), ?);", CONNECTION_ASYNC);
 
     // 0 - по умолчанию, игрок получил предмет
     // 1 - удалён

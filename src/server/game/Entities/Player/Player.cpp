@@ -13185,7 +13185,7 @@ uint32 Player::GetDonateTokens() const
 {
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SELECT_DONATE_TOKEN);
     
-    stmt->setUInt32(0, GetSession()->GetBattlenetAccountId());
+    stmt->setUInt32(0, GetSession()->GetAccountId());
     
     PreparedQueryResult result_don = LoginDatabase.Query(stmt);
     
@@ -13220,8 +13220,6 @@ bool Player::HasDonateToken(uint32 count) const
 
 bool Player::DestroyDonateTokenCount(uint32 count)
 {
-  //  LoginDatabase.PExecute("Update battlenet_accounts set balans = balans - %u where id in (select battlenet_account from account where id = %u)", count, GetSession()->GetAccountId());
-    
     if (sWorld->getBoolConfig(CONFIG_DONATE_ON_TESTS)) // if test, then free donate
         return true;
         
@@ -13234,7 +13232,7 @@ bool Player::DestroyDonateTokenCount(uint32 count)
     
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_DESTROY_DONATE_TOKEN);
     stmt->setUInt32(0, count);
-    stmt->setUInt32(1, GetSession()->GetBattlenetAccountId());
+    stmt->setUInt32(1, GetSession()->GetAccountId());
        
     trans->Append(stmt);
     
@@ -13271,7 +13269,7 @@ bool Player::AddDonateTokenCount(uint32 count)
     
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ADD_DONATE_TOKEN);
     stmt->setUInt32(0, count);
-    stmt->setUInt32(1, GetSession()->GetBattlenetAccountId());
+    stmt->setUInt32(1, GetSession()->GetAccountId());
     trans->Append(stmt);
     
     uint32 guid = GetGUIDLow();
@@ -13319,7 +13317,7 @@ std::string Player::GetInfoForDonate() const
 {
     std::ostringstream info;
     
-    info << "Player info: acc = " << GetSession()->GetAccountId() << ", bnet_acc = " << GetSession()->GetBattlenetAccountId() << ", char_guid = " << GetGUIDLow()  << ", tokens = " << GetDonateTokens();
+    info << "Player info: acc = " << GetSession()->GetAccountId() << ", bnet_acc = " << GetSession()->GetAccountId() << ", char_guid = " << GetGUIDLow()  << ", tokens = " << GetDonateTokens();
     
     
     return info.str();
@@ -27905,8 +27903,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
                 uint8 index = 0;
                 PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_STORE_ADD_ITEM_LOG);
                 stmt->setUInt32(  index, realm.Id.Realm);
-                stmt->setUInt32(  ++index, GetSession()->GetAccountId()); 
-                stmt->setUInt32(  ++index, GetSession()->GetBattlenetAccountId()); // select battlenet_account from account where id = %u
+                stmt->setUInt32(  ++index, GetSession()->GetAccountId());
                 stmt->setUInt64(  ++index, GetGUIDLow());
                 stmt->setUInt64(  ++index, it->GetGUIDLow()); // item_guid
                 stmt->setUInt32(  ++index, it->GetEntry()); // item entry

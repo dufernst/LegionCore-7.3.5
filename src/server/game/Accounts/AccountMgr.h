@@ -34,8 +34,7 @@ enum class AccountOpResult : uint8
 };
 
 #define MAX_PASS_STR 16
-#define MAX_ACCOUNT_STR 16
-#define MAX_EMAIL_STR 64
+#define MAX_EMAIL_STR 320
 
 namespace AccountMgr
 {
@@ -50,7 +49,7 @@ namespace AccountMgr
     uint32 GetSecurity(uint32 accountId, int32 realmId);
     bool GetName(uint32 accountId, std::string& name);
     uint32 GetCharactersCount(uint32 accountId);
-    std::string CalculateShaPassHash(std::string& name, std::string& password);
+    std::string CalculateShaPassHash(const std::string& name, const std::string& password);
 
     bool IsPlayerAccount(uint32 gmlevel);
     bool IsModeratorAccount(uint32 gmlevel);

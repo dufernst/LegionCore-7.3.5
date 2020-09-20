@@ -16,7 +16,6 @@
  */
 
 #include "QueryPackets.h"
-#include "BattlenetAccountMgr.h"
 #include "Player.h"
 #include "World.h"
 #include "ObjectMgr.h"
@@ -137,8 +136,6 @@ bool WorldPackets::Query::PlayerGuidLookupData::Initialize(ObjectGuid const& gui
         CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
         if (!characterInfo)
             return false;
-
-        ::Battlenet::AccountMgr::GetVoid();
 
         AccountID = ObjectGuid::Create<HighGuid::WowAccount>(characterInfo->AccountId);
         BnetAccountID = ObjectGuid::Create<HighGuid::BNetAccount>(characterInfo->BnetAccountId);

@@ -1875,7 +1875,6 @@ public:
             return false;
 
         uint32 accId            = 0;
-        uint32 bnetaccId        = 0;
         uint32 money            = 0;
         uint32 totalPlayerTime  = 0;
         uint32 totalAccountTime = 0;
@@ -1898,7 +1897,6 @@ public:
                 return false;
 
             accId             = target->GetSession()->GetAccountId();
-            bnetaccId         = target->GetSession()->GetBattlenetAccountId();
             money             = target->GetMoney();
             totalPlayerTime   = target->GetTotalPlayedTime();
             level             = target->getLevel();
@@ -1955,7 +1953,6 @@ public:
             security      = fields[1].GetUInt8();
             eMail         = fields[2].GetString();
             muteTime      = fields[5].GetUInt64();
-            bnetaccId     = fields[6].GetUInt32();
 
             if (handler->GetSession()->GetSecurity() <= 3)
                 eMail = "IT`S SECRET!";
@@ -1994,7 +1991,7 @@ public:
 
         std::string nameLink = handler->playerLink(targetName);
 
-        handler->PSendSysMessage(LANG_PINFO_ACCOUNT, (target ? "" : handler->GetTrinityString(LANG_OFFLINE)), nameLink.c_str(), targetGuid.GetGUIDLow(), userName.c_str(), accId, bnetaccId, eMail.c_str(), security, lastIp.c_str(), lastLogin.c_str(), latency);
+        handler->PSendSysMessage(LANG_PINFO_ACCOUNT, (target ? "" : handler->GetTrinityString(LANG_OFFLINE)), nameLink.c_str(), targetGuid.GetGUIDLow(), userName.c_str(), accId, accId, eMail.c_str(), security, lastIp.c_str(), lastLogin.c_str(), latency);
 
         std::string bannedby = "unknown";
         std::string banreason = "";

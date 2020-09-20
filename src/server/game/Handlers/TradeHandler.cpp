@@ -40,7 +40,7 @@ void WorldSession::SendTradeStatus(WorldPackets::Trade::TradeStatus& packet)
 
     packet.Clear();
     Player* trader = _player->GetTrader();
-    packet.PartnerIsSameBnetAccount = trader && trader->GetSession()->GetBattlenetAccountId() == GetBattlenetAccountId();
+    packet.PartnerIsSameBnetAccount = trader && trader->GetSession()->GetAccountId() == GetAccountId();
     SendPacket(packet.Write());
 }
 

@@ -107,6 +107,13 @@ public:
         if (!accountName || !password)
             return false;
 
+        if (!strchr(accountName, '@'))
+        {
+            handler->SendSysMessage(LANG_ACCOUNT_INVALID_BNET_NAME);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
         AccountOpResult result = AccountMgr::CreateAccount(std::string(accountName), std::string(password));
         switch (result)
         {
@@ -129,6 +136,10 @@ public:
                 return false;
             case AccountOpResult::AOR_DB_INTERNAL_ERROR:
                 handler->PSendSysMessage(LANG_ACCOUNT_NOT_CREATED_SQL_ERROR, accountName);
+                handler->SetSentErrorMessage(true);
+                return false;
+            case AccountOpResult::AOR_PASS_TOO_LONG:
+                handler->SendSysMessage(LANG_PASSWORD_TOO_LONG);
                 handler->SetSentErrorMessage(true);
                 return false;
             default:
@@ -292,10 +303,12 @@ public:
             return false;
         }
 
-        char* oldPassword = strtok((char*)args, " ");
-        char* newPassword = strtok(NULL, " ");
-        char* passwordConfirmation = strtok(NULL, " ");
+        // Command is supposed to be: .account password [$oldpassword] [$newpassword] [$newpasswordconfirmation]
+        char* oldPassword = strtok((char*)args, " ");       // This extracts [$oldpassword]
+        char* newPassword = strtok(NULL, " ");              // This extracts [$newpassword]
+        char* passwordConfirmation = strtok(NULL, " ");     // This extracts [$newpasswordconfirmation]
 
+        //Is any of those variables missing for any reason ? We return false.
         if (!oldPassword || !newPassword || !passwordConfirmation)
         {
             handler->SendSysMessage(LANG_CMD_SYNTAX);
@@ -303,6 +316,7 @@ public:
             return false;
         }
 
+        // We compare the old, saved password to the entered old password - no chance for the unauthorized.
         if (!AccountMgr::CheckPassword(handler->GetSession()->GetAccountId(), std::string(oldPassword)))
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGOLDPASSWORD);
@@ -310,6 +324,7 @@ public:
             return false;
         }
 
+        // Making sure that newly entered password is correctly entered.
         if (strcmp(newPassword, passwordConfirmation) != 0)
         {
             handler->SendSysMessage(LANG_NEW_PASSWORDS_NOT_MATCH);
@@ -317,6 +332,7 @@ public:
             return false;
         }
 
+        // Changes password and prints result.
         AccountOpResult result = AccountMgr::ChangePassword(handler->GetSession()->GetAccountId(), std::string(newPassword));
         switch (result)
         {
@@ -534,7 +550,11 @@ public:
     static bool HandleAccountSetPasswordCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
+        {
+            handler->SendSysMessage(LANG_CMD_SYNTAX);
+            handler->SetSentErrorMessage(true);
             return false;
+        }
 
         ///- Get the command line arguments
         char* account = strtok((char*)args, " ");

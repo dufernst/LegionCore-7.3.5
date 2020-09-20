@@ -408,7 +408,7 @@ uint32 RealmList::JoinRealm(uint32 realmAddress, uint32 /*build*/, boost::asio::
         memcpy(&keyData[0], clientSecret.data(), 32);
         memcpy(&keyData[32], serverSecret.AsByteArray(32).get(), 32);
 
-        auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_GAME_ACCOUNT_LOGIN_INFO);
+        auto stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOGIN_INFO);
         stmt->setString(0, ByteArrayToHexStr(keyData.data(), keyData.size()));
         stmt->setString(1, clientAddress.to_string());
         stmt->setUInt8(2, locale);

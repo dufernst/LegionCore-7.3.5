@@ -1045,7 +1045,7 @@ typedef std::map<uint32, CharacterTemplateData> CharacterTemplateDataMap;
 class WorldSession
 {
     public:
-        WorldSession(uint32 id, std::string&& name, uint32 battlenetAccountId, const std::shared_ptr<WorldSocket>& sock, AccountTypes sec, uint8 expansion, time_t mute_time, std::string os, LocaleConstant locale, uint32 recruiter, bool isARecruiter, AuthFlags flag);
+        WorldSession(uint32 id, std::string&& name, const std::shared_ptr<WorldSocket>& sock, AccountTypes sec, uint8 expansion, time_t mute_time, std::string os, LocaleConstant locale, uint32 recruiter, bool isARecruiter, AuthFlags flag);
         ~WorldSession();
 
         bool PlayerLoading() const { return !m_playerLoading.IsEmpty(); }
@@ -1084,7 +1084,6 @@ class WorldSession
         uint32 GetAccountId() const { return _accountId; }
         ObjectGuid GetAccountGUID() const;
         std::string const& GetAccountName() const { return _accountName; }
-        uint32 GetBattlenetAccountId() const { return _battlenetAccountId; }
         uint8 GetAccountExpansion() const { return m_accountExpansion; }
         ObjectGuid GetBattlenetAccountGUID() const;
         Player* GetPlayer() const { return _player; }
@@ -2073,7 +2072,6 @@ class WorldSession
 
         AccountTypes _security;
         uint32 _accountId;
-        uint32 _battlenetAccountId;
         uint8 m_expansion;
         uint8 m_accountExpansion;
         std::string _accountName;
