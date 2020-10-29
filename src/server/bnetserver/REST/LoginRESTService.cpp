@@ -256,14 +256,44 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
     Utf8ToUpperOnlyLatin(password);
     
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_INFO);
-
     stmt->setString(0, login);
-    stmt->setString(1, CalculateShaPassHash(login, std::move(password)));
+    stmt->setString(1, CalculateShaPassHash(login, password));
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
+
+    // TODO: drop support for this player friendly password upgrade
+    // if we don't have a result here, check if the account is still using a sha1 password hash
+    // if so we for now will just update it right away
+    // in the future we should just drop support for this, and players should use password reset
+    bool needPasswordUpdate = false;
+    if (!result)
+    {
+        needPasswordUpdate = true;
+
+        SHA1Hash sha;
+        sha.Initialize();
+        sha.UpdateData(login);
+        sha.UpdateData(":");
+        sha.UpdateData(password);
+        sha.Finalize();
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_INFO);
+        stmt->setString(0, login);
+        stmt->setString(1, ByteArrayToHexStr(sha.GetDigest(), sha.GetLength()));
+        result = LoginDatabase.Query(stmt);
+    }
     
-    if (PreparedQueryResult result = LoginDatabase.Query(stmt))
+    if (result)
     {
         std::unique_ptr<Battlenet::Session::AccountInfo> accountInfo = Trinity::make_unique<Battlenet::Session::AccountInfo>();
         accountInfo->LoadResult(result);
+
+        if (needPasswordUpdate)
+        {
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_PASSWORD);
+            stmt->setString(0, CalculateShaPassHash(login, password));
+            stmt->setUInt32(1, accountInfo->Id);
+            LoginDatabase.Execute(stmt);
+        }
 
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_CHARACTER_COUNTS_BY_ACCOUNT_ID);
         stmt->setUInt32(0, accountInfo->Id);
