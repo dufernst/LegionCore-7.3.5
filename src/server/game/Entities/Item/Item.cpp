@@ -685,24 +685,6 @@ void Item::SaveToDB(SQLTransaction& trans)
                 trans->Append(stmt);
             }
 
-            //CharacterDatabase.PExecute("UPDATE character_donate SET state = 1, deletedate = '%s' WHERE itemguid = '%u'", TimeToTimestampStr(time(NULL)).c_str(), guid);
-           /* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ITEM_DONATE_SET_STATE);
-            stmt->setUInt32(0, 1);
-            stmt->setString(1, TimeToTimestampStr(time(NULL)).c_str());
-            stmt->setUInt64(2, guid);
-            trans->Append(stmt);*/
-            
-       //     if (GetOwner())
-     //           TC_LOG_DEBUG(LOG_FILTER_DONATE, "[Status] Status = 1 item  guid = %u, entry = %u, %s", guid, GetEntry(), GetOwner()->GetInfoForDonate().c_str());
-
-            uint8 index = 0;
-            stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_HISTORY_STATUS);
-            stmt->setUInt32(  index, 1);
-            stmt->setUInt64(  ++index, guid); 
-            stmt->setUInt32(  ++index, realm.Id.Realm); 
-            
-            transs->Append(stmt);
-
             if (!isInTransaction)
                 CharacterDatabase.CommitTransaction(trans);
             LoginDatabase.CommitTransaction(transs);
@@ -978,25 +960,6 @@ void Item::DeleteFromDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid)
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
     stmt->setUInt64(0, itemGuid);
     trans->Append(stmt);
-
- /*   stmt = CharacterDatabase.GetPreparedStatement(CHAR_ITEM_DONATE_SET_STATE);
-    stmt->setUInt32(0, 1);
-    stmt->setString(1, TimeToTimestampStr(time(NULL)).c_str());
-    stmt->setUInt64(2, itemGuid);
-    trans->Append(stmt); */
-    SQLTransaction transs = LoginDatabase.BeginTransaction();
-
-    uint8 index = 0;
-
-    TC_LOG_DEBUG(LOG_FILTER_DONATE, "[Status] Status = 1 item guid = %u can't find any information", itemGuid);
-
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_HISTORY_STATUS);
-    stmt->setUInt32(  index, 1);
-    stmt->setUInt64(  ++index, itemGuid); 
-    stmt->setUInt32(  ++index, realm.Id.Realm); 
-            
-    transs->Append(stmt);
-    LoginDatabase.CommitTransaction(transs);
 }
 
 void Item::DeleteFromDB(SQLTransaction& trans)

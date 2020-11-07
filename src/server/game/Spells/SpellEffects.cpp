@@ -6327,20 +6327,6 @@ void Spell::EffectDisEnchant(SpellEffIndex /*effIndex*/)
     
     if (!itemTarget || itemTarget->GetDonateItem())
         return;
-    
-    // donate check
-    SQLTransaction transs = LoginDatabase.BeginTransaction();
-    if (GetCaster()->IsPlayer())
-        TC_LOG_DEBUG(LOG_FILTER_DONATE, "[Status] Status = 4 item  guid = %u, entry = %u, %s", itemTarget->GetGUID().GetGUIDLow(), itemTarget->GetEntry(), GetCaster()->ToPlayer()->GetInfoForDonate().c_str());
-
-    uint8 index = 0;
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_HISTORY_STATUS);
-    stmt->setUInt32(index, 4);
-    stmt->setUInt64(++index, itemTarget->GetGUID().GetGUIDLow());
-    stmt->setUInt32(++index, realm.Id.Realm);
-
-    transs->Append(stmt);
-    LoginDatabase.CommitTransaction(transs);
 
     if (Player* caster = m_caster->ToPlayer())
     {

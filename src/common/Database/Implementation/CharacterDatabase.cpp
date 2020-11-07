@@ -695,7 +695,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     // Else
     PrepareStatement(CHAR_SEL_PERSONAL_RATE,       "SELECT rate FROM character_rates WHERE guid=? LIMIT 1",                                         CONNECTION_ASYNC);
     PrepareStatement(CHAR_SEL_PLAYER_VISUAL,       "SELECT head, shoulders, chest, waist, legs, feet, wrists, hands, back, main, off, ranged, tabard, shirt FROM character_visuals WHERE guid = ?",  CONNECTION_ASYNC);
-    PrepareStatement(CHAR_SEL_MAILBOX_QUEUE,       "SELECT id, messageType, stationery, sender_guid, receiver_guid, subject, message, money, item, item_count, store_history FROM mailbox_queue LIMIT 500",  CONNECTION_SYNCH);
+    PrepareStatement(CHAR_SEL_MAILBOX_QUEUE,       "SELECT id, messageType, stationery, sender_guid, receiver_guid, subject, message, money, item, item_count FROM mailbox_queue LIMIT 500",  CONNECTION_SYNCH);
     PrepareStatement(CHAR_DEL_MAILBOX_QUEUE,       "DELETE FROM mailbox_queue WHERE id = ?",                                       CONNECTION_ASYNC);
 
     // character_donate

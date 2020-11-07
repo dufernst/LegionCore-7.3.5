@@ -120,36 +120,6 @@ std::string Product::Serialize() const
     return res;
 }
 
-void BattlepayManager::SavePurchase(Purchase* purchase)
-{
-    auto const& product = sBattlePayDataStore->GetProduct(purchase->ProductID);
-
-    auto stm = CharacterDatabase.GetPreparedStatement(CHAR_INS_PURCHASE);
-    stm->setUInt32(0, _session->GetAccountId());
-    stm->setUInt32(1, realm.Id.Realm);
-    stm->setUInt32(2, _session->GetPlayer() ? _session->GetPlayer()->GetGUIDLow() : 0);
-    stm->setString(3, product.Serialize());
-    stm->setUInt32(4, purchase->CurrentPrice);
-    stm->setString(5, _session->GetRemoteAddress());
-
-    _session->_queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stm).WithPreparedCallback([this](PreparedQueryResult result) -> void
-    {
-        OnPrepareStatementCallbackEvent(CallbackEvent::SavePurchase);
-    }));
-}
-
-void BattlepayManager::OnPrepareStatementCallbackEvent(uint8 callbackEvent)
-{
-    switch (callbackEvent)
-    {
-    case CallbackEvent::SavePurchase:
-        SendPointsBalance();
-        break;
-    default:
-        break;
-    }
-}
-
 void BattlepayManager::ProcessDelivery(Purchase* purchase)
 {
     // _existProducts.insert
@@ -245,17 +215,6 @@ void BattlepayManager::ProcessDelivery(Purchase* purchase)
 
     if (!product.ScriptName.empty())
         sScriptMgr->OnBattlePayProductDelivery(_session, product);
-}
-
-void BattlepayManager::OnPaymentSucess(uint32 newBalance)
-{
-    auto player = _session->GetPlayer();
-    if (!player)
-        return;
-
-    std::ostringstream data;
-    data << newBalance;
-    player->SendCustomMessage(GetCustomMessage(CustomMessage::StoreBalance), data);
 }
 
 bool BattlepayManager::AlreadyOwnProduct(uint32 itemId) const
@@ -629,42 +588,15 @@ std::tuple<bool, WorldPackets::BattlePay::ProductDisplayInfo> BattlepayManager::
 
 void BattlepayManager::SendPointsBalance()
 {
-    auto sessionId = _session->GetAccountId();
-
-    /*auto stm = CharacterDatabase.GetPreparedStatement(WEB_SEL_ACCOUNT_POINTS);
-    stm->setUInt32(0, _session->GetAccountId());
-    stm->setUInt32(1, _session->GetAccountId());*/
-
-    auto AsyncQuery = [sessionId](PreparedQueryResult result) -> void
-    {
-        auto sSession = sWorld->FindSession(sessionId);
-        if (!sSession)
-            return;
-
-        uint32 balance = 0;
-        if (result)
-        {
-            auto fields = result->Fetch();
-            if (auto balanceStr = fields[0].GetCString())
-                balance = atoi(balanceStr);
-        }
-
-        auto player = sSession->GetPlayer();
-        if (!player)
-            return;
-
-        std::ostringstream data;
-        data << balance;
-        player->SendCustomMessage(GetCustomMessage(CustomMessage::StoreBalance), data);
-    };
-
-    //_session->_queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stm).WithPreparedCallback(AsyncQuery));
-
     if (auto player = _session->GetPlayer())
     {
-        std::ostringstream data;
-        data << _session->GetAccountId();
-        player->SendCustomMessage(GetCustomMessage(CustomMessage::AccountId), data);
+        std::ostringstream dataName;
+        dataName << _session->GetAccountName();
+        player->SendCustomMessage(GetCustomMessage(CustomMessage::AccountName), dataName);
+
+        std::ostringstream dataBalance;
+        dataBalance << _session->GetBattlePayBalance();
+        player->SendCustomMessage(GetCustomMessage(CustomMessage::StoreBalance), dataBalance);
     }
 }
 
@@ -707,7 +639,7 @@ void BattlepayManager::SendBattlePayDistribution(uint32 productId, uint8 status,
         productItem.Quantity = item.Quantity;
         productItem.UnkInt1 = item.DisplayInfoID;
         productItem.UnkInt2 = 0;
-        productItem.PetResult = 0;;
+        productItem.PetResult = 0;
         productItem.HasPet = item.HasPet;
         productData.Items.emplace_back(productItem);
     }
@@ -730,6 +662,7 @@ void BattlepayManager::SendBattlePayDistribution(uint32 productId, uint8 status,
     productData.UnkString = "";
     productData.Type = 0;
     productData.UnkBit = false;
+
     distributionBattlePay.DistributionObject.Product = std::move(productData);
     _session->SendPacket(distributionBattlePay.Write());
 }

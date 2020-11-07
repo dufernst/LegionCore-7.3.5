@@ -75,7 +75,6 @@ static DumpTable dumpTables[DUMP_TABLE_COUNT] =
     //{ "character_garrison_buildings",     DTT_CHAR_TABLE, "`guid`, `plotInstanceId`, `buildingId`, `timeBuilt`, `data`, `active`"},
     //{ "character_garrison_followers",     DTT_CHAR_VS_FOLLOW, "`dbId`, `guid`, `followerId`, `quality`, `level`, `itemLevelWeapon`, `itemLevelArmor`, `xp`, `currentBuilding`, `currentMission`, `status`"},
     //{ "character_garrison_shipment",      DTT_CHAR_VS_SHIP, "`dbId`, `guid`, `shipmentID`, `orderTime`"},
-    //{ "store_history",                    DTT_LOGIN, "`realm`, `account`, `bnet_account`, `char_guid`, `char_level`, `art_level`, `item_guid`, `item`, `bonus`, `product`, `count`, `token`, `karma`, `status`, `type`, `trans_project`, `trans_realm`, `dt_buy`, `dt_return`"},
     { "character_transmog_outfits",       DTT_CHAR_TRANSMOG, "`guid`, `setguid`, `setindex`, `name`, `iconname`, `ignore_mask`, `appearance0`, `appearance1`, `appearance2`, `appearance3`, `appearance4`, `appearance5`, `appearance6`, `appearance7`, `appearance8`, `appearance9`, `appearance10`, `appearance11`, `appearance12`, `appearance13`, `appearance14`, `appearance15`, `appearance16`, `appearance17`, `appearance18`, `mainHandEnchant`, `offHandEnchant`"},
     //{ "item_instance_artifact",           DTT_ARTI_TABLE, "`itemGuid`, `xp`, `artifactAppearanceId`, `itemEntry`, `tier`, `char_guid`, `totalrank`"},
     //{ "item_instance_artifact_powers",    DTT_ARTI_TABLE, "`itemGuid`, `char_guid`, `artifactPowerId`, `purchasedRank`, `itemEntry`"},
@@ -1075,20 +1074,6 @@ DumpReturn PlayerDumpReader::LoadDump(uint32 account, std::string& dump, std::st
                 }
                 break;
             }
-            case DTT_LOGIN:
-            {
-                if (!ChangeNth(line, 4, newguid))
-                {
-                    TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "LoadPlayerDump: store_history.char_guid line: '%s'!", line.c_str());
-                    return DUMP_FILE_BROKEN;
-                }
-                if (!ChangeGuid(line, 7, items, sObjectMgr->GetGenerator<HighGuid::Item>()->GetNextAfterMaxUsed()))
-                {
-                    TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "LoadPlayerDump: store_history.item_guid line: '%s'!", line.c_str());
-                    return DUMP_FILE_BROKEN;
-                }
-                break;
-            }
             case DTT_ITEM_TABLE:
             {
                 if (!ChangeGuid(line, 1, items, sObjectMgr->GetGenerator<HighGuid::Item>()->GetNextAfterMaxUsed()))
@@ -1137,10 +1122,7 @@ DumpReturn PlayerDumpReader::LoadDump(uint32 account, std::string& dump, std::st
 
         fixNULLfields(line);
 
-        if (type == DTT_LOGIN)
-            loginTrans->Append(line.c_str());
-        else
-            trans->Append(line.c_str());
+        trans->Append(line.c_str());
     }
 
     CharacterDatabase.CommitTransaction(trans);

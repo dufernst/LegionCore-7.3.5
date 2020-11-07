@@ -135,8 +135,9 @@ auto MakePurchase = [](ObjectGuid targetCharacter, uint32 clientToken , uint32 p
 
     mgr->RegisterStartPurchase(purchase);
 
-    auto accountBalance = player->GetDonateTokens();
+    auto accountBalance = session->GetBattlePayBalance();
     auto purchaseData = mgr->GetPurchase();
+
     if (!accountBalance)
     {
         SendStartPurchaseResponse(session, *purchaseData, Battlepay::Error::InsufficientBalance);
@@ -233,7 +234,13 @@ void WorldSession::HandleBattlePayConfirmPurchase(WorldPackets::BattlePay::Confi
     }
 
     auto player = GetPlayer();
-    auto accountBalance = player->GetDonateTokens();
+    if (!player)
+    {
+        SendPurchaseUpdate(this, *purchase, Battlepay::Error::PurchaseDenied);
+        return;
+    }
+
+    auto accountBalance = GetBattlePayBalance();
     if (accountBalance < static_cast<int64>(purchase->CurrentPrice))
     {
         SendPurchaseUpdate(this, *purchase, Battlepay::Error::PurchaseDenied);
@@ -283,8 +290,8 @@ void WorldSession::HandleBattlePayConfirmPurchase(WorldPackets::BattlePay::Confi
 
     SendPurchaseUpdate(this, *purchase, Battlepay::Error::Other);
 
-    GetBattlePayMgr()->SavePurchase(purchase);
-    GetBattlePayMgr()->ProcessDelivery(purchase);
+    if (player->ChangeDonateTokenCount(-purchase->CurrentPrice, Battlepay::BattlepayCustomType::BattlePayShop, purchase->ProductID))
+        GetBattlePayMgr()->ProcessDelivery(purchase);
 }
 
 void WorldSession::HandleBattlePayAckFailedResponse(WorldPackets::BattlePay::BattlePayAckFailedResponse& /*packet*/)
@@ -322,6 +329,9 @@ void WorldSession::SendDisplayPromo(int32 promotionID /*= 0*/)
         return;
 
     //SendPacket(WorldPackets::BattlePay::BattlepayUnk(2).Write());
+
+    WorldPackets::BattlePay::DistributionListResponse packet;
+    SendPacket(packet.Write());
 
     /*
     auto player = GetPlayer();

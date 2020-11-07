@@ -54,7 +54,6 @@ enum DumpTableType
     DTT_CHAR_VS_FOLLOW, // character_garrison_followers
     DTT_FOLLOW,         // character_garrison_followers
     DTT_CHAR_VS_SHIP,   // character_garrison_shipment
-    DTT_LOGIN,          // store_history
 };
 
 enum DumpReturn

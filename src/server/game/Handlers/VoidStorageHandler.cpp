@@ -156,21 +156,6 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
 
         VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item, true);
 
-        { // donate status before destroy item
-            SQLTransaction transs = LoginDatabase.BeginTransaction();
-            TC_LOG_DEBUG(LOG_FILTER_DONATE, "[Status] Status = 5 item guid = %u, entry = %u, %s", itemVS.ItemId, item->GetEntry(), player->GetInfoForDonate().c_str());
-            uint8 index = 0;
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_HISTORY_STATUS_AND_GUID_BY_STATUS);
-            stmt->setUInt32(index, 5);
-            stmt->setUInt32(++index, itemVS.ItemId);
-            stmt->setUInt32(++index, item->GetGUID().GetGUIDLow());
-            stmt->setUInt32(++index, realm.Id.Realm);
-            stmt->setUInt32(++index, 0);
-
-            transs->Append(stmt);
-            LoginDatabase.CommitTransaction(transs);
-        }
-
         WorldPackets::VoidStorage::VoidItem voidItem;
         voidItem.Guid = ObjectGuid::Create<HighGuid::Item>(itemVS.ItemId);
         voidItem.Creator = item->GetGuidValue(ITEM_FIELD_CREATOR);
@@ -228,21 +213,6 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
             return;
 
         item->SetBinding(true);
-        
-        { // donate status before destroy VS
-            SQLTransaction transs = LoginDatabase.BeginTransaction();
-            TC_LOG_DEBUG(LOG_FILTER_DONATE, "[Status] (Return from void storage) Status = 0 item guid = %u, entry = %u, %s", item->GetGUID().GetGUIDLow(), itemVS->ItemId, player->GetInfoForDonate().c_str());
-            uint8 index = 0;
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_HISTORY_STATUS_AND_GUID_BY_STATUS);
-            stmt->setUInt32(  index, 0);
-            stmt->setUInt32(  ++index, item->GetGUID().GetGUIDLow());
-            stmt->setUInt32(  ++index, itemVS->ItemId);
-            stmt->setUInt32(  ++index, realm.Id.Realm);                 
-            stmt->setUInt32(  ++index, 5);                 
-        
-            transs->Append(stmt);
-            LoginDatabase.CommitTransaction(transs);
-        }
 
         voidStorageTransferChanges.RemovedItems.push_back(ObjectGuid::Create<HighGuid::Item>(itemVS->ItemId));
         itemVS->item = nullptr;

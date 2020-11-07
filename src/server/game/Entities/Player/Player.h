@@ -1679,13 +1679,10 @@ class Player : public Unit, public GridObject<Player>
         void SetBankBagSlotCount(uint8 count) { SetByteValue(PLAYER_FIELD_BYTES_3, PLAYER_BYTES_3_OFFSET_BANK_BAG_SLOTS, count); }
         
         uint32 CustomMultiDonate = 0; // entry for multi-vendors
-        uint32 GetDonateTokens() const;
         bool HasDonateToken(uint32 count) const;
-        bool DestroyDonateTokenCount(uint32 count);
-        bool AddDonateTokenCount(uint32 count);
+        bool ChangeDonateTokenCount(int64 change, uint8 buyType, uint64 productId);
         void ModifyCanUseDonate(bool apply){ canUseDonate = apply; }
         bool GetCanUseDonate() const { return canUseDonate; }
-        void UpdateDonateStatistics(int32 entry) const;
         std::string GetInfoForDonate() const;
         
         bool HasItemCount(uint32 item, uint32 count = 1, bool inBankAlso = false) const;

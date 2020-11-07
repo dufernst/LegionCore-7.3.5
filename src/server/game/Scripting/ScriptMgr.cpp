@@ -1486,35 +1486,26 @@ BattlePayProductScript::BattlePayProductScript(std::string name) : ScriptObject(
     ScriptRegistry<BattlePayProductScript>::AddScript(this);
 }
 
-void ScriptMgr::RegisterBattlePayProductScript(std::string scriptName, BattlePayProductScript* script)
-{
-    if (_battlePayProductScripts.find(scriptName) == _battlePayProductScripts.end())
-        _battlePayProductScripts[scriptName] = script;
-}
-
 void ScriptMgr::OnBattlePayProductDelivery(WorldSession* session, Battlepay::Product const& product)
 {
-    auto itr = _battlePayProductScripts.find(product.ScriptName);
-    if (itr != _battlePayProductScripts.end())
-        itr->second->OnProductDelivery(session, product);
+    ASSERT(session);
+
+    GET_SCRIPT(BattlePayProductScript, sObjectMgr->GetScriptId(product.ScriptName.c_str()), tmpscript);
+    tmpscript->OnProductDelivery(session, product);
 }
 
 bool ScriptMgr::BattlePayCanBuy(WorldSession* session, Battlepay::Product const& product, std::string& reason)
 {
-    auto itr = _battlePayProductScripts.find(product.ScriptName);
-    if (itr == _battlePayProductScripts.end())
-        return true;
+    ASSERT(session);
 
-    return itr->second->CanBuy(session, product, reason);
+    GET_SCRIPT_RET(BattlePayProductScript, sObjectMgr->GetScriptId(product.ScriptName.c_str()), tmpscript, false);
+    return tmpscript->CanBuy(session, product, reason);
 }
 
 std::string ScriptMgr::BattlePayGetCustomData(Battlepay::Product const& product)
 {
-    auto itr = _battlePayProductScripts.find(product.ScriptName);
-    if (itr == _battlePayProductScripts.end())
-        return "";
-
-    return itr->second->GetCustomData(product);
+    GET_SCRIPT_RET(BattlePayProductScript, sObjectMgr->GetScriptId(product.ScriptName.c_str()), tmpscript, "");
+    return tmpscript->GetCustomData(product);
 }
 
 WorldMapScript::WorldMapScript(std::string name, uint32 mapId) : ScriptObject(name), MapScript<Map>(mapId)

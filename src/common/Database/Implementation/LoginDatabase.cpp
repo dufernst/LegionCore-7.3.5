@@ -34,7 +34,7 @@ void LoginDatabaseConnection::DoPrepareStatements()
     PrepareStatement(LOGIN_DEL_ACCOUNT_BANNED, "DELETE FROM account_banned WHERE id = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_SEL_ACCOUNT_ID_BY_NAME, "SELECT id, hwid FROM account WHERE username = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_SEL_ACCOUNT_LIST_BY_NAME, "SELECT id, username FROM account WHERE username = ?", CONNECTION_BOTH);
-    PrepareStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME, "SELECT a.id, a.sessionkey, a.last_ip, a.locked, a.lock_country, a.expansion, a.mutetime, a.locale, a.recruiter, a.os, aa.gmLevel, a.AtAuthFlag, ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate, r.id, a.hwid FROM account a LEFT JOIN account r ON a.id = r.recruiter LEFT JOIN account_access aa ON a.id = aa.id AND aa.RealmID IN (-1, ?) LEFT JOIN account_banned ab ON a.id = ab.id AND ab.active = 1 WHERE a.username = ? ORDER BY aa.RealmID DESC LIMIT 1", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME, "SELECT a.id, a.sessionkey, a.last_ip, a.locked, a.lock_country, a.expansion, a.mutetime, a.locale, a.recruiter, a.os, aa.gmLevel, a.AtAuthFlag, a.balans, ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate, r.id, a.hwid FROM account a LEFT JOIN account r ON a.id = r.recruiter LEFT JOIN account_access aa ON a.id = aa.id AND aa.RealmID IN (-1, ?) LEFT JOIN account_banned ab ON a.id = ab.id AND ab.active = 1 WHERE a.username = ? ORDER BY aa.RealmID DESC LIMIT 1", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_SEL_ACCOUNT_BY_IP, "SELECT id, username FROM account WHERE last_ip = ?", CONNECTION_BOTH);
     PrepareStatement(LOGIN_SEL_ACCOUNT_BY_ID, "SELECT 1 FROM account WHERE id = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_INS_IP_BANNED, "INSERT INTO ip_banned VALUES (?, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()+?, ?, ?)", CONNECTION_ASYNC);
@@ -100,28 +100,8 @@ void LoginDatabaseConnection::DoPrepareStatements()
     
     PrepareStatement(LOGIN_SEL_ACCOUNT_IP_ACCESS, "select min, max from account_ip_access WHERE pid = ? AND enable = 1", CONNECTION_SYNCH);
     
-    PrepareStatement(LOGIN_SELECT_DONATE_TOKEN, "SELECT `balans` from account WHERE id = ?;", CONNECTION_SYNCH);
-    PrepareStatement(LOGIN_UPD_DESTROY_DONATE_TOKEN, "UPDATE account SET balans = balans - ? WHERE id = ?;", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_UPD_ADD_DONATE_TOKEN, "UPDATE account SET balans = balans + ? WHERE id = ?;", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_INS_STORE_ADD_ITEM_LOG, "INSERT INTO `store_history` (`realm`, `account`, `char_guid`, `item_guid`, `item`, `count`, `token`, `char_level`, `product`, `bonus`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, (select `bonus` from `store_products` where id = ?));", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_INS_STORE_ADD_ITEM_LOG_SERVICE, "INSERT INTO `store_history` (`realm`, `account`, `char_guid`, `item_guid`, `item`, `count`, `token`, `char_level`, `product`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, (select `id` from `store_products` where `item` = ?));", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_INS_STORE_ADD_ITEM_LOG_BONUS, "INSERT INTO `store_history` (`realm`, `account`, `char_guid`, `item_guid`, `item`, `count`, `token`, `char_level`, `product`, `bonus`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, (select `id` from `store_products` where `item` = ?), ?);", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_INS_STORE_ADD_ITEM_LOG_ADDITIONAL, "INSERT INTO `store_history` (`realm`, `account`, `char_guid`, `item_guid`, `item`, `count`, `token`, `char_level`, `product`, `bonus`) VALUES (?, ?,?, ?, ?, ?, ?, ?, ?, ?);", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_UPD_HISTORY_GUID, "UPDATE `store_history` SET item_guid = ? WHERE id = ? AND item = ?;", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_UPD_HISTORY_STATUS, "UPDATE `store_history` SET `status` = ? WHERE `item_guid` = ? and `realm` = ? and (`status` = 0 or `status` = 6)", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_UPD_HISTORY_STATUS_AND_GUID_BY_STATUS, "UPDATE `store_history` SET `status` = ?, `item_guid` = ? WHERE `item_guid` = ? and `realm` = ? and `status` = ?", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_UPD_HISTORY_RETURN, "UPDATE `store_history` SET `status` = 7, dt_return = NOW() WHERE `item_guid` = ? and `realm` = ? and (`status` = 0 or `status` = 6)", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_INS_STORE_ADD_ITEM_LOG_SERVICE_ART, "INSERT INTO `store_history` (`realm`, `account`, `char_guid`, `item_guid`, `item`, `count`, `token`, `char_level`, `product`, art_level) VALUES (?, ?, ?, ?, ?, ?, ?, ?, (select `id` from `store_products` where `item` = ?), ?);", CONNECTION_ASYNC);
-    PrepareStatement(LOGIN_INS_STORE_ADD_ITEM_LOG_GUILD_RENAME, "INSERT INTO `store_history` (`realm`, `account`, `char_guid`, `item_guid`, `item`, `count`, `token`, `char_level`, `product`, `guild_name`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, (select `id` from `store_products` where `item` = ?), ?);", CONNECTION_ASYNC);
-
-    // 0 - по умолчанию, игрок получил предмет
-    // 1 - удалён
-    // 2 - продан
-    // 3 - использован и удален
-    // 4 - распылён
-    // 5 - в хранилище (продолжаем следить при возврате)
-    // 6 - использован, но не удален (многоразовый?) (продолжаем следить)
-    // 7 - возвращен
+    PrepareStatement(LOGIN_UPD_DONATE_TOKEN, "UPDATE account SET balans = balans + ? WHERE id = ?;", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_INS_LOG_USE_DONATE_TOKEN, "INSERT INTO `account_donate_token_log` (`accountId`, `realmId`, `characterId`, `change`, `type`, `productId`) VALUES (?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
 
     PrepareStatement(LOGIN_SEL_ACCOUNT_CHARACTER_TEMPLATE, "SELECT `id`, `level`, `iLevel`, `money`, `artifact`, `transferId`, `templateId` FROM account_character_template WHERE account = ? AND realm = ? AND charGuid = 0", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_UPD_ACCOUNT_CHARACTER_TEMPLATE, "UPDATE `account_character_template` SET charGuid = ? WHERE id = ?;", CONNECTION_ASYNC);

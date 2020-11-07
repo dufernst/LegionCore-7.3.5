@@ -46,22 +46,7 @@ void WorldSession::HandleAddToy(WorldPackets::Toy::AddToy& packet)
     }
 
     if (player->GetCollectionMgr()->AddToy(item->GetEntry(), false))
-    {
-        { // donate status
-            SQLTransaction transs = LoginDatabase.BeginTransaction();
-            TC_LOG_DEBUG(LOG_FILTER_DONATE, "[Status] Status = 3 item guid = %u, entry = %u, %s", item->GetGUID().GetGUIDLow(), item->GetEntry(), player->GetInfoForDonate().c_str());
-            uint8 index = 0;
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_HISTORY_STATUS);
-            stmt->setUInt32(  index, 3);
-            stmt->setUInt32(  ++index, item->GetGUID().GetGUIDLow()); 
-            stmt->setUInt32(  ++index, realm.Id.Realm); 
-                    
-            transs->Append(stmt);
-            LoginDatabase.CommitTransaction(transs); 
-        }
-        
         player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
-    }
 }
 
 void WorldSession::HandleUseToy(WorldPackets::Toy::UseToy& packet)

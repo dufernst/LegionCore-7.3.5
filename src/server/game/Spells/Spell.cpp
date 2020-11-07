@@ -5840,19 +5840,6 @@ void Spell::TakeCastItem()
 
     if (expendable && withoutCharges)
     {
-        { // donate
-            SQLTransaction transs = LoginDatabase.BeginTransaction();
-            TC_LOG_DEBUG(LOG_FILTER_DONATE, "[Status] Status = 3 item  guid = %u, entry = %u, %s", m_CastItem->GetGUID().GetGUIDLow(), m_CastItem->GetEntry(), m_caster->ToPlayer()->GetInfoForDonate().c_str());
-            uint8 index = 0;
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_HISTORY_STATUS);
-            stmt->setUInt32(  index, 3); // used and del
-            stmt->setUInt32(  ++index, m_CastItem->GetGUID().GetGUIDLow()); 
-            stmt->setUInt32(  ++index, realm.Id.Realm); 
-
-            transs->Append(stmt);
-            LoginDatabase.CommitTransaction(transs); 
-        }
-        
         uint32 count = 1;
         m_CastItem->SetInUse(false);
         m_caster->ToPlayer()->DestroyItemCount(m_CastItem, count, true);
@@ -5864,21 +5851,6 @@ void Spell::TakeCastItem()
         m_CastItem = nullptr;
         m_castItemEntry = 0;
         m_castItemGUID.Clear();
-    }
-    else
-    {
-        { // donate
-            SQLTransaction transs = LoginDatabase.BeginTransaction();
-            TC_LOG_DEBUG(LOG_FILTER_DONATE, "[Status] Status = 6 item  guid = %u, entry = %u, %s", m_CastItem->GetGUID().GetGUIDLow(), m_CastItem->GetEntry(), m_caster->ToPlayer()->GetInfoForDonate().c_str());
-            uint8 index = 0;
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_HISTORY_STATUS);
-            stmt->setUInt32(  index, 6); // used without del
-            stmt->setUInt32(  ++index, m_CastItem->GetGUID().GetGUIDLow()); 
-            stmt->setUInt32(  ++index, realm.Id.Realm); 
-
-            transs->Append(stmt);
-            LoginDatabase.CommitTransaction(transs); 
-        }
     }
 }
 

@@ -142,6 +142,16 @@ namespace Battlepay
 {
     const float g_CurrencyPrecision = 10000.0f;
 
+    namespace BattlepayCustomType
+    {
+        enum : uint8
+        {
+            BattlePayShop,
+            VendorBuyCurrency,
+            VendorBuyItem,
+        };
+    };
+
     namespace BattlepayProductGroupFlag
     {
         enum : uint8
@@ -228,14 +238,14 @@ namespace Battlepay
         enum
         {
             StoreBalance,
-            AccountId,
+            AccountName,
             StoreBuyFailed
         };
 
         static const char* CustomMessage[] =
         {
             "STORE_BALANCE",
-            "ACCOUNT_ID",
+            "ACCOUNT_NAME",
             "STORE_BUY_FAILED"
         };
 
@@ -340,14 +350,6 @@ namespace Battlepay
         };
     }
 
-    namespace CallbackEvent
-    {
-        enum
-        {
-            SavePurchase
-        };
-    }
-
     struct ProductGroup
     {
         uint32 GroupID;
@@ -449,10 +451,7 @@ public:
     Battlepay::BattlePayCurrency GetShopCurrency() const;
     bool IsAvailable() const;
     bool AlreadyOwnProduct(uint32 itemId) const;
-    void SavePurchase(Battlepay::Purchase* purchase);
-    void OnPrepareStatementCallbackEvent(uint8 callbackEvent);
     void ProcessDelivery(Battlepay::Purchase* purchase);
-    void OnPaymentSucess(uint32 newBalance);
     void RegisterStartPurchase(Battlepay::Purchase purchase);
     uint64 GenerateNewPurchaseID();
     uint64 GenerateNewDistributionId();

@@ -19,6 +19,7 @@
 #define SC_SCRIPTLOADER_H
 
 void AddScripts();
+void AddBattlePayScripts();
 void AddSpellScripts();
 void AddCommandScripts();
 void AddWorldScripts();

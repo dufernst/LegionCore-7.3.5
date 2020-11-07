@@ -4348,7 +4348,6 @@ void World::ProcessMailboxQueue()
             uint32 money = f[i++].GetUInt32();
             uint32 itemid = f[i++].GetUInt32();
             uint32 itemcount = f[i++].GetUInt32();
-            uint32 store_history = f[i++].GetUInt32();
 
             if(itemid != 0 && itemid != 49426 && itemid != 38186 && itemid != 62062 && itemid != 47241 && money)
                 money = 0;
@@ -4411,49 +4410,14 @@ void World::ProcessMailboxQueue()
                         
                         if(attachment)
                         {
-                            if(store_history)
-                            {
-                                QueryResult result_bonus = LoginDatabase.PQuery("SELECT bonus FROM `store_history` where id = %u", store_history);
-                                if (result_bonus)
-                                {
-                                    Field* fields = result_bonus->Fetch();
-
-                                    Tokenizer BonusListID(fields[0].GetString(), ':');
-                                    for (char const* token : BonusListID)
-                                        attachment->AddBonuses(atol(token));
-                                }
-                                attachment->SetDonateItem(true);
-                                attachment->SetBinding(true);
-                            }
                             attachment->SaveToDB(trans);
                             ItemsOnMail.push_back(attachment);
                         }
                     }
                  
                     if(attachment != nullptr)
-                    {
                         trans->PAppend("REPLACE INTO mail_items (mail_id,item_guid,receiver) VALUES ('%u', '%u', '%u')", mailId, attachment->GetGUIDLow(), receiver_guid.GetGUIDLow());
-                        if(store_history)
-                        {
-                            SQLTransaction transs = LoginDatabase.BeginTransaction();
 
-                            stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_HISTORY_GUID);
-                            stmt->setUInt64(0, attachment->GetGUIDLow());
-                            stmt->setUInt32(1, store_history);
-                            stmt->setUInt32(2, itemid);
-                            transs->Append(stmt);
-                            LoginDatabase.CommitTransaction(transs);
-                            /*
-                            stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_ITEM_DONATE);
-                            stmt->setUInt64(0, receiver_guid.GetCounter());
-                            stmt->setUInt64(1, attachment->GetGUIDLow());
-                            stmt->setUInt32(2, itemid);
-                            stmt->setUInt32(3, forefir);
-                            stmt->setUInt32(4, itemcount);
-                            stmt->setUInt32(5, 0);
-                            trans->Append(stmt); */
-                        }
-                    }
                     TC_LOG_ERROR(LOG_FILTER_REMOTECOMMAND,"Sending mail to %u, Item:%u , ItemCount:%u, %s", receiver_guid.GetGUIDLow(), itemid,itemcount,body.c_str());
 
                 }

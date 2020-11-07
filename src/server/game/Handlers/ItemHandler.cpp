@@ -436,19 +436,6 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
                 player->ModifyMoney(money);
                 player->UpdateAchievementCriteria(CRITERIA_TYPE_MONEY_FROM_VENDORS, money);
                 player->SendSellError(SELL_ERR_OK, creature, packet.ItemGUID);
-                
-                SQLTransaction transs = LoginDatabase.BeginTransaction();
-                
-                TC_LOG_DEBUG(LOG_FILTER_DONATE, "[Status] Status = 2 item  guid = %u, entry = %u, %s", item->GetGUIDLow(), item->GetEntry(), player->GetInfoForDonate().c_str());
-                
-                uint8 index = 0;
-                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_HISTORY_STATUS);
-                stmt->setUInt32(  index, 2);
-                stmt->setUInt32(  ++index, item->GetGUID().GetGUIDLow());
-                stmt->setUInt32(  ++index, realm.Id.Realm);                 
-            
-                transs->Append(stmt);
-                LoginDatabase.CommitTransaction(transs);
             }
             else
                 player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);

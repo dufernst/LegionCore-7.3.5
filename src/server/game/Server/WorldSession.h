@@ -1045,7 +1045,7 @@ typedef std::map<uint32, CharacterTemplateData> CharacterTemplateDataMap;
 class WorldSession
 {
     public:
-        WorldSession(uint32 id, std::string&& name, const std::shared_ptr<WorldSocket>& sock, AccountTypes sec, uint8 expansion, time_t mute_time, std::string os, LocaleConstant locale, uint32 recruiter, bool isARecruiter, AuthFlags flag);
+        WorldSession(uint32 id, std::string&& name, const std::shared_ptr<WorldSocket>& sock, AccountTypes sec, uint8 expansion, time_t mute_time, std::string os, LocaleConstant locale, uint32 recruiter, bool isARecruiter, AuthFlags flag, int64 balance);
         ~WorldSession();
 
         bool PlayerLoading() const { return !m_playerLoading.IsEmpty(); }
@@ -1973,6 +1973,8 @@ class WorldSession
         void AddAuthFlag(AuthFlags f);
         void RemoveAuthFlag(AuthFlags f);
         void SaveAuthFlag();
+        int64 GetBattlePayBalance() { return battlePayBalance; }
+        void ChangeBattlePayBalance(int64 change) { battlePayBalance += change; }
 
         void SendCharacterEnum(bool deleted = false);
 
@@ -2112,6 +2114,7 @@ class WorldSession
         uint32 expireTime;
         bool forceExit;
         std::atomic<bool> m_sUpdate;
+        int64 battlePayBalance;
 
         bool wardenModuleFailed;
 

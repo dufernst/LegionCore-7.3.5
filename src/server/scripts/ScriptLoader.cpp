@@ -26,6 +26,9 @@ void AddSC_battleground_shado_pan();
 //customs
 void AddSC_CustomStartups();
 
+//battlepay
+void AddSC_BattlePay_Services();
+
 //spells
 void AddSC_demonhunter_spell_scripts();
 void AddSC_deathknight_spell_scripts();
@@ -1278,6 +1281,7 @@ void AddSC_chat_log();
 
 void AddScripts()
 {
+    AddBattlePayScripts();
     AddSpellScripts();
     AddCommandScripts();
     AddBattlegroundScripts();
@@ -1293,6 +1297,11 @@ void AddScripts()
     AddOutdoorPvPScripts();
     AddCustomScripts();
 #endif
+}
+
+void AddBattlePayScripts()
+{
+    AddSC_BattlePay_Services();
 }
 
 void AddSpellScripts()
