@@ -1,4 +1,5 @@
-
+#include "ScriptMgr.h"
+#include "Player.h"
 #include "BattlePayMgr.h"
 
 template<uint32 t_Level> class BattlePay_Level : BattlePayProductScript
@@ -35,6 +36,24 @@ public:
     }
 };
 
+class playerScriptTokensAvailable : public PlayerScript
+{
+public:
+    playerScriptTokensAvailable() : PlayerScript("playerScriptTokensAvailable") { }
+
+    void OnLogin(Player* player) override
+    {
+        if (player)
+        {
+            if (player->GetSession()->GetBattlePayBalance() >= 100)
+            {
+                player->SendMessageToPlayer("Returning players received one free level boost per account, you have not used this level boost yet.");
+                player->SendMessageToPlayer("Login the character you want to have the level boost on, and claim it via the ingame store (Ingame Menu -> Shop).");
+            }
+        }
+    }
+};
+
 template <uint32 t_AccountServiceFlag> class BattlePay_AccountService : BattlePayProductScript
 {
 public:
@@ -55,5 +74,6 @@ public:
 void AddSC_BattlePay_Services()
 {
     new BattlePay_Level<90>("battlepay_service_level90");
+    new playerScriptTokensAvailable();
     //new BattlePay_AccountService<ServiceFlags::PremadePve>("battlepay_service_premade");
 }
