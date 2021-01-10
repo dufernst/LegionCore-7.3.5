@@ -445,6 +445,7 @@ public:
     static char const* GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale = DEFAULT_LOCALE, uint8 gender = GENDER_MALE, bool forceGender = false);
     AchievementEntry const* GetsAchievementByTreeList(uint32 criteriaTree);
     std::array<std::vector<uint32>, 2> GetItemLoadOutItemsByClassID(uint32 classID, uint8 type = 0);
+    std::vector<uint32> GetLowestIdItemLoadOutItemsBy(uint32 classID, uint8 type);
     std::vector<CriteriaTreeEntry const*> const* GetCriteriaTreeList(uint32 parent);
     std::vector<ModifierTreeEntry const*> const* GetModifierTreeList(uint32 parent);
     std::string GetNameGenEntry(uint8 race, uint8 gender) const;

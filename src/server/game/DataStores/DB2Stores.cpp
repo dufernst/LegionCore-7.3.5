@@ -3030,6 +3030,21 @@ std::array<std::vector<uint32>, 2> DB2Manager::GetItemLoadOutItemsByClassID(uint
     return _array;
 }
 
+std::vector<uint32> DB2Manager::GetLowestIdItemLoadOutItemsBy(uint32 classID, uint8 type)
+{
+    auto itr = _characterLoadout.find(classID);
+    if (itr == _characterLoadout.end())
+        return std::vector<uint32>();
+
+    uint32 smallest = std::numeric_limits<uint32>::max();
+    for (auto const& v : itr->second)
+        if (v.second == type)
+            if (v.first < smallest)
+                smallest = v.first;
+
+    return _characterLoadoutItem.count(smallest) ? _characterLoadoutItem[smallest] : std::vector<uint32>();
+}
+
 std::vector<CriteriaTreeEntry const*> const* DB2Manager::GetCriteriaTreeList(uint32 parent)
 {
     return Trinity::Containers::MapGetValuePtr(_criteriaTree, parent);
