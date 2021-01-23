@@ -3,6 +3,7 @@
 #include "MapManager.h"
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
+#include "SpellAuraEffects.h"
 
 class sceneTrigger_dh_init : public SceneTriggerScript
 {
@@ -1678,6 +1679,7 @@ public:
         uint32 healthPct;
         SummonList summons;
         uint32 count;
+        std::unordered_set<uint32> currentPlayers;
 
         npc_q38728_tyrannaAI(Creature* creature) : ScriptedAI(creature), healthPct(0), summons(me), count(0)
         {
@@ -1689,6 +1691,7 @@ public:
         {
             SPELL_1 = 197627,  // 8
             SPELL_2 = 197414,  // phase -35%
+            SPELL_QUEENS_BITE = 197486,
             NPC_ADD = 100333,
             
         };
@@ -1699,6 +1702,7 @@ public:
             summons.DespawnAll();
             events.Reset();
             count = 0;
+            currentPlayers.clear();
         }
         
         void JustSummoned(Creature* summon) override
@@ -1709,20 +1713,36 @@ public:
 
         void EnterCombat(Unit* victim) override
         {
-            sCreatureTextMgr->SendChat(me, TEXT_GENERIC_0, victim->GetGUID());
             events.RescheduleEvent(EVENT_1, 8000);
+            events.RescheduleEvent(EVENT_4, 10000);
+        }
+
+        void AttackedBy(Unit* attacker) override
+        {
+            // for every player in combat with this boss add 800k HP
+            if (attacker->IsPlayer() && currentPlayers.count(attacker->GetGUIDLow()) == 0)
+            {
+                currentPlayers.insert(attacker->GetGUIDLow());
+                me->SetMaxHealth(me->GetMaxHealth() + 800000);
+                me->SetHealth(me->GetHealth() + 800000);
+            }
         }
 
         void JustDied(Unit* killer) override
         {
-            Player *player = killer->ToPlayer();
-            if (!player)
-                return;
-            sCreatureTextMgr->SendChat(me, TEXT_GENERIC_3, player->GetGUID());
+            Talk(3);
+
+            // remove Queen's Bite Transformation if any
+            me->CastSpell(me, 208121, true);
+
+            //TODO: Threat does not properly reset for the npc demon hunters due to the faction change
         }
         
         void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType dmgType) override
         {
+            if (me->HasAura(SPELL_2))
+                damage = 0;
+
             if (me->HealthBelowPct(healthPct))
             {
                 if (healthPct == 65)
@@ -1731,15 +1751,21 @@ public:
                     healthPct = 0;
                 
                 events.RescheduleEvent(EVENT_2, 500);
+                events.CancelEvent(EVENT_1);
+                events.CancelEvent(EVENT_4);
             }
         }
         
         void UpdateAI(uint32 diff) override
         {
-            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
+            if (!UpdateVictim())
                 return;            
 
             events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
             if (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
@@ -1749,14 +1775,14 @@ public:
                         events.RescheduleEvent(EVENT_1, 8000);
                         break;
                     case EVENT_2:
-                        events.CancelEvent(EVENT_1);
                         me->SetReactState(REACT_PASSIVE);
                         DoCast(SPELL_2);
                         Talk(1);
                         Talk(2);
                         count = 0;
                         events.RescheduleEvent(EVENT_3, 3000);
-                        events.RescheduleEvent(EVENT_1, 26000);
+                        events.RescheduleEvent(EVENT_1, 27000);
+                        events.RescheduleEvent(EVENT_4, 23000);
                         break;
                     case EVENT_3:
                         count++;
@@ -1767,15 +1793,195 @@ public:
                         if (count < 3)
                             events.RescheduleEvent(EVENT_3, 5000);
                         else
-                            me->SetReactState(REACT_DEFENSIVE);                        
+                            me->SetReactState(REACT_DEFENSIVE);
+                        break;
+                    case EVENT_4:
+                        events.RescheduleEvent(EVENT_4, 55000);
+                        Talk(0);
+
+                        std::list<Unit*> targetList;
+                        me->GetAttackableUnitListInRange(targetList, 20.0f);
+                        targetList.remove_if([](WorldObject* target)
+                        {
+                            if (target->GetEntry() == 97244)
+                                return false;
+                            if (target->GetEntry() == 97959)
+                                return false;
+                            if (target->GetEntry() == 97962)
+                                return false;
+                            if (target->GetEntry() == 98712)
+                                return false;
+
+                            return true;
+                        });
+
+                        if (!targetList.empty())
+                        {
+                            std::vector<Unit*> targetVector(targetList.begin(), targetList.end());
+                            targetVector[urand(0, targetVector.size() - 1)]->CastSpell(me, SPELL_QUEENS_BITE, true);
+                        }
+
                         break;
                 }
             }
+
             DoMeleeAttackIfReady();
         }
     };
 };
 
+class spell_legion_197486 : public SpellScriptLoader
+{
+public:
+    spell_legion_197486() : SpellScriptLoader("spell_legion_197486") { }
+
+    class spell_legion_197486_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_legion_197486_SpellScript);
+
+        void RemoveVehicleEnter()
+        {
+            if (Unit* caster = GetCaster())
+                if (Creature* tyranna = caster->FindNearestCreature(93802, 150.0f, true))
+                    tyranna->RemoveAura(197493);
+        }
+
+        void AddVehicleEnter(SpellEffIndex /*p_EffIndex*/)
+        {
+            if (Unit* caster = GetCaster())
+                if (Creature* tyranna = caster->FindNearestCreature(93802, 150.0f, true))
+                    caster->CastSpell(tyranna, 197493, true);
+        }
+
+        void Register() override
+        {
+            //TODO: this is still a mess...
+            //OnEffectHitTarget += SpellEffectFn(spell_legion_197486_SpellScript::AddVehicleEnter, EFFECT_0, SPELL_EFFECT_KNOCK_BACK);
+            //AfterHit += SpellHitFn(spell_legion_197486_SpellScript::RemoveVehicleEnter);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_legion_197486_SpellScript();
+    }
+};
+
+class spell_legion_208121 : public SpellScriptLoader
+{
+public:
+    spell_legion_208121() : SpellScriptLoader("spell_legion_208121") { }
+
+    class spell_legion_208121_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_legion_208121_SpellScript);
+
+        //TODO: debug this...
+        void CorrectTargetsEff0(std::list<WorldObject*>& targets)
+        {
+            targets.remove_if([this](WorldObject* target)
+            {
+                if (Creature* creature = target->ToCreature())
+                    if (creature->HasAura(this->GetSpellInfo()->GetEffect(0)->TriggerSpell))
+                        return false;
+
+                return true;
+            });
+        }
+
+        void CorrectTargetsEff1(std::list<WorldObject*>& targets)
+        {
+            targets.remove_if([this](WorldObject* target)
+            {
+                if (Creature* creature = target->ToCreature())
+                    if (creature->HasAura(this->GetSpellInfo()->GetEffect(1)->TriggerSpell))
+                        return false;
+
+                return true;
+            });
+        }
+
+        void Register() override
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_legion_208121_SpellScript::CorrectTargetsEff0, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_legion_208121_SpellScript::CorrectTargetsEff1, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_legion_208121_SpellScript();
+    }
+};
+
+class spell_legion_197523 : public SpellScriptLoader
+{
+public:
+    spell_legion_197523() : SpellScriptLoader("spell_legion_197523") { }
+
+    class spell_legion_197523_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_legion_197523_SpellScript);
+
+        void HandleScriptEffect(SpellEffIndex effIndex)
+        {
+            if (Unit* unit = GetCaster())
+            {
+                if (unit->GetEntry() == 97244 || unit->GetEntry() == 97959)
+                    unit->CastSpell(unit, 197505);
+                else
+                    unit->CastSpell(unit, 197598);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_legion_197523_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_legion_197523_SpellScript();
+    }
+};
+
+class spell_legion_197505_197598 : public SpellScriptLoader
+{
+public:
+    spell_legion_197505_197598() : SpellScriptLoader("spell_legion_197505_197598") { }
+
+    class spell_legion_197505_197598_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_legion_197505_197598_AuraScript);
+
+            void OnTick(AuraEffect const* aurEff)
+            {
+                Unit* caster = GetCaster();
+                if(!caster)
+                    return;
+
+                //TODO: use dbc values here instead of hardcoded
+                //if (caster->GetHealthPct() < aurEff->GetBaseAmount())
+                //    caster->RemoveAura(aurEff->GetBase());
+                if (caster->GetHealthPct() < 50.0f)
+                {
+                    caster->RemoveAura(197505);
+                    caster->RemoveAura(197598);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_legion_197505_197598_AuraScript::OnTick, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_legion_197505_197598_AuraScript();
+    }
+};
 
 //101760
 class npc_q38728_progres1 : public CreatureScript
@@ -2605,6 +2811,10 @@ void AddSC_Mardum()
     new go_q40378();
     new go_q39279();
     new spell_legion_q39279();
+    new spell_legion_197486();
+    new spell_legion_197505_197598();
+    new spell_legion_197523();
+    new spell_legion_208121();
     new npc_q40378();
     new conversation_announcer();
     new npc_q39049();
