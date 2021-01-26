@@ -661,7 +661,7 @@ bool Creature::InitEntry(uint32 entry, uint32 /*team*/, const CreatureData* data
         LoadEquipment(data->equipmentId);
     }
 
-    SetName(!minfo->gender ? cinfo->Name[0] : cinfo->NameAlt[0]);
+    SetName((minfo->gender == GENDER_MALE || cinfo->NameAlt[0].empty()) ? cinfo->Name[0] : cinfo->NameAlt[0]);
 
     //Set default
     SetFloatValue(UNIT_FIELD_MOD_CASTING_SPEED, 1.0f);

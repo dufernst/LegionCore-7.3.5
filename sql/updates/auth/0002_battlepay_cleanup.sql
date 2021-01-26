@@ -9,7 +9,7 @@ CREATE TABLE `account_donate_token_log` (
 	`characterId` BIGINT(20) UNSIGNED NOT NULL,
 	`change` INT(11) NOT NULL,
 	`type` TINYINT(3) UNSIGNED NOT NULL,
-	`productId` INT(10) UNSIGNED NOT NULL
+	`productId` INT(10) UNSIGNED NOT NULL,
 	PRIMARY KEY (`id`)
 )
 COLLATE='latin1_swedish_ci';
