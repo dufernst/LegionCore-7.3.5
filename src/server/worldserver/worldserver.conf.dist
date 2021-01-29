@@ -1063,6 +1063,14 @@ DBC.EnforceItemAttributes = 1
 AccountInstancesPerHour = 255
 
 #
+#   MaxAccountsOnline
+#        Description: Maximum number of account that can be online concurrently, additional logins
+#                     will be placed in a queue till a spot becomes available.
+#        Default:     1000
+
+MaxAccountsOnline = 1000
+
+#
 ###################################################################################################
 
 ###################################################################################################
