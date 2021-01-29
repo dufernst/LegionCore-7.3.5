@@ -18,8 +18,10 @@
 
 #include "AccountMgr.h"
 #include "DatabaseEnv.h"
+#ifndef _WEB_API
 #include "ObjectAccessor.h"
 #include "Player.h"
+#endif
 #include "Util.h"
 #include "SHA1.h"
 #include "SHA256.h"
@@ -27,7 +29,7 @@
 namespace AccountMgr
 {
 
-AccountOpResult CreateAccount(std::string username, std::string password)
+AccountOpResult CreateAccount(std::string username, std::string password, bool async)
 {
     if (utf8length(username) > MAX_EMAIL_STR)
         return AccountOpResult::AOR_NAME_TOO_LONG;          // username's too long
@@ -44,11 +46,16 @@ AccountOpResult CreateAccount(std::string username, std::string password)
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT);
     stmt->setString(0, username);
     stmt->setString(1, CalculateShaPassHash(username, password));
-    LoginDatabase.Execute(stmt);
+
+    if (async)
+        LoginDatabase.Execute(stmt);
+    else
+        LoginDatabase.DirectExecute(stmt);
 
     return AccountOpResult::AOR_OK;                         // everything's fine
 }
 
+#ifndef _WEB_API
 AccountOpResult DeleteAccount(uint32 accountId)
 {
     // Check if accounts exists
@@ -119,8 +126,9 @@ AccountOpResult DeleteAccount(uint32 accountId)
 
     return AccountOpResult::AOR_OK;
 }
+#endif
 
-AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword)
+AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword, bool async)
 {
     // Check if accounts exists
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_ID);
@@ -145,12 +153,15 @@ AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::s
     stmt->setString(1, CalculateShaPassHash(newUsername, newPassword));
     stmt->setUInt32(2, accountId);
 
-    LoginDatabase.Execute(stmt);
+    if (async)
+        LoginDatabase.Execute(stmt);
+    else
+        LoginDatabase.DirectExecute(stmt);
 
     return AccountOpResult::AOR_OK;
 }
 
-AccountOpResult ChangePassword(uint32 accountId, std::string newPassword)
+AccountOpResult ChangePassword(uint32 accountId, std::string newPassword, bool async)
 {
     std::string username;
 
@@ -168,7 +179,10 @@ AccountOpResult ChangePassword(uint32 accountId, std::string newPassword)
     stmt->setString(0, CalculateShaPassHash(username, newPassword));
     stmt->setUInt32(1, accountId);
 
-    LoginDatabase.Execute(stmt);
+    if (async)
+        LoginDatabase.Execute(stmt);
+    else
+        LoginDatabase.DirectExecute(stmt);
 
     return AccountOpResult::AOR_OK;
 }

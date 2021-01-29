@@ -1,0 +1,110 @@
+###############################################
+# Trinity Core Auth Server configuration file #
+###############################################
+[webapi]
+
+###################################################################################################
+# SECTION INDEX
+#
+#    EXAMPLE CONFIG
+#    AUTH SERVER SETTINGS
+#    MYSQL SETTINGS
+#
+###################################################################################################
+
+###################################################################################################
+# EXAMPLE CONFIG
+#
+#    Variable
+#        Description: Brief description what the variable is doing.
+#        Important:   Annotation for important things about this variable.
+#        Example:     "Example, i.e. if the value is a string"
+#        Default:     10 - (Enabled|Comment|Variable name in case of grouped config options)
+#                     0  - (Disabled|Comment|Variable name in case of grouped config options)
+#
+# Note to developers:
+# - Copy this example to keep the formatting.
+# - Line breaks should be at column 100.
+###################################################################################################
+
+###################################################################################################
+# AUTH SERVER SETTINGS
+#
+#    Port
+#        Description: TCP port to reach the webapi server.
+#        Default:     8090
+
+Port = 8090
+
+#
+#
+#    BindIP
+#        Description: Bind webapi server to IP/hostname
+#        Default:     "127.0.0.1" - (Bind to localhost)
+
+BindIP = "127.0.0.1"
+
+
+#
+###################################################################################################
+
+###################################################################################################
+# MYSQL SETTINGS
+#
+#    LoginDatabaseInfo
+#        Description: Database connection settings for the realm server.
+#        Example:     "hostname;port;username;password;database"
+#                     ".;somenumber;username;password;database" - (Use named pipes on Windows
+#                                                                 "enable-named-pipe" to [mysqld]
+#                                                                 section my.ini)
+#                     ".;/path/to/unix_socket;username;password;database" - (use Unix sockets on
+#                                                                           Unix/Linux)
+#        Default:     "127.0.0.1;3306;trinity;trinity;auth"
+
+LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;auth"
+
+
+#
+###################################################################################################
+
+###################################################################################################
+# SMTP SERVER SETTINGS
+#
+#    Port
+#        Description: TCP port to reach the webapi server.
+#        Default:     25
+
+SMTPPort = 25
+
+#
+#
+#    BindIP
+#        Description: Bind webapi server to IP/hostname
+#        Default:     "127.0.0.1" - (Bind to localhost)
+
+SMTPIP = "127.0.0.1"
+
+SMTPUser = "user"
+SMTPPassword = "password"
+
+SMTPFromAddress = "no-reply@wow.com"
+SMTPFromName = "WoW"
+
+SMTPMailRegistrationSubject = "WoW - Registration Confirmation"
+SMTPMailResetSubject = "WoW - Password Reset Confirmation"
+SMTPMailValidationSubject = "WoW - Account Upgrade Email Validation"
+SMTPMailConfirmationSubject = "WoW - Account Upgrade Confirmation"
+
+SMTPReturnDomain = "https://wow.com"
+
+
+#
+###################################################################################################
+
+###################################################################################################
+# NEWSLETTER SETTINGS
+
+NewsLetterUnsubDomain = "https://unsubscribe.wow.com/unsubscribe/"
+NewsLetterSubject = "WoW Subject"
+NewsLetterMailForUnsubscribe = "unsubscribe@wow.com"
+
