@@ -153,8 +153,54 @@ class spell_voodoo : public SpellScriptLoader
         }
 };
 
+class npc_100874_illidari_enforcer_dh_questline : public CreatureScript
+{
+public:
+    npc_100874_illidari_enforcer_dh_questline() : CreatureScript("npc_100874_illidari_enforcer_dh_questline") { }
+
+    struct npc_100874_illidari_enforcer_dh_questlineAI : ScriptedAI
+    {
+        npc_100874_illidari_enforcer_dh_questlineAI(Creature* creature) : ScriptedAI(creature) {}
+
+        EventMap events;
+
+        void Reset() override
+        {
+            events.RescheduleEvent(EVENT_1, 2000);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            events.Update(diff);
+
+            if (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_1:
+                    events.ScheduleEvent(EVENT_1, 2000);
+
+                    std::list<Player*> list;
+                    me->GetPlayerListInGrid(list, 20.0f);
+                    for (Player* player : list)
+                        if (player->HasAura(188501) && player->GetQuestStatus(40982) == QUEST_STATUS_INCOMPLETE)
+                            player->KilledMonsterCredit(102563);
+
+                    break;
+                }
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_100874_illidari_enforcer_dh_questlineAI(creature);
+    }
+};
+
 void AddSC_durotar()
 {
     new npc_lazy_peon();
     new spell_voodoo();
+    new npc_100874_illidari_enforcer_dh_questline();
 }
