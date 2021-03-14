@@ -2083,10 +2083,12 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     // normal case
     if (CastingReq.RequiredAreasID > 0)
     {
+        TC_LOG_TRACE(LOG_FILTER_SPELLS_AURAS, "CheckLocation: area group (%u) start match check", CastingReq.RequiredAreasID);
         bool found = false;
         std::vector<uint32> areaGroupMembers = sDB2Manager.GetAreasForGroup(CastingReq.RequiredAreasID);
         for (uint32 areaId : areaGroupMembers)
         {
+            TC_LOG_TRACE(LOG_FILTER_SPELLS_AURAS, "CheckLocation: area group (%u) - trying to match areaId (%u) with zone_id/area_id (%u/%u)", CastingReq.RequiredAreasID, areaId, zone_id, area_id);
             if (areaId == zone_id || areaId == area_id)
             {
                 found = true;
@@ -2142,7 +2144,10 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
                 return SPELL_CAST_OK;
         }
         if (!foundNoCheck)
+        {
+            TC_LOG_TRACE(LOG_FILTER_SPELLS_AURAS, "CheckLocation: Spell (%u) cast failed due to spellAreaMapBounds", Id);
             return SPELL_FAILED_INCORRECT_AREA;
+        }
     }
 
     // bg spell checks

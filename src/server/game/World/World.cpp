@@ -1419,7 +1419,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_CHECK_MT_SESSION] = sConfigMgr->GetBoolDefault("World.MT.Session", false);
 
     // Garrison
-    m_bool_configs[CONFIG_DISABLE_GARE_UPGRADE] = sConfigMgr->GetBoolDefault("Garrisone.DisableUpgrade", true);
+    m_bool_configs[CONFIG_DISABLE_GARE_UPGRADE] = sConfigMgr->GetBoolDefault("Garrison.DisableUpgrade", false);
 
     //Respawn system for start project
     m_bool_configs[CONFIG_RESPAWN_FROM_PLAYER_ENABLED] = sConfigMgr->GetBoolDefault("RespawnTimeFromPlayer", false);

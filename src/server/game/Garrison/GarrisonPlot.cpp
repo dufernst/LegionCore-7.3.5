@@ -120,28 +120,6 @@ GameObject* Plot::CreateGameObject(Map* map, GarrisonFactionIndex faction, Garri
         return nullptr;
     }
 
-    if (BuildingInfo.CanActivate() && BuildingInfo.PacketInfo && !BuildingInfo.PacketInfo->Active)
-    {
-        if (FinalizeGarrisonPlotGOInfo const* finalizeInfo = sGarrisonMgr.GetPlotFinalizeGOInfo(PacketInfo.GarrPlotInstanceID))
-        {
-            Position const& pos2 = finalizeInfo->FactionInfo[faction].Pos;
-            GameObject* finalizer = sObjectMgr->IsStaticTransport(finalizeInfo->FactionInfo[faction].GameObjectId) ? new StaticTransport : new GameObject;
-            if (finalizer->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), finalizeInfo->FactionInfo[faction].GameObjectId, map, 1, pos2, G3D::Matrix3::fromEulerAnglesZYX(pos2.GetOrientation(), 0.0f, 0.0f), 255, GO_STATE_READY))
-            {
-                // set some spell id to make the object delete itself after use
-                finalizer->SetSpellId(finalizer->GetGOInfo()->goober.spell);
-                finalizer->SetRespawnTime(0);
-
-                if (uint16 animKit = finalizeInfo->FactionInfo[faction].AnimKitId)
-                    finalizer->SetAnimKitId(animKit, false);
-
-                map->AddToMap(finalizer);
-            }
-            else
-                delete finalizer;
-        }
-    }
-
     if ((building->GetGoType() == GAMEOBJECT_TYPE_GARRISON_BUILDING || building->GetGoType() == GAMEOBJECT_TYPE_GARRISON_PLOT)/* && building->GetGOInfo()->garrisonBuilding.mapID*/)
     {
         if (auto goList = sGarrisonMgr.GetGoSpawnBuilding(PacketInfo.GarrPlotInstanceID, BuildingInfo.PacketInfo && BuildingInfo.PacketInfo->Active ? BuildingInfo.PacketInfo->GarrBuildingID : 0))
@@ -173,6 +151,7 @@ GameObject* Plot::CreateGameObject(Map* map, GarrisonFactionIndex faction, Garri
                 {
                     if (auto specTime = garrison->GetSpecialSpawnBuildingTime(buildingEtry->BuildingType))
                     {
+                        // fix this? this is probably incorrect as GetSpecialSpawnBuildingTime already returns a diff
                         int32 d = specTime - time(nullptr);
                         if (d > 0)
                             linkGO->SetRespawnTime(d);
@@ -201,7 +180,7 @@ GameObject* Plot::CreateGameObject(Map* map, GarrisonFactionIndex faction, Garri
                     getRandTrader(entry);
 
                 auto linkNPC = new Creature();
-                if (!linkNPC->Create(sObjectMgr->GetGenerator<HighGuid::GameObject>()->Generate(), map, 1, entry, 0, 0, data.posX, data.posY, data.posZ, data.orientation) || !linkNPC->IsPositionValid() || !map->AddToMap(linkNPC))
+                if (!linkNPC->Create(sObjectMgr->GetGenerator<HighGuid::Creature>()->Generate(), map, 1, entry, 0, 0, data.posX, data.posY, data.posZ, data.orientation) || !linkNPC->IsPositionValid() || !map->AddToMap(linkNPC))
                 {
                     delete linkNPC;
                     continue;

@@ -279,7 +279,8 @@ public:
     void SendRemoteInfo() const;
     void SendBlueprintAndSpecializationData();
     void SendBuildingLandmarks(Player* receiver) const;
-    void SendGarrisonUpgradebleResult(Player* receiver, int32 garrTypeID) const;
+    uint32 CanUpgrade(Player* receiver, GarrSiteLevelEntry const* site) const;
+    void SendGarrisonUpgradebleResult(Player* receiver, int32 garrSiteID) const;
     void SendMissionListUpdate(bool openMissionNpc) const;
 
     void ResetFollowerActivationLimit();
