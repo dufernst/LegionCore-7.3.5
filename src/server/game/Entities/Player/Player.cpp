@@ -35945,11 +35945,13 @@ bool Player::IsForbiddenMapForLevel(uint32 mapid, uint32 zone)
         }
     }
 
-    if (getLevel() < minLevel)
-    {
-        GetSession()->SendNotification(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED_MAP), minLevel);
-        return true;
-    }
+	if (sConfigMgr->GetBoolDefault("Map.Level.Requirement.Enable", false)){
+		if (getLevel() < minLevel)
+		{
+			GetSession()->SendNotification(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED_MAP), minLevel);
+			return true;
+		}
+	}
 
     return false;
 }
@@ -36216,7 +36218,7 @@ void Player::CastSpellInQueue()
 }
 
 void Player::SendSpellScene(uint32 miscValue, SpellInfo const* /*spellInfo*/, bool apply, Position* pos)
-{
+{    
     SpellScene const* spellScene = sSpellMgr->GetSpellScene(miscValue);
     if (!spellScene)
         return;
@@ -36244,11 +36246,6 @@ void Player::SendSpellScene(uint32 miscValue, SpellInfo const* /*spellInfo*/, bo
 
         if (!ID)    //as we have sctipt with finishing scene it now could be 0.
             return;
-
-        //TODO: this is a hack to "properly" reload the phase when completing the Keystone quest + scene
-        // this should probably always be happening, but this I'd rather not break anything
-        if (miscValue == 1142)
-            SceneCompleted(ID);
 
         SendDirectMessage(WorldPackets::Scene::CancelScene(ID).Write());
     }

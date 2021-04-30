@@ -64,6 +64,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "Config.h"
 
 #define SPELL_SEARCHER_COMPENSATION 30.0f
 
@@ -3743,6 +3744,13 @@ void Spell::preparePetCast(SpellCastTargets const* targets, Unit* target, Unit* 
             m_casttime = m_triggerData.casttime;
         else
             m_casttime = m_spellInfo->CalcCastTime(m_caster, this);
+			// if config enable and spell used hearthstone
+
+			if (m_spellInfo->Id == 8690 && sConfigMgr->GetBoolDefault("HearthstoneSpell.Toggle", true) )
+			if (m_spellInfo->Id == 171253 && sConfigMgr->GetBoolDefault("GarrisonHearthstoneSpell.Toggle", true) )
+			if (m_spellInfo->Id == 222695 && sConfigMgr->GetBoolDefault("DalaranHearthstoneSpell.Toggle", true) )
+            
+			m_casttime = sConfigMgr->GetIntDefault("HearthstoneSpell.CastTime", 3000);
     }
 
     // set timer base at cast time
