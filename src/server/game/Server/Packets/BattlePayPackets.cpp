@@ -195,15 +195,15 @@ std::vector<uint8_t> hardCodedDistributionListResponse =
 
 WorldPacket const* WorldPackets::BattlePay::DistributionListResponse::Write()
 {
-    for (const uint8_t byte : hardCodedDistributionListResponse)
-        _worldPacket << byte;
+  //  for (const uint8_t byte : hardCodedDistributionListResponse)
+  //      _worldPacket << byte;
 
-    /*
+    
     _worldPacket << Result;
     _worldPacket.WriteBits(DistributionObject.size(), 11);
     for (BattlePayDistributionObject const& objectData : DistributionObject)
         _worldPacket << objectData;
-    */
+    
 
     return &_worldPacket;
 }
@@ -290,10 +290,10 @@ std::vector<uint8_t> hardCodedProductListResponse =
 
 WorldPacket const* WorldPackets::BattlePay::ProductListResponse::Write()
 {
-    for (const uint8_t byte : hardCodedProductListResponse)
-        _worldPacket << byte;
+   // for (const uint8_t byte : hardCodedProductListResponse)
+   //     _worldPacket << byte;
 
-/*
+
     _worldPacket << Result;
     _worldPacket << ProductList.CurrencyID;
 
@@ -337,7 +337,7 @@ WorldPacket const* WorldPackets::BattlePay::ProductListResponse::Write()
 
         _worldPacket.FlushBits();
     }
-*/
+
     return &_worldPacket;
 }
 

@@ -244,9 +244,9 @@ namespace Battlepay
 
         static const char* CustomMessage[] =
         {
-            "STORE_BALANCE",
-            "ACCOUNT_NAME",
-            "STORE_BUY_FAILED"
+            "Battle Coins: ",
+            "Account Name: ",
+            "Sorry!"
         };
 
         inline const char* GetCustomMessage(uint8 id)
