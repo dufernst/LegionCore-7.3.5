@@ -35919,7 +35919,7 @@ bool Player::IsForbiddenMapForLevel(uint32 mapid, uint32 zone)
         case 1220: //Legion: Broken Isles
         {
             //Allied Races start loc
-            if (m_areaId == 7999 || m_areaId == 9502)
+            if (GetAreaId() == 7999 || GetAreaId() == 9502)
                 return false;
 
             minLevel = 98;
