@@ -26,8 +26,7 @@ ALTER TABLE `account`
 	DROP COLUMN `battlenet_index`,
 	DROP INDEX `bnet_acc`,
 	DROP INDEX `battlenet_account`,
-	DROP INDEX `battlenet_index`,
-    ADD INDEX `sha_pass_hash` (`sha_pass_hash`) USING BTREE;
+	DROP INDEX `battlenet_index`;
 
 ALTER TABLE `account_rates`
 	DROP COLUMN `bnet_account`;
