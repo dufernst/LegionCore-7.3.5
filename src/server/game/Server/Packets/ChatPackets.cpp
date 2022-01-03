@@ -52,7 +52,7 @@ void WorldPackets::Chat::ChatAddonMessage::Read()
     uint32 prefixLen = _worldPacket.ReadBits(5);
     uint32 textLen = _worldPacket.ReadBits(9);
     Prefix = _worldPacket.ReadString(prefixLen);
-    Text = _worldPacket.ReadString(textLen);
+    Text = _worldPacket.ReadString(textLen, false);
 }
 
 void WorldPackets::Chat::ChatAddonMessageWhisper::Read()
@@ -62,7 +62,7 @@ void WorldPackets::Chat::ChatAddonMessageWhisper::Read()
     uint32 textLen = _worldPacket.ReadBits(9);
     Target = _worldPacket.ReadString(targetLen);
     Prefix = _worldPacket.ReadString(prefixLen);
-    Text = _worldPacket.ReadString(textLen);
+    Text = _worldPacket.ReadString(textLen, false);
 }
 
 void WorldPackets::Chat::ChatAddonMessageChannel::Read()
@@ -72,7 +72,7 @@ void WorldPackets::Chat::ChatAddonMessageChannel::Read()
     uint32 textLen = _worldPacket.ReadBits(9);
     Target = _worldPacket.ReadString(targetLen);
     Prefix = _worldPacket.ReadString(prefixLen);
-    Text = _worldPacket.ReadString(textLen);
+    Text = _worldPacket.ReadString(textLen, false);
 }
 
 void WorldPackets::Chat::ChatMessageDND::Read()

@@ -8,8 +8,8 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-# We require CMake >= 3.0
-cmake_minimum_required(VERSION 3.0)
+# We require CMake >= 3.9
+cmake_minimum_required(VERSION 3.9)
 
 # Set projectname (must be done AFTER setting configurationtypes)
 project(LegionCore)

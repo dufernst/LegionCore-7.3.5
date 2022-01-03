@@ -807,7 +807,7 @@ void WorldPackets::Garrison::GarrisonGenerateRecruits::Read()
 void WorldPackets::Garrison::GarrisonRenameFollower::Read()
 {
     _worldPacket >> FollowerDBID;
-    _worldPacket.ReadString(7, FollowerName);
+    FollowerName = _worldPacket.ReadString(_worldPacket.ReadBits(7));
 }
 
 void WorldPackets::Garrison::GarrisonSetRecruitmentPreferences::Read()

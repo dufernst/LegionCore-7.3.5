@@ -49,6 +49,14 @@ public:
     ~ByteBufferPositionException() noexcept override;
 };
 
+class ByteBufferInvalidValueException : public ByteBufferException
+{
+public:
+    ByteBufferInvalidValueException(char const* type, size_t pos);
+
+    ~ByteBufferInvalidValueException() noexcept = default;
+};
+
 class ByteBuffer
 {
 public:
@@ -126,8 +134,8 @@ public:
     void ReadPackedUInt64(uint64& guid);
     void ReadPackedUInt64(uint8 mask, uint64& value);
 
-    std::string ReadString(uint32 length);
-    void ReadString(uint32 bitsCount, std::string& string);
+    std::string ReadCString(bool requireValidUtf8 = true);
+    std::string ReadString(uint32 length, bool requireValidUtf8 = true);
 
     void WriteString(std::string const& str);
     void WriteString(std::string const& str, uint8 strLen);

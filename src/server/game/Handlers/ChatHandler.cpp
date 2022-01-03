@@ -50,6 +50,37 @@ bool WorldSession::processChatmessageFurtherAfterSecurityChecks(std::string& msg
     return true;
 }
 
+inline bool isNasty(uint8 c)
+{
+    if (c == '\t')
+        return false;
+    if (c <= '\037') // ASCII control block
+        return true;
+    return false;
+}
+
+inline bool ValidateMessage(Player const* player, std::string& msg)
+{
+    // cut at the first newline or carriage return
+    std::string::size_type pos = msg.find_first_of("\n\r");
+    if (pos == 0)
+        return false;
+    else if (pos != std::string::npos)
+        msg.erase(pos);
+
+    // abort on any sort of nasty character
+    for (uint8 c : msg)
+    {
+        if (isNasty(c))
+        {
+            TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "Player %s %s sent a message containing invalid character %u - blocked", player->GetName(), player->GetGUID().ToString().c_str(), uint32(c));
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void WorldSession::HandleChatMessageAFK(WorldPackets::Chat::ChatMessageAFK& chatMessageAFK)
 {
     Player* sender = GetPlayer();
@@ -57,6 +88,13 @@ void WorldSession::HandleChatMessageAFK(WorldPackets::Chat::ChatMessageAFK& chat
         return;
 
     if (sender->isInCombat())
+        return;
+
+    // do message validity checks
+    if (!ValidateMessage(sender, chatMessageAFK.Text))
+        return;
+
+    if (!processChatmessageFurtherAfterSecurityChecks(chatMessageAFK.Text, LANG_COMMON))
         return;
 
     if (sender->HasAura(1852))
@@ -90,6 +128,13 @@ void WorldSession::HandleChatMessageDND(WorldPackets::Chat::ChatMessageDND& chat
     Player* sender = GetPlayer();
 
     if (sender->isInCombat())
+        return;
+
+    // do message validity checks
+    if (!ValidateMessage(sender, chatMessageDND.Text))
+        return;
+
+    if (!processChatmessageFurtherAfterSecurityChecks(chatMessageDND.Text, LANG_COMMON))
         return;
 
     if (sender->HasAura(1852))
@@ -300,6 +345,10 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
         return;
 
     if (ChatHandler(this).PlayerExtraCommand(msg.c_str()))
+        return;
+
+    // do message validity checks
+    if (!ValidateMessage(sender, msg))
         return;
 
     if (!processChatmessageFurtherAfterSecurityChecks(msg, lang))

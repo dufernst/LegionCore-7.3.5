@@ -1055,7 +1055,7 @@ void WorldPackets::Guild::LFGuildAddRecruit::Read()
     _worldPacket >> PlayStyle;
     _worldPacket >> Availability;
     _worldPacket >> ClassRoles;
-    _worldPacket.ReadString(10, Comment);
+    Comment = _worldPacket.ReadString(_worldPacket.ReadBits(10));
 }
 
 void WorldPackets::Guild::LFGuildBrowse::Read()

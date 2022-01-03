@@ -585,7 +585,7 @@ void WorldPackets::Character::CharCustomize::Read()
     _worldPacket >> CustomizeInfo->FacialHairStyleID;
     _worldPacket >> CustomizeInfo->FaceID;
     _worldPacket.read(CustomizeInfo->CustomDisplay.data(), CustomizeInfo->CustomDisplay.size());
-    _worldPacket.ReadString(6, CustomizeInfo->CharName);
+    CustomizeInfo->CharName = _worldPacket.ReadString(_worldPacket.ReadBits(6));
 }
 
 WorldPackets::Character::CharCustomizeResponse::CharCustomizeResponse(CharCustomizeInfo const* info) : ServerPacket(SMSG_CHAR_CUSTOMIZE, 16 + 9 + 2)

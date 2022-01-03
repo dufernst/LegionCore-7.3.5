@@ -23,6 +23,7 @@
 #include "Util.h"
 #include <sstream>
 #include <ctime>
+#include <utf8.h>
 
 ByteBufferException::~ByteBufferException() noexcept = default;
 
@@ -34,6 +35,11 @@ char const* ByteBufferException::what() const noexcept
 std::string& ByteBufferException::message() noexcept
 {
     return msg_;
+}
+
+ByteBufferInvalidValueException::ByteBufferInvalidValueException(char const* type, size_t pos)
+{
+    message().assign(Trinity::StringFormat("Invalid %s value found in ByteBuffer at pos " SZFMTD, type, pos));
 }
 
 ByteBuffer::ByteBuffer(MessageBuffer&& buffer) : _bitpos(InitialBitPos), _storage(buffer.Move())
@@ -314,7 +320,7 @@ ByteBuffer& ByteBuffer::operator >> (float& value)
 {
     value = read<float>();
     if (!std::isfinite(value))
-        throw ByteBufferException();
+        throw ByteBufferInvalidValueException("float", _rpos - sizeof(float));
     return *this;
 }
 
@@ -322,20 +328,13 @@ ByteBuffer& ByteBuffer::operator >> (double& value)
 {
     value = read<double>();
     if (!std::isfinite(value))
-        throw ByteBufferException();
+        throw ByteBufferInvalidValueException("double", _rpos - sizeof(double));
     return *this;
 }
 
 ByteBuffer& ByteBuffer::operator >> (std::string& value)
 {
-    value.clear();
-    while (rpos() < size()) // prevent crash at wrong string format in packet
-    {
-        auto c = read<char>();
-        if (c == 0)
-            break;
-        value += c;
-    }
+    value = ReadCString(true);
     return *this;
 }
 
@@ -414,32 +413,35 @@ void ByteBuffer::ReadPackedUInt64(uint8 mask, uint64& value)
             value |= (uint64(read<uint8>()) << (i * 8));
 }
 
-std::string ByteBuffer::ReadString(uint32 length)
+std::string ByteBuffer::ReadCString(bool requireValidUtf8 /*= true*/)
+{
+    std::string value;
+    while (rpos() < size())                         // prevent crash at wrong string format in packet
+    {
+        char c = read<char>();
+        if (c == 0)
+            break;
+        value += c;
+    }
+    if (requireValidUtf8 && !utf8::is_valid(value.begin(), value.end()))
+        throw ByteBufferInvalidValueException("string", _rpos - value.length() - 1);
+    return value;
+}
+
+std::string ByteBuffer::ReadString(uint32 length, bool requireValidUtf8 /*= true*/)
 {
     if (_rpos + length > size())
         throw ByteBufferPositionException(_rpos, length, size());
+
     ResetBitPos();
     if (!length)
         return std::string();
-    std::string str(reinterpret_cast<char const*>(&_storage[_rpos]), length);
-    _rpos += length;
-    return str;
-}
 
-void ByteBuffer::ReadString(uint32 bitsCount, std::string& string)
-{
-    uint32 length = ReadBits(bitsCount);
-    if (_rpos + length > size())
-        throw ByteBufferPositionException(_rpos, length, size());
-    if (!length)
-    {
-        string.clear();
-        return;
-    }
-    ResetBitPos();
-    std::string str(reinterpret_cast<char const*>(&_storage[_rpos]), length);
+    std::string value(reinterpret_cast<char const*>(&_storage[_rpos]), length);
     _rpos += length;
-    string = str;
+    if (requireValidUtf8 && !utf8::is_valid(value.begin(), value.end()))
+        throw ByteBufferInvalidValueException("string", _rpos - value.length() - 1);
+    return value;
 }
 
 void ByteBuffer::WriteString(std::string const& str)
