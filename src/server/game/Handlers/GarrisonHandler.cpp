@@ -322,14 +322,6 @@ void WorldSession::HandleGarrisonRemoveFollowerFromBuilding(WorldPackets::Garris
 void WorldSession::HandleGarrisonAssignFollowerToBuilding(WorldPackets::Garrison::GarrisonAssignFollowerToBuilding& /*packet*/)
 { }
 
-void WorldSession::HandleGarrisonRequestScoutingMap(WorldPackets::Garrison::GarrisonRequestScoutingMap& scoutingMap)
-{
-    WorldPackets::Garrison::GarrisonScoutingMapResult result;
-    result.ID = scoutingMap.ID;
-    result.Active = true;
-    SendPacket(result.Write());
-}
-
 void WorldSession::HandleGarrisonGenerateRecruits(WorldPackets::Garrison::GarrisonGenerateRecruits& /*packet*/)
 { }
 

@@ -3229,7 +3229,7 @@ class Player : public Unit, public GridObject<Player>
         void SetScenarioId(uint16 scenarioId) { m_scenarioId = scenarioId; }
 
         // Adventures.
-        uint16 getAdventureQuestID() const { return m_adventure_questID; }
+        uint16 getAdventureQuestID();
         void setAdventureQuestID(uint16 questID);
 
         int32 GetCommandCooldown() const;
