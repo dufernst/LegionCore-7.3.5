@@ -2499,7 +2499,11 @@ void LootTemplate::AddEntry(LootStoreItem& item)
     }
     else                                                    // Non-grouped entries and references are stored together
     {
-        if(item.type == LOOT_ITEM_TYPE_ITEM)
+        if (item.mincountOrRef < 0)
+        {
+            Entries.push_back(item); // References do not require a valid itemId
+        }
+        else if(item.type == LOOT_ITEM_TYPE_ITEM)
         {
             if (ItemTemplate const* _proto = sObjectMgr->GetItemTemplate(item.itemid))
             {
