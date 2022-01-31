@@ -1088,10 +1088,10 @@ void AchievementMgr<Player>::LoadFromDB(PreparedQueryResult achievementResult, P
             CriteriaTreeEntry const* criteriaTree = sCriteriaTreeStore.LookupEntry(acc_criteria_id);
             if (!criteriaTree)
             {
-                // we will remove not existed criteria for all characters
-                TC_LOG_ERROR(LOG_FILTER_ACHIEVEMENTSYS, "Non-existing achievement criteria %u data removed from table `character_achievement_progress`.", acc_criteria_id);
+                // we will remove not existed criteria for all accounts
+                TC_LOG_ERROR(LOG_FILTER_ACHIEVEMENTSYS, "Non-existing achievement criteria %u data removed from table `account_achievement_progress`.", acc_criteria_id);
 
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
+                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACC_ACHIEV_PROGRESS_CRITERIA);
                 stmt->setUInt32(0, acc_criteria_id);
                 CharacterDatabase.Execute(stmt);
                 continue;
@@ -1100,10 +1100,10 @@ void AchievementMgr<Player>::LoadFromDB(PreparedQueryResult achievementResult, P
             Criteria const* criteria = sAchievementMgr->GetCriteria(criteriaTree->CriteriaID);
             if (!criteria)
             {
-                // we will remove not existed criteria for all characters
-                TC_LOG_ERROR(LOG_FILTER_ACHIEVEMENTSYS, "Non-existing achievement criteria %u data removed from table `character_achievement_progress`.", acc_criteria_id);
+                // we will remove not existed criteria for all accounts
+                TC_LOG_ERROR(LOG_FILTER_ACHIEVEMENTSYS, "Non-existing achievement criteria %u data removed from table `account_achievement_progress`.", acc_criteria_id);
 
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
+                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACC_ACHIEV_PROGRESS_CRITERIA);
                 stmt->setUInt32(0, acc_criteria_id);
                 CharacterDatabase.Execute(stmt);
                 continue;

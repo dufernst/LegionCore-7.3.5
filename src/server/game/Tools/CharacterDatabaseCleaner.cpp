@@ -43,7 +43,7 @@ void CharacterDatabaseCleaner::CleanDatabase()
 
     // clean up
     if (flags & CLEANING_FLAG_ACHIEVEMENT_PROGRESS)
-        CleanCharacterAchievementProgress();
+        CleanAllAchievementProgress();
 
     if (flags & CLEANING_FLAG_SKILLS)
         CleanCharacterSkills();
@@ -109,12 +109,29 @@ void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table
 
 bool CharacterDatabaseCleaner::AchievementProgressCheck(uint32 criteria)
 {
-    return sCriteriaStore.LookupEntry(criteria) != nullptr;
+    return sCriteriaTreeStore.LookupEntry(criteria) != nullptr;
 }
 
 void CharacterDatabaseCleaner::CleanCharacterAchievementProgress()
 {
     CheckUnique("criteria", "character_achievement_progress", &AchievementProgressCheck);
+}
+
+void CharacterDatabaseCleaner::CleanGuildAchievementProgress()
+{
+    CheckUnique("criteria", "guild_achievement_progress", &AchievementProgressCheck);
+}
+
+void CharacterDatabaseCleaner::CleanAccountAchievementProgress()
+{
+    CheckUnique("criteria", "account_achievement_progress", &AchievementProgressCheck);
+}
+
+void CharacterDatabaseCleaner::CleanAllAchievementProgress()
+{
+    CleanCharacterAchievementProgress();
+    CleanAccountAchievementProgress();
+    CleanGuildAchievementProgress();
 }
 
 bool CharacterDatabaseCleaner::SkillCheck(uint32 skill)
