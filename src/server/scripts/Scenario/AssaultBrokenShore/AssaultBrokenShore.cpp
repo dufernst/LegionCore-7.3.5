@@ -477,7 +477,7 @@ class player_scripts_for_start_assault : public PlayerScript
                         {
                             Quest const* quest = sQuestDataStore->GetQuestTemplate(46730);
                             if (quest)
-                                if (player->CanAddQuest(quest, true))
+                                if (player->CanTakeQuest(quest, false) && player->CanAddQuest(quest, true))
                                     player->AddQuest(quest, NULL);
                         }
                     
