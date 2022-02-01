@@ -37,7 +37,7 @@ using namespace Battlepay;
 BattlepayManager::BattlepayManager(WorldSession* session)
 {
     _session = session;
-    _walletName = "Donation points";
+    _walletName = "Battle Coins";
     _purchaseIDCount = 0;
     _distributionIDCount = 0;
 }
@@ -159,14 +159,15 @@ void BattlepayManager::ProcessDelivery(Purchase* purchase)
         break;
     case CharacterBoost:
     {
-        if (_session->HasAuthFlag(AT_AUTH_FLAG_90_LVL_UP)) //@send error?
+        if (_session->HasAuthFlag(AT_AUTH_FLAG_20_LVL_UP)) //@send error?
             break;
 
         //SendBattlePayDistribution(purchase->ProductID, DistributionStatus::BATTLE_PAY_DIST_STATUS_AVAILABLE, 1);
 
-        //if (player)
-        //    sCharacterService->Boost(player);
+       /* if (player)
+           sCharacterService->Boost(player);
         break;
+		*/
     }
 
     //case Category:
@@ -192,7 +193,7 @@ void BattlepayManager::ProcessDelivery(Purchase* purchase)
     //case PackItems:
     //    break;
     //case ItemProfession:
-    //    break;
+	//    break;	
     //case Transmogrification:
     //    break;
     //case CategoryProfession:
@@ -208,7 +209,7 @@ void BattlepayManager::ProcessDelivery(Purchase* purchase)
     //case CategoryExpansionTransfer:
     //    break;
     //case CategoryGold:
-    //    break;
+    //   break;
     default:
         break;
     }
