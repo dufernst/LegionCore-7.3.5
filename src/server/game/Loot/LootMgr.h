@@ -374,6 +374,7 @@ struct Loot
     bool _specCheck = true;
     float rateLegendary;
     uint32 dungeonEncounterID = 0;
+    bool _NoneRaidOrScenarioDungeonLoot = false;
     uint32 _itemContext;
     uint32 _needLevel;
     uint32 _challengeLevel;

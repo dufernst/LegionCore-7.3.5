@@ -150,6 +150,10 @@ uint32 LootStore::LoadLootTable()
         if (!strcmp(GetName(), "zone_loot_template") && result->GetFieldCount() > i)
             ClassificationMask = fields[i++].GetUInt8();
 
+        // Remove Dauntless gear from loot if patch 7.2 is not released yet
+        if (item >= 147212 && item <= 147223 && sWorld->getIntConfig(CONFIG_LEGION_ENABLED_PATCH) < 2)
+            continue;
+
         if (type == LOOT_ITEM_TYPE_ITEM && maxcount > std::numeric_limits<uint8>::max())
         {
             TC_LOG_ERROR(LOG_FILTER_SQL, "Table '%s' entry %d item %d: maxcount value (%u) to large. must be less %u - skipped", GetName(), entry, item, maxcount, std::numeric_limits<uint8>::max());
@@ -635,7 +639,9 @@ void Loot::AddItem(LootStoreItem const & item, std::vector<uint32> const& bonusL
         else
         {
             if (pProto && pProto->GetQuality() == ITEM_QUALITY_LEGENDARY && pProto->GetExpansion() == EXPANSION_LEGION)
+            {
                 generatedLoot.item.ItemBonus.BonusListIDs = sObjectMgr->GetItemBonusTree(generatedLoot.item.ItemID, 0, m_lootOwner->getLevel(), 0, 0, _needLevel);
+            }
             else if (_isEmissaryLoot)
             {
                 auto bonusTree = m_lootOwner->GetWorldQuestBonusTreeMod(nullptr);
@@ -679,6 +685,11 @@ void Loot::AddItem(LootStoreItem const & item, std::vector<uint32> const& bonusL
                         ilevel = 960 - base;
                 }
                 generatedLoot.item.ItemBonus.BonusListIDs = sObjectMgr->GetItemBonusTree(generatedLoot.item.ItemID, _itemContext, m_lootOwner->getLevel(), ilevel, _challengeLevel, _needLevel);
+            }
+            else if (dungeonEncounterID != 0 && _ExpansionID == EXPANSION_LEGION && _NoneRaidOrScenarioDungeonLoot)
+            {
+                int32 patchBasedILvlBonus = _levelBonus - ((3 - sWorld->getIntConfig(CONFIG_LEGION_ENABLED_PATCH)) * 20);
+                generatedLoot.item.ItemBonus.BonusListIDs = sObjectMgr->GetItemBonusTree(generatedLoot.item.ItemID, _itemContext, m_lootOwner->getLevel(), patchBasedILvlBonus, _challengeLevel, _needLevel);
             }
             else
                 generatedLoot.item.ItemBonus.BonusListIDs = sObjectMgr->GetItemBonusTree(generatedLoot.item.ItemID, _itemContext, m_lootOwner->getLevel(), _levelBonus, _challengeLevel, _needLevel);
@@ -762,6 +773,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
         }
         if (Map* map = lootFrom->GetMap())
         {
+            _NoneRaidOrScenarioDungeonLoot = lootFrom->GetMap()->IsNonRaidDungeon() && !lootFrom->GetMap()->IsScenario();
             _ExpansionID = map->GetEntry()->ExpansionID;
             _DifficultyID = map->GetLootDifficulty();
         }

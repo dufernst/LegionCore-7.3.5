@@ -9695,6 +9695,30 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool sendInChat/* = false*/,
     if (!ignoreMultipliers)
         count *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_GAIN, id);
 
+    if (id == 1508 || id == 1533)
+    {
+        // if patch 7.3+ is not enabled we convert Wakening Essence and Veiled Argunite to gold
+        if (count > 0 && sWorld->getIntConfig(CONFIG_LEGION_ENABLED_PATCH) < 3)
+        {
+            SendMessageToPlayer("Patch 7.3+ content is not enabled (yet) on this server, any Wakening Essence and Veiled Argunite that you earn get converted into gold.");
+            int32 moneyCount = count * 5000;
+            ModifyMoney(moneyCount);
+            return;
+        }
+    }
+
+    if (id == 1342 || id == 1226)
+    {
+        // if patch 7.2+ is not enabled we convert Legionfall War Supplies and Nethershards to gold
+        if (count > 0 && sWorld->getIntConfig(CONFIG_LEGION_ENABLED_PATCH) < 2)
+        {
+            SendMessageToPlayer("Patch 7.2+ content is not enabled (yet) on this server, any Legionfall War Supplies and Nethershards that you earn get converted into gold.");
+            int32 moneyCount = (id == 1342 ? count * 2500 : count * 10);
+            ModifyMoney(moneyCount);
+            return;
+        }
+    }
+
     if (id == 1160)
     {
         if (auto decency = GetCurrency(1161))

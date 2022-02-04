@@ -18,6 +18,15 @@
 Game.Build.Version = 26972
 
 #
+#    Game.Patch
+#        Description: Best effort attempt to block content up till a certain patch.
+#                     Combine this setting with the SQL files from the sql/optional folder.
+#        Default:     3  - (All 7.3.5 content available)
+#                     2  - (All 7.2.* content available, content from 7.3+ is blocked)
+#                     1  - (All 7.1.* content available, content from 7.2+ is blocked)
+Game.Patch = 3
+
+#
 ###################################################################################################
 
 ###################################################################################################
