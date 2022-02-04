@@ -82,7 +82,7 @@ public:
 
     bool IsCompleted(bool bonus) const;
     uint8 GetStepCount(bool withBonus) const;
-    uint8 UpdateCurrentStep(bool loading);
+    void UpdateCurrentStep(bool loading);
     void SetCurrentStep(uint8 step);
     void Reward(bool bonus, uint32 rewardStep);
 
