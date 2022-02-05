@@ -55,7 +55,7 @@ bool StartLoginDB()
         return false;
     }
 
-    int32 worker_threads = 1;
+    int32 worker_threads = 0;
     int32 synch_threads = 1;
 
     // NOTE: Authserver is singlethreaded you should keep synch_threads == 1, only 1 will ever be used anyway.
@@ -293,16 +293,15 @@ bool HexBytesStringToState(T& data, const unsigned char* k, const std::string& b
         return false;
 
     unsigned char nonce[crypto_secretbox_NONCEBYTES];
-
-    int messageSize = bytesAsHexString.size() / 2 + crypto_secretbox_BOXZEROBYTES - crypto_secretbox_NONCEBYTES;
-    std::vector<unsigned char> m(messageSize, '\0');
-    std::vector<unsigned char> encryptedV(messageSize, '\0');
     for (int i = 0; i < crypto_secretbox_NONCEBYTES * 2; i += 2)
         sscanf(bytesAsHexString.c_str() + i, "%2hhx", &nonce[i / 2]);
 
-    for (int i = crypto_secretbox_NONCEBYTES * 2; i < bytesAsHexString.length(); i += 2)
-        sscanf(bytesAsHexString.c_str() + i, "%2hhx", &encryptedV[crypto_secretbox_BOXZEROBYTES + (i / 2)]);
 
+    std::vector<unsigned char> encryptedV(crypto_secretbox_BOXZEROBYTES + (bytesAsHexString.length() / 2) - crypto_secretbox_NONCEBYTES, '\0');
+    for (int i = crypto_secretbox_NONCEBYTES * 2; i < bytesAsHexString.length(); i += 2)
+        sscanf(bytesAsHexString.c_str() + i, "%2hhx", &encryptedV[crypto_secretbox_BOXZEROBYTES + (i - crypto_secretbox_NONCEBYTES * 2) / 2]);
+
+    std::vector<unsigned char> m(encryptedV.size(), '\0');
     if (crypto_secretbox_open(m.data(), encryptedV.data(), encryptedV.size(), nonce, k))
         return false;
 
