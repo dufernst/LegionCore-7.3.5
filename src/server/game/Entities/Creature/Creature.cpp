@@ -728,12 +728,18 @@ bool Creature::UpdateEntry(uint32 entry, uint32 team, const CreatureData* data)
             SandboxScalingID = GetScalingID();
     }
 
-    if (Unit* owner = GetAnyOwner())
+    // TODO: This should probably be reworked, in which cases should a creature being summoned/charmed/owned
+    // mean that level scaling is not applied? Maybe only in case of GetOwner() != NULL?
+    // Without this exception the NPCs summoned in quest 40604 (Disturbing the Past) do not get lvl scaled.
+    if (entry != 100735)
     {
-        if (owner->IsPlayer())
+        if (Unit* owner = GetAnyOwner())
         {
-            ScaleLevelMin = 0;
-            ScaleLevelMax = 0;
+            if (owner->IsPlayer())
+            {
+                ScaleLevelMin = 0;
+                ScaleLevelMax = 0;
+            }
         }
     }
 
