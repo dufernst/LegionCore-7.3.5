@@ -174,11 +174,19 @@ void WorldSocket::InitializeHandler(boost::system::error_code error, std::size_t
             }
 
             ByteBuffer buffer(std::move(_packetBuffer));
-            if (/*initializer*/buffer.ReadString(ClientConnectionInitialize.length()) != ClientConnectionInitialize)
+            try
             {
-                TC_LOG_TRACE(LOG_FILTER_NETWORKIO, "WorldSocket::InitializeHandler: initializer (address: %s)", GetRemoteIpAddress().to_string().c_str());
-                CloseSocket();
-                return;
+                if (/*initializer*/buffer.ReadString(ClientConnectionInitialize.length()) != ClientConnectionInitialize)
+                {
+                    TC_LOG_TRACE(LOG_FILTER_NETWORKIO, "WorldSocket::InitializeHandler: initializer (address: %s)", GetRemoteIpAddress().to_string().c_str());
+                    CloseSocket();
+                    return;
+                }
+            }
+            catch (ByteBufferException const&)
+            {
+                TC_LOG_TRACE(LOG_FILTER_NETWORKIO, "WorldSocket::InitializeHandler ByteBufferException occured while parsing a socket initialization packet from address %s. Skipped packet.",
+                    GetRemoteIpAddress().to_string().c_str());
             }
 
             if (/*terminator*/buffer.read<uint8>() != '\n')
