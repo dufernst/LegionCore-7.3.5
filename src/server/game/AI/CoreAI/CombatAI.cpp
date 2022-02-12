@@ -48,6 +48,10 @@ void AggressorAI::InitializeAI()
     CreatureTexts = sCreatureTextMgr->GetTextGroup(me->GetEntry(), TEXT_GROUP_TIMER);
     CreatureCombatTexts = sCreatureTextMgr->GetTextGroup(me->GetEntry(), TEXT_GROUP_COMBAT_TIMER);
 
+    // don't let all NPCs run the attack type check at the same time, it can cause client crashes
+    if (me->m_actionData[CREATURE_ACTION_TYPE_ATTACK] && !me->m_actionData[CREATURE_ACTION_TYPE_ATTACK]->empty())
+        m_checkTimer = urand(0, 10000);
+
     CreatureAI::InitializeAI();
     DoActionAI(0, CREATURE_ACTION_TYPE_SUMMON);
 }
