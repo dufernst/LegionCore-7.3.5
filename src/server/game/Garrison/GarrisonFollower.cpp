@@ -60,6 +60,9 @@ void Follower::ModAssistant(SpellInfo const* spellInfo, Player* caster)
     if (!itemLevelUpgradeDataEntry)
         return;
 
+    if (itemLevelUpgradeDataEntry->FollowerTypeID != TypeID)
+        return;
+
     auto followerTypeData = sGarrFollowerTypeStore[TypeID];
     if (!followerTypeData)
         return;
@@ -68,7 +71,7 @@ void Follower::ModAssistant(SpellInfo const* spellInfo, Player* caster)
     if (maxAllowedItemLevel > followerTypeData->MaxItemLevel)
         return;
 
-    if (!maxAllowedItemLevel && TypeID == FollowerType::Garrison)
+    if (!maxAllowedItemLevel)
         maxAllowedItemLevel = followerTypeData->MaxItemLevel;
 
     auto updateInfo = false;
