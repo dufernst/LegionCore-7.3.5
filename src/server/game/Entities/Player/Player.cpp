@@ -22956,7 +22956,7 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
         {
             if (Item* parent = GetItemByGuid(childItem->GetGuidValue(ITEM_FIELD_CREATOR)))
             {
-                InventoryResult res = CanUseItem(parent);
+                InventoryResult res = CanUseItem(parent, false);
                 if (res == EQUIP_ERR_OK)
                 {
                     parent->SetChildItem(childItem->GetGUID());
