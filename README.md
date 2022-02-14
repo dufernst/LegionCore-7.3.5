@@ -42,6 +42,11 @@ This core has been optimized for DBC/vmap/map/mmaps files from UWoW and are not 
 More information on how to acquire those files can be found [here](https://www.emucoach.com/legion-7-3-5-/6945-repack-7-3-5-legion-wow-repack-wow-legion-7-3-5-repack-blizzlike-fun.html)
 We will not provide further assistance if those files are not available anymore.
 
+At least certain files from the linked data files are wrong.
+Use the TrinityCore 7.3.5 tools, of which the source code can be found [here](https://github.com/TrinityCore/TrinityCore/releases/tag/7.3.5%2F26972) to generate the following files:
+* gt/xp.txt
+
+Replace the listed above files with the ones you generated yourself.
 
 ## Reporting issues
 
