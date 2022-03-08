@@ -269,9 +269,6 @@ void WorldSession::HandleGetTrophyList(WorldPackets::Garrison::GetTrophyList& /*
 
 void WorldSession::HandleGarrisonSetFollowerInactive(WorldPackets::Garrison::GarrisonSetFollowerInactive& packet)
 {
-    if (!_player->HasEnoughMoney(int64(2500000)))
-        return;
-
     if (Garrison* garrison = _player->GetGarrison())
     {
         if (auto follower = garrison->GetFollower(packet.FollowerDBID))
@@ -295,6 +292,9 @@ void WorldSession::HandleGarrisonSetFollowerInactive(WorldPackets::Garrison::Gar
             }
             else
             {
+                if (!_player->HasEnoughMoney(int64(2500000)))
+                    return;
+
                 if (!(follower->PacketInfo.FollowerStatus & GarrisonConst::GarrisonFollowerFlags::FOLLOWER_STATUS_INACTIVE))
                     return;
 
@@ -309,9 +309,9 @@ void WorldSession::HandleGarrisonSetFollowerInactive(WorldPackets::Garrison::Gar
                 packetResult.Amount = 0;
                 packetResult.UnkInt = 0;
                 _player->SendDirectMessage(packetResult.Write());
+                _player->ModifyMoney(-int64(2500000));
             }
             follower->DbState = DB_STATE_CHANGED;
-            _player->ModifyMoney(-int64(2500000));
         }
     }
 }
