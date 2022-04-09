@@ -4108,7 +4108,6 @@ struct GarrMissionLoadInfo
             { false, FT_BYTE, "GarrTypeID" },
             { true, FT_INT, "ID" },
             { true, FT_INT, "TravelDuration" },
-            { true, FT_INT, "CriteriaID" },
             { true, FT_INT, "PlayerConditionID" },
             { true, FT_INT, "MissionCost" },
             { true, FT_INT, "Flags" },
@@ -4116,6 +4115,7 @@ struct GarrMissionLoadInfo
             { true, FT_INT, "AreaID" },
             { true, FT_INT, "OvermaxRewardPackID" },
             { true, FT_INT, "EnvGarrMechanicID" },
+            { true, FT_INT, "RelationshipData" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrMissionMeta::Instance(), HOTFIX_SEL_GARR_MISSION);
         return &loadInfo;

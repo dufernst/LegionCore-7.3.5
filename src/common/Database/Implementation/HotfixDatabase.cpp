@@ -885,7 +885,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_GARR_MISSION, "SELECT Name, Description, Location, MissionDuration, OfferDuration, MapPos_1, MapPos_2, WorldPos1, "
         "WorldPos2, TargetItemLevel, UiTextureKitID, MissionCostCurrencyTypesID, TargetLevel, EnvGarrMechanicTypeID, MaxFollowers, "
         "OfferedGarrMissionTextureID, GarrMissionTypeID, GarrFollowerTypeID, BaseCompletionChance, FollowerDeathChance, GarrTypeID, ID, "
-        "TravelDuration, CriteriaID, PlayerConditionID, MissionCost, Flags, BaseFollowerXP, AreaID, OvermaxRewardPackID, EnvGarrMechanicID"
+        "TravelDuration, PlayerConditionID, MissionCost, Flags, BaseFollowerXP, AreaID, OvermaxRewardPackID, EnvGarrMechanicID, RelationshipData"
         " FROM garr_mission ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_GARR_MISSION, "SELECT ID, Name_lang, Description_lang, Location_lang FROM garr_mission_locale WHERE locale = ?", CONNECTION_SYNCH);
 

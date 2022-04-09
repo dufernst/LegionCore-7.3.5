@@ -1350,7 +1350,8 @@ uint32 Garrison::GetCountOfBluePrints() const
 
 uint32 Garrison::GetCountOFollowers() const
 {
-    return _followers[GARRISON_TYPE_GARRISON].size();
+    uint8 type = _owner->GetMap()->GetEntry()->ExpansionID == 5 ? GARRISON_TYPE_GARRISON : GARRISON_TYPE_CLASS_ORDER;
+    return _followers[type].size();
 }
 
 uint32 Garrison::GetBuildingData(uint32 buildingType, uint32 idx)

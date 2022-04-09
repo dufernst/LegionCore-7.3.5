@@ -2514,7 +2514,6 @@ struct GarrMissionEntry
     uint8       GarrTypeID;
     int32       ID;
     int32       TravelDuration;
-    int32       CriteriaID;
     int32       PlayerConditionID;
     int32       MissionCost;
     int32       Flags;
@@ -2522,6 +2521,7 @@ struct GarrMissionEntry
     int32       AreaID;
     int32       OvermaxRewardPackID;
     int32       EnvGarrMechanicID;
+    int32       RelationshipData;
 };
 
 // FileOptions: Index, None
