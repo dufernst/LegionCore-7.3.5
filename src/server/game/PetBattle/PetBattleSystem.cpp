@@ -604,7 +604,7 @@ eBattlePetRequests PetBattleSystem::CanPlayerEnterInPetBattle(Player* player, Pe
 
     // Check positions
     for (const auto& itr : petBattleRequest->TeamPosition)
-        if (player->GetMap()->getObjectHitPos(player->GetPhases(), petBattleRequest->PetBattleCenterPosition, itr, 0.0f))
+        if (player->GetMap()->getObjectHitPos(player->GetPhases(), true, petBattleRequest->PetBattleCenterPosition, itr, 0.0f))
             return PETBATTLE_REQUEST_NOT_HERE_UNEVEN_GROUND;
 
     auto petSlots = player->GetBattlePetCombatTeam();

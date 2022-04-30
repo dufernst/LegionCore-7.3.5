@@ -493,7 +493,7 @@ class WorldObject : public Object, public WorldLocation
         bool HasPhaseId(uint32 PhaseID) const;
         std::set<uint32> const& GetPhases() const;
         bool InSamePhaseId(WorldObject const* obj) const;
-        bool InSamePhaseId(std::set<uint32> const& phase) const;
+        bool InSamePhaseId(std::set<uint32> const& phase, bool otherIsPlayer) const;
         void RebuildTerrainSwaps();
         void RebuildWorldMapAreaSwaps();
         std::set<uint32> const& GetTerrainSwaps() const { return _terrainSwaps; }

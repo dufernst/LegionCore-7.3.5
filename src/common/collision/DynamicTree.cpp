@@ -141,11 +141,11 @@ void DynamicMapTree::update(uint32 t_diff)
 
 struct DynamicTreeIntersectionCallback
 {
-    DynamicTreeIntersectionCallback(std::set<uint32> const& phases) : _didHit(false), _phases(phases), _go(nullptr) { }
+    DynamicTreeIntersectionCallback(std::set<uint32> const& phases, bool otherIsPlayer) : _didHit(false), _phases(phases), _otherIsPlayer(otherIsPlayer), _go(nullptr) { }
 
     bool operator()(G3D::Ray const& r, GameObjectModel const& obj, float& distance)
     {
-        _didHit = obj.intersectRay(r, distance, true, _phases);
+        _didHit = obj.intersectRay(r, distance, true, _phases, _otherIsPlayer);
         if (_didHit)
         {
             if (obj.owner->IsDoor()) // Collision for door
@@ -161,15 +161,16 @@ struct DynamicTreeIntersectionCallback
 private:
     bool _didHit;
     std::set<uint32> _phases;
+    bool _otherIsPlayer;
 };
 
 struct DynamicTreeisInLineOfSightCallback
 {
-    DynamicTreeisInLineOfSightCallback(std::set<uint32> const& phases) : _didHit(false), _phases(phases), _go(nullptr) { }
+    DynamicTreeisInLineOfSightCallback(std::set<uint32> const& phases, bool otherIsPlayer) : _didHit(false), _phases(phases), _otherIsPlayer(otherIsPlayer), _go(nullptr) { }
 
     bool operator()(G3D::Ray const& r, GameObjectModel const& obj, float& distance)
     {
-        _didHit = obj.intersectLine(r, distance, true, _phases);
+        _didHit = obj.intersectLine(r, distance, true, _phases, _otherIsPlayer);
         if (_didHit)
             _go = const_cast<GameObject*>(obj.owner->GetOwner());
         return _didHit;
@@ -181,15 +182,16 @@ struct DynamicTreeisInLineOfSightCallback
 private:
     bool _didHit;
     std::set<uint32> _phases;
+    bool _otherIsPlayer;
 };
 
 struct DynamicTreeAreaInfoCallback
 {
-    DynamicTreeAreaInfoCallback(std::set<uint32> const& phases) : _phases(phases) {}
+    DynamicTreeAreaInfoCallback(std::set<uint32> const& phases, bool otherIsPlayer) : _phases(phases), _otherIsPlayer(otherIsPlayer) {}
 
     void operator()(G3D::Vector3 const& p, GameObjectModel const& obj)
     {
-        obj.intersectPoint(p, _areaInfo, _phases);
+        obj.intersectPoint(p, _areaInfo, _phases, _otherIsPlayer);
     }
 
     VMAP::AreaInfo const& GetAreaInfo() const { return _areaInfo; }
@@ -197,12 +199,13 @@ struct DynamicTreeAreaInfoCallback
 private:
     std::set<uint32> _phases;
     VMAP::AreaInfo _areaInfo;
+    bool _otherIsPlayer;
 };
 
-bool DynamicMapTree::getIntersectionTime(std::set<uint32> const& phases, G3D::Ray const& ray, G3D::Vector3 const& endPos, float& maxDist, DynamicTreeCallback* dCallback) const
+bool DynamicMapTree::getIntersectionTime(std::set<uint32> const& phases, bool otherIsPlayer, G3D::Ray const& ray, G3D::Vector3 const& endPos, float& maxDist, DynamicTreeCallback* dCallback) const
 {
     float distance = maxDist;
-    DynamicTreeIntersectionCallback callback(phases);
+    DynamicTreeIntersectionCallback callback(phases, otherIsPlayer);
     RecursiveGuard guard(dynamic_lock);
     impl->intersectRay(ray, callback, distance, endPos);
     if (callback.didHit())
@@ -214,7 +217,7 @@ bool DynamicMapTree::getIntersectionTime(std::set<uint32> const& phases, G3D::Ra
     return callback.didHit();
 }
 
-bool DynamicMapTree::getObjectHitPos(std::set<uint32> const& phases, G3D::Vector3 const& startPos, G3D::Vector3 const& endPos, G3D::Vector3& resultHitPos, float modifyDist, DynamicTreeCallback* dCallback) const
+bool DynamicMapTree::getObjectHitPos(std::set<uint32> const& phases, bool otherIsPlayer, G3D::Vector3 const& startPos, G3D::Vector3 const& endPos, G3D::Vector3& resultHitPos, float modifyDist, DynamicTreeCallback* dCallback) const
 {
     bool result = false;
     float maxDist = (endPos - startPos).magnitude();
@@ -231,7 +234,7 @@ bool DynamicMapTree::getObjectHitPos(std::set<uint32> const& phases, G3D::Vector
     G3D::Vector3 dir = (endPos - startPos)/maxDist;              // direction with length of 1
     G3D::Ray ray(startPos, dir);
     float dist = maxDist;
-    if (getIntersectionTime(phases, ray, endPos, dist, dCallback))
+    if (getIntersectionTime(phases, otherIsPlayer, ray, endPos, dist, dCallback))
     {
         resultHitPos = startPos + dir * dist;
         if (modifyDist < 0)
@@ -254,7 +257,7 @@ bool DynamicMapTree::getObjectHitPos(std::set<uint32> const& phases, G3D::Vector
     return result;
 }
 
-bool DynamicMapTree::isInLineOfSight(G3D::Vector3 const& startPos, G3D::Vector3 const& endPos, std::set<uint32> const& phases, DynamicTreeCallback* dCallback) const
+bool DynamicMapTree::isInLineOfSight(G3D::Vector3 const& startPos, G3D::Vector3 const& endPos, std::set<uint32> const& phases, bool otherIsPlayer, DynamicTreeCallback* dCallback) const
 {
     float maxDist = (endPos - startPos).magnitude();
 
@@ -262,7 +265,7 @@ bool DynamicMapTree::isInLineOfSight(G3D::Vector3 const& startPos, G3D::Vector3 
         return true;
 
     G3D::Ray r(startPos, (endPos - startPos) / maxDist);
-    DynamicTreeisInLineOfSightCallback callback(phases);
+    DynamicTreeisInLineOfSightCallback callback(phases, otherIsPlayer);
     RecursiveGuard guard(dynamic_lock);
     impl->intersectRay(r, callback, maxDist, endPos);
 
@@ -273,11 +276,11 @@ bool DynamicMapTree::isInLineOfSight(G3D::Vector3 const& startPos, G3D::Vector3 
     return !callback.didHit();
 }
 
-float DynamicMapTree::getHeight(float x, float y, float z, float maxSearchDist, std::set<uint32> const& phases, DynamicTreeCallback* dCallback) const
+float DynamicMapTree::getHeight(float x, float y, float z, float maxSearchDist, std::set<uint32> const& phases, bool otherIsPlayer, DynamicTreeCallback* dCallback) const
 {
     G3D::Vector3 v(x, y, z + 0.5f);
     G3D::Ray r(v, G3D::Vector3(0, 0, -1));
-    DynamicTreeIntersectionCallback callback(phases);
+    DynamicTreeIntersectionCallback callback(phases, otherIsPlayer);
     RecursiveGuard guard(dynamic_lock);
     impl->intersectZAllignedRay(r, callback, maxSearchDist);
 
@@ -291,10 +294,10 @@ float DynamicMapTree::getHeight(float x, float y, float z, float maxSearchDist, 
         return -G3D::finf();
 }
 
-bool DynamicMapTree::getAreaInfo(float x, float y, float& z, std::set<uint32> const& phases, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const
+bool DynamicMapTree::getAreaInfo(float x, float y, float& z, std::set<uint32> const& phases, bool otherIsPlayer, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const
 {
     G3D::Vector3 v(x, y, z + 0.5f);
-    DynamicTreeAreaInfoCallback intersectionCallBack(phases);
+    DynamicTreeAreaInfoCallback intersectionCallBack(phases, otherIsPlayer);
     RecursiveGuard guard(dynamic_lock);
     impl->intersectPoint(v, intersectionCallBack);
     if (intersectionCallBack.GetAreaInfo().result)
