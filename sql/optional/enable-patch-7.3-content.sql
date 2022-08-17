@@ -6,7 +6,8 @@ DELETE FROM disables WHERE sourceType = 2 AND entry IN (1669, 1712, 1753);
 -- enable quest 47221/47835/48506/48507 The Hand of Fate (starting quest of 7.3 content)
 -- enable quest 47867/47222 Two If By Sea (followup quest from: The Hand of Fate)
 -- enable quest 47223 Light's Exodus (here Alliance/Horde converges, block just to be sure)
-DELETE FROM disables WHERE sourceType = 1 AND entry IN (47221, 47835, 48506, 48507, 47867, 47222, 47223);
+-- enable quest 48639/48642 Emissary quests from Army of the Light and Argussian Reach (7.3 factions) 
+DELETE FROM disables WHERE sourceType = 1 AND entry IN (47221, 47835, 48506, 48507, 47867, 47222, 47223, 48639, 48642);
 
 -- enable Invasaion Point Argus Events
 UPDATE game_event SET start_time = '2018-08-06 07:57:00' WHERE eventEntry = 180;
@@ -21,3 +22,6 @@ UPDATE game_event SET start_time = '2018-08-06 13:57:00' WHERE eventEntry = 188;
 UPDATE game_event SET start_time = '2018-08-06 11:57:00' WHERE eventEntry = 189;
 UPDATE game_event SET start_time = '2018-08-07 03:57:00' WHERE eventEntry = 190;
 UPDATE game_event SET start_time = '2018-08-07 05:57:00' WHERE eventEntry = 191;
+
+-- set the minimum item level for pvp world quests and dungeon world quests
+UPDATE world_quest_template SET MinItemLevel = 890 WHERE ZoneId = 0 AND QuestInfoId IN (113, 137);
