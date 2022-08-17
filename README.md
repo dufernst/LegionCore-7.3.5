@@ -35,6 +35,10 @@ Windows, Linux and macOS.
 Detailed installation guides are available in the [wiki](https://www.trinitycore.info/display/tc/Installation+Guide) for
 Windows, Linux and macOS.
 
+### MySQL 5.7+
+
+Disable the NO_ZERO_IN_DATE sql_mode.
+
 
 ## Data Files
 
