@@ -58,7 +58,8 @@ bool LoginRESTService::Start(boost::asio::io_service& ioService)
     boost::asio::ip::tcp::resolver::iterator end;
 
     std::string configuredAddress = sConfigMgr->GetStringDefault("LoginREST.ExternalAddress", "127.0.0.1");
-    boost::asio::ip::tcp::resolver::query externalAddressQuery(boost::asio::ip::tcp::v4(), configuredAddress, std::to_string(_port));
+    boost::asio::ip::tcp::resolver::query externalAddressQuery(boost::asio::ip::tcp::v4(), configuredAddress, std::to_string(_port),
+        boost::asio::ip::resolver_query_base::all_matching);
     boost::asio::ip::tcp::resolver::iterator endPoint = resolver.resolve(externalAddressQuery, ec);
     if (endPoint == end || ec)
     {
@@ -69,7 +70,8 @@ bool LoginRESTService::Start(boost::asio::io_service& ioService)
     _externalAddress = endPoint->endpoint();
 
     configuredAddress = sConfigMgr->GetStringDefault("LoginREST.LocalAddress", "127.0.0.1");
-    boost::asio::ip::tcp::resolver::query localAddressQuery(boost::asio::ip::tcp::v4(), configuredAddress, std::to_string(_port));
+    boost::asio::ip::tcp::resolver::query localAddressQuery(boost::asio::ip::tcp::v4(), configuredAddress, std::to_string(_port),
+        boost::asio::ip::resolver_query_base::all_matching);
     endPoint = resolver.resolve(localAddressQuery, ec);
     if (endPoint == end || ec)
     {
