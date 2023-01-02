@@ -233,28 +233,6 @@ namespace Battlepay
         };
     }
 
-    namespace CustomMessage
-    {
-        enum
-        {
-            StoreBalance,
-            AccountName,
-            StoreBuyFailed
-        };
-
-        static const char* CustomMessage[] =
-        {
-            "STORE_BALANCE",
-            "ACCOUNT_NAME",
-            "STORE_BUY_FAILED"
-        };
-
-        inline const char* GetCustomMessage(uint8 id)
-        {
-            return CustomMessage[id];
-        }
-    }
-
     enum BattlePayCurrency
     {
         Unknow = 0,
@@ -357,6 +335,9 @@ namespace Battlepay
         int32 Ordering;
         std::string Name;
         uint8 DisplayType; ///< BattlepayGroupDisplayType
+        uint8 TokenType;
+        bool IngameOnly;
+        bool OwnsTokensOnly;
     };
 
     struct DisplayInfo
@@ -432,6 +413,15 @@ namespace Battlepay
     struct ProductGroupLocale
     {
         StringVector Name;
+    };
+
+    struct TokenType
+    {
+        uint8 type;
+        std::string name;
+        bool hasLoginMessage;
+        std::string loginMessage;
+        bool listIfNone;
     };
 }
 

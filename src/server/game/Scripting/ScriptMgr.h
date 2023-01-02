@@ -193,6 +193,8 @@ class BattlePayProductScript : public ScriptObject
 protected:
     explicit BattlePayProductScript(std::string scriptName);
 public:
+    bool IsDatabaseBound() const override { return true; }
+
     virtual void OnProductDelivery(WorldSession* /*session*/, Battlepay::Product const& /*product*/) { }
     virtual bool CanShow(WorldSession* /*session*/, Battlepay::Product const& /*product*/) { return true; }
     virtual bool CanBuy(WorldSession* /*session*/, Battlepay::Product const& /*product*/, std::string& /*reason*/) { return true; }
@@ -664,7 +666,7 @@ class PlayerScript : public ScriptObject
         virtual void OnPlayerKilledByCreature(Creature* /*killer*/, Player* /*killed*/) { }
 
         // Called when a player's level changes (right before the level is applied)
-        virtual void OnLevelChanged(Player* /*player*/, uint8 /*newLevel*/) { }
+        virtual void OnLevelChanged(Player* /*player*/, uint8 /*oldLevel*/) { }
 
         // Called when a player's free talent points change (right before the change is applied)
         virtual void OnFreeTalentPointsChanged(Player* /*player*/, uint32 /*points*/) { }

@@ -72,9 +72,10 @@ void WorldPackets::Null::Read()
     _worldPacket.rfinish();
 }
 
-WorldSession::WorldSession(uint32 id, std::string&& name, const std::shared_ptr<WorldSocket>& sock, AccountTypes sec, uint8 expansion, time_t mute_time, std::string os, LocaleConstant locale, uint32 recruiter, bool isARecruiter, AuthFlags flag, int64 balance):
+WorldSession::WorldSession(uint32 id, std::string&& name, const std::shared_ptr<WorldSocket>& sock, AccountTypes sec, uint8 expansion, time_t mute_time, std::string os, LocaleConstant locale, uint32 recruiter, bool isARecruiter, AuthFlags flag, std::unordered_map<uint8, int64>&& accountTokenMap, uint32 referer):
 m_muteTime(mute_time), m_timeOutTime(0), _countPenaltiesHwid(0), _player(nullptr), m_map(nullptr), _security(sec), _accountId(id), m_expansion(expansion), m_accountExpansion(expansion), _logoutTime(0), m_inQueue(false), m_playerLogout(false), m_playerRecentlyLogout(false),
-m_playerSave(false), m_sessionDbLocaleIndex(locale), m_latency(0), _tutorialsChanged(false), recruiterId(recruiter), isRecruiter(isARecruiter), timeCharEnumOpcode(0), playerLoginCounter(0), forceExit(false), m_sUpdate(false), wardenModuleFailed(false), atAuthFlag(flag), canLogout(false), battlePayBalance(balance)
+m_playerSave(false), m_sessionDbLocaleIndex(locale), m_latency(0), _tutorialsChanged(false), recruiterId(recruiter), isRecruiter(isARecruiter), timeCharEnumOpcode(0), playerLoginCounter(0), forceExit(false), m_sUpdate(false), wardenModuleFailed(false), atAuthFlag(flag), canLogout(false),
+tokens(accountTokenMap), _referer(referer)
 {
     _os = std::move(os);
     _accountName = std::move(name);

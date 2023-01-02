@@ -13188,7 +13188,7 @@ bool Player::IsValidPos(uint8 bag, uint8 slot, bool explicit_pos)
     return false;
 }
 
-bool Player::HasDonateToken(uint32 count) const
+bool Player::HasToken(uint8 tokenType, uint32 count) const
 {    
     if (!GetCanUseDonate()) // if this there, then will cancel next buying by all steps
     {
@@ -13200,47 +13200,50 @@ bool Player::HasDonateToken(uint32 count) const
     if (sWorld->getBoolConfig(CONFIG_DONATE_ON_TESTS))
         return true;
     
-    if (GetSession()->GetBattlePayBalance() >= count)
+    if (GetSession()->GetTokenBalance(tokenType) >= count)
         return true;
-    
+
 	ChatHandler chH = ChatHandler(const_cast<Player*>(this));
 	chH.PSendSysMessage(20000, count);
     return false;
 }
 
-bool Player::ChangeDonateTokenCount(int64 change, uint8 buyType, uint64 productId)
+bool Player::ChangeTokenCount(uint8 tokenType, int64 change, uint8 buyType, uint64 productId)
 {
     if (sWorld->getBoolConfig(CONFIG_DONATE_ON_TESTS)) // if test, then free donate
         return true;
 
-    if (change < 0 && !HasDonateToken(change * -1))
+    if (change < 0 && !HasToken(tokenType, change * -1))
         return false;
     
     ModifyCanUseDonate(false); // prevent others buying, while processing this buy
     
     SQLTransaction trans = LoginDatabase.BeginTransaction();
     
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_DONATE_TOKEN);
-    stmt->setInt64(0, change);
-    stmt->setUInt32(1, GetSession()->GetAccountId());
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_OR_UPD_TOKEN);
+    stmt->setUInt32(0, GetSession()->GetAccountId());
+    stmt->setUInt8(1, tokenType);
+    stmt->setInt64(2, change);
+    stmt->setInt64(3, change);
     trans->Append(stmt);
     
-    //INSERT INTO `account_donate_token_log` (`accountId`, `realmdId`, `characterId`, `change`, `type`, `productId`) VALUES (?, ?, ?, ?, ?, ?)
+    //INSERT INTO `account_donate_token_log` (`accountId`, `realmId`, `characterId`, `change`, `tokenType`, `buyType`, `productId`) VALUES (?, ?, ?, ?, ?, ?, ?)
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG_USE_DONATE_TOKEN);
     stmt->setUInt32(0, GetSession()->GetAccountId());
     stmt->setUInt32(1, GetSession()->_realmID);
     stmt->setUInt64(2, GetGUID().GetCounter());
     stmt->setInt64(3, change);
-    stmt->setUInt8(4, buyType);
-    stmt->setUInt64(5, productId);
+    stmt->setUInt8(4, tokenType);
+    stmt->setUInt8(5, buyType);
+    stmt->setUInt64(6, productId);
     trans->Append(stmt);
 
     uint32 guid = GetGUIDLow();
-    LoginDatabase.CommitTransaction(trans, [guid, change]() -> void
+    LoginDatabase.CommitTransaction(trans, [guid, tokenType, change]() -> void
     {
         if (Player* target = sObjectMgr->GetPlayerByLowGUID(guid))
         {
-            target->GetSession()->ChangeBattlePayBalance(change);
+            target->GetSession()->ChangeTokenBalance(tokenType, change);
             target->ModifyCanUseDonate(true); // succes, return this
             ChatHandler chH = ChatHandler(target);
             chH.PSendSysMessage(20062, change * -1);
@@ -13255,7 +13258,11 @@ std::string Player::GetInfoForDonate() const
 {
     std::ostringstream info;
 
-    info << "Player info: acc = " << GetSession()->GetAccountId() << ", bnet_acc = " << GetSession()->GetAccountId() << ", char_guid = " << GetGUIDLow()  << ", tokens = " << GetSession()->GetBattlePayBalance();
+    info <<
+    "Player info: acc = " << GetSession()->GetAccountId() <<
+    ", bnet_acc = " << GetSession()->GetAccountId() <<
+    ", char_guid = " << GetGUIDLow()  <<
+    ", tokens = " << GetSession()->GetTokenBalance(sWorld->getIntConfig(CONFIG_DONATE_VENDOR_TOKEN_TYPE));
 
     return info.str();
 }
@@ -27773,7 +27780,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
         ModifyMoney(-price);
     else
     {
-        if (!ChangeDonateTokenCount(-price, Battlepay::BattlepayCustomType::VendorBuyItem, item))
+        if (!ChangeTokenCount(sWorld->getIntConfig(CONFIG_DONATE_VENDOR_TOKEN_TYPE), -price, Battlepay::BattlepayCustomType::VendorBuyItem, item))
             return false;
     }
 
@@ -27998,7 +28005,7 @@ bool Player::BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot,
 
     if (crItem->DonateCost)
     {
-        if (!ChangeDonateTokenCount(-crItem->DonateCost, Battlepay::BattlepayCustomType::VendorBuyCurrency, currency))
+        if (!ChangeTokenCount(sWorld->getIntConfig(CONFIG_DONATE_VENDOR_TOKEN_TYPE), -crItem->DonateCost, Battlepay::BattlepayCustomType::VendorBuyCurrency, currency))
             return false;
         
         TC_LOG_DEBUG(LOG_FILTER_DONATE, "[Buy] Currency entry = %u, cost = %u, %s", currency, crItem->DonateCost, GetInfoForDonate().c_str());
@@ -28098,7 +28105,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     if (crItem->DonateCost)
     {
         uint32 stacks = count / pProto->VendorStackCount;
-        if (!HasDonateToken(crItem->DonateCost * stacks))
+        if (!HasToken(sWorld->getIntConfig(CONFIG_DONATE_VENDOR_TOKEN_TYPE), crItem->DonateCost * stacks))
         {
             SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS);
             return false;

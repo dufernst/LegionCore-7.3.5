@@ -130,12 +130,19 @@ auto MakePurchase = [](ObjectGuid targetCharacter, uint32 clientToken , uint32 p
         return;
     }
 
+    Battlepay::ProductGroup* group = sBattlePayDataStore->GetProductGroupForProductId(purchase.ProductID);
+    if (!group)
+    {
+        SendStartPurchaseResponse(session, purchase, Battlepay::Error::PurchaseDenied);
+        return;
+    }
+
     auto const& product = sBattlePayDataStore->GetProduct(purchase.ProductID);
     purchase.CurrentPrice = product.CurrentPriceFixedPoint;
 
     mgr->RegisterStartPurchase(purchase);
 
-    auto accountBalance = session->GetBattlePayBalance();
+    auto accountBalance = session->GetTokenBalance(group->TokenType);
     auto purchaseData = mgr->GetPurchase();
 
     if (!accountBalance)
@@ -156,7 +163,7 @@ auto MakePurchase = [](ObjectGuid targetCharacter, uint32 clientToken , uint32 p
         {
             std::ostringstream data;
             data << sObjectMgr->GetTrinityString(Battlepay::String::NotEnoughFreeBagSlots, session->GetSessionDbLocaleIndex());
-            player->SendCustomMessage(GetCustomMessage(Battlepay::CustomMessage::StoreBuyFailed), data);
+            player->SendCustomMessage("Store purchase failed ", data);
             SendStartPurchaseResponse(session, *purchaseData, Battlepay::Error::PurchaseDenied);
             return;
         }
@@ -169,7 +176,7 @@ auto MakePurchase = [](ObjectGuid targetCharacter, uint32 clientToken , uint32 p
         {
             std::ostringstream data;
             data << reason;
-            player->SendCustomMessage(GetCustomMessage(Battlepay::CustomMessage::StoreBuyFailed), data);
+            player->SendCustomMessage("Store purchase failed ", data);
             SendStartPurchaseResponse(session, *purchaseData, Battlepay::Error::PurchaseDenied);
             return;
         }
@@ -181,7 +188,7 @@ auto MakePurchase = [](ObjectGuid targetCharacter, uint32 clientToken , uint32 p
         {
             std::ostringstream data;
             data << sObjectMgr->GetTrinityString(Battlepay::String::YouAlreadyOwnThat, session->GetSessionDbLocaleIndex());;
-            player->SendCustomMessage(GetCustomMessage(Battlepay::CustomMessage::StoreBuyFailed), data);
+            player->SendCustomMessage("Store purchase failed ", data);
             SendStartPurchaseResponse(session, *purchaseData, Battlepay::Error::PurchaseDenied);
             return;
         }
@@ -240,8 +247,14 @@ void WorldSession::HandleBattlePayConfirmPurchase(WorldPackets::BattlePay::Confi
         return;
     }
 
-    auto accountBalance = GetBattlePayBalance();
-    if (accountBalance < static_cast<int64>(purchase->CurrentPrice))
+    Battlepay::ProductGroup* group = sBattlePayDataStore->GetProductGroupForProductId(purchase->ProductID);
+    if (!group)
+    {
+        SendPurchaseUpdate(this, *purchase, Battlepay::Error::PurchaseDenied);
+        return;
+    }
+    
+    if (GetTokenBalance(group->TokenType) < static_cast<int64>(purchase->CurrentPrice))
     {
         SendPurchaseUpdate(this, *purchase, Battlepay::Error::PurchaseDenied);
         return;
@@ -258,7 +271,7 @@ void WorldSession::HandleBattlePayConfirmPurchase(WorldPackets::BattlePay::Confi
         {
             std::ostringstream data;
             data << reason;
-            player->SendCustomMessage(GetCustomMessage(Battlepay::CustomMessage::StoreBuyFailed), data);
+            player->SendCustomMessage("Store purchase failed ", data);
             SendPurchaseUpdate(this, *purchase, Battlepay::Error::PaymentFailed);
             return;
         }
@@ -270,7 +283,7 @@ void WorldSession::HandleBattlePayConfirmPurchase(WorldPackets::BattlePay::Confi
         {
             std::ostringstream data;
             data << sObjectMgr->GetTrinityString(Battlepay::String::NotEnoughFreeBagSlots, GetSessionDbLocaleIndex());
-            player->SendCustomMessage(GetCustomMessage(Battlepay::CustomMessage::StoreBuyFailed), data);
+            player->SendCustomMessage("Store purchase failed ", data);
             SendStartPurchaseResponse(this, *purchase, Battlepay::Error::PurchaseDenied);
             return;
         }
@@ -282,7 +295,7 @@ void WorldSession::HandleBattlePayConfirmPurchase(WorldPackets::BattlePay::Confi
         {
             std::ostringstream data;
             data << sObjectMgr->GetTrinityString(Battlepay::String::YouAlreadyOwnThat, GetSessionDbLocaleIndex());
-            player->SendCustomMessage(GetCustomMessage(Battlepay::CustomMessage::StoreBuyFailed), data);
+            player->SendCustomMessage("Store purchase failed ", data);
             SendStartPurchaseResponse(this, *purchase, Battlepay::Error::PurchaseDenied);
             return;
         }
@@ -290,7 +303,7 @@ void WorldSession::HandleBattlePayConfirmPurchase(WorldPackets::BattlePay::Confi
 
     SendPurchaseUpdate(this, *purchase, Battlepay::Error::Other);
 
-    if (player->ChangeDonateTokenCount(-purchase->CurrentPrice, Battlepay::BattlepayCustomType::BattlePayShop, purchase->ProductID))
+    if (player->ChangeTokenCount(group->TokenType, -purchase->CurrentPrice, Battlepay::BattlepayCustomType::BattlePayShop, purchase->ProductID))
         GetBattlePayMgr()->ProcessDelivery(purchase);
 }
 
