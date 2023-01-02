@@ -255,6 +255,52 @@ struct StateUnsubscribe
     }
 };
 
+struct StateLogin
+{
+    std::string returnUrl;
+    std::string emailAddress;
+    std::string password;
+    std::vector<unsigned char> captcha;
+    uint64_t validTill;
+
+    template <class Archive>
+    void serialize(Archive& ar)
+    {
+        ar(returnUrl, emailAddress, password, captcha, validTill);
+    }
+
+    std::string whereToNext()
+    {
+        if (emailAddress == "" || password == "")
+            return std::string("/account/login/credentials/");
+
+        return std::string("/account/login/captcha/");
+    }
+};
+
+struct StateLoggedIn
+{
+    uint32_t accountId;
+    uint64_t validTill;
+    std::string email;
+
+    template <class Archive>
+    void serialize(Archive& ar)
+    {
+        ar(accountId, validTill, email);
+    }
+};
+
+struct StateAccountReference
+{
+    uint32_t aId;
+    template <class Archive>
+    void serialize(Archive& ar)
+    {
+        ar(aId);
+    }
+};
+
 template <typename T>
 std::string StateToHexBytesString(const T& data, const unsigned char* k)
 {
@@ -333,6 +379,23 @@ std::string ReturnCaptcha(const std::string& hexString, const unsigned char* k)
     makegif(im, gif);
 
     return std::string((const char*)gif, gifsize);
+}
+
+template <typename T>
+bool GetCookieState(T& data, const unsigned char* k, const std::string& name, const httplib::Request& req)
+{
+    if (!req.has_header("Cookie"))
+        return false;
+
+    std::string cookies = req.get_header_value("Cookie");
+    std::string nameWithEqual(name + std::string("="));
+    size_t startPos = cookies.find(nameWithEqual);
+    size_t endPos = std::string::npos;
+
+    if (startPos == std::string::npos)
+        return false;
+
+    return HexBytesStringToState(data, k, cookies.substr(startPos + nameWithEqual.size(), cookies.find(';', startPos)));
 }
 
 struct SMTPData
@@ -745,6 +808,12 @@ int main(int argc, char* argv[])
 			return;
         }
 
+        // if the cookie is set this account is created after a referral
+        StateAccountReference sar;
+        uint32_t refererId = 0;
+        if (GetCookieState(sar, k, "ref", req))
+            refererId = sar.aId;
+
         if (!StartLoginDB())
         {
             std::string newURL = sdr.whereToNext() + std::string("error-internal/");
@@ -753,6 +822,20 @@ int main(int argc, char* argv[])
         }
 
         AccountOpResult result = AccountMgr::CreateAccount(sdr.email, sdr.password, false);
+        // only set the referer if the creation was a success
+        if (result == AccountOpResult::AOR_OK)
+        {
+            uint32_t createdAccountId = AccountMgr::GetId(sdr.email);
+
+            if (createdAccountId)
+            {
+                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_REFERER);
+                stmt->setUInt32(0, refererId);
+                stmt->setUInt32(1, createdAccountId);
+                LoginDatabase.DirectExecute(stmt);
+            }
+        }
+
         StopLoginDB();
 
         if (result == AccountOpResult::AOR_NAME_ALREADY_EXIST)
@@ -1514,6 +1597,199 @@ int main(int argc, char* argv[])
         archive(unsubscribed);
 
         res.set_content("You have been successfully unsubscribed from any further emails! Please contact an admin to undo this if you change your mind :)", "text/plain");
+    });
+
+    // LOGIN
+    svr.Post(R"(/account/login/credentials(?:/error-wrong)?/*([a-zA-z0-9]*)/*$)",
+        [k](const httplib::Request& req, httplib::Response& res)
+    {
+        std::string hexString = req.matches[1];
+
+        StateLogin sl;
+        if (!HexBytesStringToState(sl, k, hexString))
+        {
+            sl.captcha = std::vector<unsigned char>(6);
+            randombytes(sl.captcha.data(), 6);
+
+            std::string newURL = sl.whereToNext() + std::string("error-wrong/") + StateToHexBytesString(sl, k) + std::string("/");
+			res.set_redirect(newURL.c_str());
+			return;
+        }
+
+        sl.emailAddress = "";
+        sl.password = "";
+        sl.captcha = std::vector<unsigned char>(6);
+        randombytes(sl.captcha.data(), 6);
+
+		if (!req.has_param("emailAddress") || !req.has_param("password"))
+		{
+            std::string newURL = sl.whereToNext() + std::string("error-wrong/") + StateToHexBytesString(sl, k) + std::string("/");
+			res.set_redirect(newURL.c_str());
+			return;
+		}
+
+        sl.emailAddress = req.get_param_value("emailAddress");
+        sl.password = req.get_param_value("password");
+        uint64_t now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        uint64_t secondsTillExpire = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::hours(1)).count();
+        sl.validTill = now + secondsTillExpire;
+
+        std::string newURL = sl.whereToNext() + StateToHexBytesString(sl, k) + std::string("/");
+        res.set_redirect(newURL.c_str());
+    });
+    svr.Get(R"(/account/login/captcha(?:/error-wrong)?(?:/error-internal)?/*([a-zA-z0-9]*)/+api/*$)",
+        [k](const httplib::Request& req, httplib::Response& res)
+    {
+        std::string hexString = req.matches[1];
+        res.set_content(ReturnCaptcha<StateLogin>(hexString, k), "image/gif");
+    });
+    svr.Post(R"(/account/login/captcha(?:/error-wrong)?(?:/error-internal)?/*([a-zA-z0-9]*)/*$)",
+        [k](const httplib::Request& req, httplib::Response& res)
+    {
+        std::string hexString = req.matches[1];
+
+        StateLogin sl;
+        if (!HexBytesStringToState(sl, k, hexString))
+        {
+            sl.captcha = std::vector<unsigned char>(6);
+            randombytes(sl.captcha.data(), 6);
+
+            std::string newURL = sl.whereToNext() + std::string("error-wrong/") + StateToHexBytesString(sl, k) + std::string("/");
+			res.set_redirect(newURL.c_str());
+			return;
+        }
+
+        uint64_t now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+        if (now >= sl.validTill || !req.has_param("captcha") || req.get_param_value("captcha").length() != 5 || sl.captcha.size() == 0)
+		{
+            sl.captcha = std::vector<unsigned char>(6);
+            randombytes(sl.captcha.data(), 6);
+
+            std::string newURL = sl.whereToNext() + std::string("error-wrong/") + StateToHexBytesString(sl, k) + std::string("/");
+			res.set_redirect(newURL.c_str());
+			return;
+		}
+
+        unsigned char im[70 * 200];
+        captcha(im, sl.captcha.data());
+        unsigned char foundWrong = 0;
+        for (int i = 0; i < 5; i++)
+            if (req.get_param_value("captcha")[i] != (char)sl.captcha[i])
+                foundWrong++;
+
+        // allow one mistake
+        if (foundWrong > 1)
+        {
+            sl.captcha = std::vector<unsigned char>(6);
+            randombytes(sl.captcha.data(), 6);
+
+            std::string newURL = sl.whereToNext() + std::string("error-wrong/") + StateToHexBytesString(sl, k) + std::string("/");
+			res.set_redirect(newURL.c_str());
+			return;
+        }
+
+        if (!StartLoginDB())
+        {
+            std::string newURL = sl.whereToNext() + std::string("error-internal/") + StateToHexBytesString(sl, k) + std::string("/");
+			res.set_redirect(newURL.c_str());
+			return;
+        }
+
+        uint32 accountId = AccountMgr::GetId(sl.emailAddress);
+        bool correctPassword = false;
+        if (accountId)
+            correctPassword = AccountMgr::CheckPassword(accountId, sl.password);
+
+        StopLoginDB();
+
+        if (!correctPassword)
+        {
+            sl.emailAddress = "";
+            sl.password = "";
+            sl.captcha = std::vector<unsigned char>(6);
+            randombytes(sl.captcha.data(), 6);
+
+            std::string newURL = sl.whereToNext() + std::string("error-wrong/") + StateToHexBytesString(sl, k) + std::string("/");
+			res.set_redirect(newURL.c_str());
+			return;
+        }
+
+        StateLoggedIn sli;
+        sli.accountId = accountId;
+        sli.email = sl.emailAddress;
+
+        uint64_t secondsTillExpire = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::hours(62 * 24)).count();
+        sli.validTill = now + secondsTillExpire;
+
+        std::string cookie = StateToHexBytesString(sli, k);
+
+        res.set_header("Set-Cookie", std::string("loginSession=") + cookie + std::string("; Max-Age=") + std::to_string(secondsTillExpire));
+        res.set_redirect(sl.returnUrl.size() > 0 ? sl.returnUrl : "/");
+    });
+
+    // REFERENCE URL
+    svr.Get(R"(/ref/*([a-zA-z0-9]*)/+api/*$)",
+        [k](const httplib::Request& req, httplib::Response& res)
+    {
+        std::string hexString = req.matches[1];
+
+        StateAccountReference sar;
+        if (HexBytesStringToState(sar, k, hexString))
+        {
+            uint64_t secondsTillExpire = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::hours(14 * 24)).count();
+            res.set_header("Set-Cookie", std::string("ref=") + hexString + std::string("; Max-Age=") + std::to_string(secondsTillExpire));
+        }
+
+        res.set_redirect("/");
+    });
+    svr.Get(R"(/account/myref/login/api/*$)",
+        [k](const httplib::Request& req, httplib::Response& res)
+    {
+        StateLoggedIn sli;
+        if (!GetCookieState(sli, k, "loginSession", req) || std::chrono::seconds(sli.validTill) < std::chrono::system_clock::now().time_since_epoch())
+        {
+            StateLogin sl;
+            sl.returnUrl = "/account/myref/login/api/";
+            std::string newURL = sl.whereToNext() + StateToHexBytesString(sl, k) + std::string("/");
+			res.set_redirect(newURL.c_str());
+            return;
+        }
+
+        res.set_redirect("/account/myref/");
+    });
+    svr.Get(R"(/account/myref/switch/api/*$)",
+        [k](const httplib::Request& req, httplib::Response& res)
+    {
+        StateLogin sl;
+        sl.returnUrl = "/account/myref/login/api/";
+        std::string newURL = sl.whereToNext() + StateToHexBytesString(sl, k) + std::string("/");
+        res.set_redirect(newURL.c_str());
+        return;
+    });
+    svr.Get(R"(/account/myref/api/*$)",
+        [k, &smtpData](const httplib::Request& req, httplib::Response& res)
+    {
+        StateLoggedIn sli;
+        if (!GetCookieState(sli, k, "loginSession", req) || std::chrono::seconds(sli.validTill) < std::chrono::system_clock::now().time_since_epoch())
+        {
+            res.set_content("", "text/css");
+            return;
+        }
+
+        StateAccountReference sar;
+        sar.aId = sli.accountId;
+        std::string refUrl(smtpData.SMTPReturnDomain + std::string("/ref/") + StateToHexBytesString(sar, k) + std::string("/api/"));
+
+        std::string output = "";
+        output += std::string("#idaccount::before {\n");
+        output += std::string("content:\"") + sli.email + std::string("\";\n");
+        output += std::string("}\n");
+        output += std::string("#idurl::before {\n");
+        output += std::string("content:\"") + refUrl + std::string("\";\n");
+        output += std::string("}\n");
+    
+        res.set_content(output, "text/css");
     });
 
     svr.listen(bind_ip.c_str(), port);
