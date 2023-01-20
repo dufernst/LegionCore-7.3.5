@@ -108,3 +108,43 @@ NewsLetterUnsubDomain = "https://unsubscribe.wow.com/unsubscribe/"
 NewsLetterSubject = "WoW Subject"
 NewsLetterMailForUnsubscribe = "unsubscribe@wow.com"
 
+
+#
+###################################################################################################
+
+###################################################################################################
+# VOTE SETTINGS
+
+WebsiteName1 = TopG
+CallbackKeyName1 = p_resp
+CallbackHostname1 = monitor.topg.org
+CallbackUrl1 = /callback/topg-vote/api
+VoteUrl1 = https://topg.org/CATEGORY/in-SITEID-
+VoteToken1 = 1
+VoteTokensGiven1 = 2
+
+WebsiteName2 = XtremeTop100
+CallbackKeyName2 = custom
+CallbackHostname2 = xtremetop100.com
+CallbackUrl2 = /callback/xtremetop100-vote/api
+VoteUrl2 = https://www.xtremetop100.com/in.php?site=SITEID&postback=
+VoteToken2 = 1
+VoteTokensGiven2 = 0
+
+WebisteName3 = ArenaTop100
+CallbackKeyName3 = userid
+CallbackIps3 = 0.0.0.0
+CallbackUrl3 = /callback/arenatop100-vote/api
+VoteUrl3 = https://www.arena-top100.com/index.php?a=in&u=ARENA-TOP100-USERNAME&id=
+CheckKeyName3 = voted
+CheckKeyValue3 = 1
+VoteToken3 = 1
+VoteTokensGiven3 = 1
+
+WebisteName4 = GamingTop100
+CallbackKeyName4 = userid
+CallbackHostname4 = gamingtop100.net
+CallbackUrl4 = /callback/gamingtop100-vote/api
+VoteUrl4 = http://gamingtop100.net/in-SITEID-
+VoteToken4 = 1
+VoteTokensGiven4 = 1

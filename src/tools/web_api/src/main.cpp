@@ -413,6 +413,21 @@ struct SMTPData
     std::string SMTPReturnDomain;
 };
 
+struct VoteWebsiteData
+{
+    uint8_t id;
+    std::string name;
+    std::string callbackKeyName;
+    std::string callbackHostname;
+    std::vector<std::string> callbackIps;
+    std::string callbackUrl;
+    std::string voteUrl;
+    std::string checkKeyName;
+    std::string checkKeyValue;
+    uint8_t voteTokenType;
+    uint8_t voteTokensGiven;
+};
+
 std::vector<std::string> LoadJSonDatabase(const std::string& filename)
 {
     std::ifstream file(filename);
@@ -554,6 +569,144 @@ void sendNewsletter(const SMTPData& smtpData, const unsigned char* k)
     }
 }
 
+std::vector<VoteWebsiteData> loadVoteWebsites()
+{
+    std::vector<VoteWebsiteData> voteWebsites;
+
+    for (int i = 1; i < std::numeric_limits<uint8_t>::max(); i++)
+    {
+        if (sConfigMgr->GetStringDefault(std::string("WebsiteName") + std::to_string(i), "") == "")
+            break;
+
+        voteWebsites.emplace_back();
+        voteWebsites[i - 1].id = i;
+        voteWebsites[i - 1].name = sConfigMgr->GetStringDefault(std::string("WebsiteName") + std::to_string(i), "");
+        voteWebsites[i - 1].callbackKeyName = sConfigMgr->GetStringDefault(std::string("CallbackKeyName") + std::to_string(i), "");
+        voteWebsites[i - 1].callbackHostname = sConfigMgr->GetStringDefault(std::string("CallbackHostname") + std::to_string(i), "");
+
+        voteWebsites[i - 1].callbackIps = std::vector<std::string>();
+        std::string callbackIps = sConfigMgr->GetStringDefault(std::string("CallbackIps") + std::to_string(i), "");
+        size_t startSearch = 0;
+        while (true)
+        {
+            size_t endSearch = callbackIps.find(' ', startSearch);
+            std::string callbackIp = callbackIps.substr(startSearch, endSearch);
+            if (callbackIp == "")
+                break;
+
+            voteWebsites[i - 1].callbackIps.emplace_back(std::move(callbackIp));
+
+            if (startSearch == std::string::npos)
+                break;
+
+            // skip the space on the next round
+            startSearch = endSearch + 1;
+        }
+
+        voteWebsites[i - 1].callbackUrl = sConfigMgr->GetStringDefault(std::string("CallbackUrl") + std::to_string(i), "");
+        voteWebsites[i - 1].voteUrl = sConfigMgr->GetStringDefault(std::string("VoteUrl") + std::to_string(i), "");
+        voteWebsites[i - 1].checkKeyName = sConfigMgr->GetStringDefault(std::string("CheckKeyName") + std::to_string(i), "");
+        voteWebsites[i - 1].checkKeyValue = sConfigMgr->GetStringDefault(std::string("CheckKeyValue") + std::to_string(i), "");
+        voteWebsites[i - 1].voteTokenType = sConfigMgr->GetIntDefault(std::string("VoteToken") + std::to_string(i), 0);
+        voteWebsites[i - 1].voteTokensGiven = sConfigMgr->GetIntDefault(std::string("VoteTokensGiven") + std::to_string(i), 0);
+
+        printf("Loaded vote site: %s, with CallbackKeyName: %s, CallbackHostname: %s, CallbackUrl: %s, VoteUrl: %s, CheckKeyName: %s, CheckKeyValue: %s, VoteToken: %d, VoteTokensGiven: %d",
+            voteWebsites[i - 1].name, voteWebsites[i - 1].callbackKeyName, voteWebsites[i - 1].callbackHostname,
+            voteWebsites[i - 1].callbackUrl, voteWebsites[i - 1].voteUrl, voteWebsites[i - 1].checkKeyName, voteWebsites[i - 1].checkKeyValue,
+            voteWebsites[i - 1].voteTokenType, voteWebsites[i - 1].voteTokensGiven);
+        for (auto& ip : voteWebsites[i - 1].callbackIps)
+            printf("Added callbackIp: %s", ip);
+    }
+
+    return voteWebsites;
+}
+
+void printReqData(const httplib::Request& req)
+{
+    printf("Did get the following parameters:");
+    for (const auto& param: req.params)
+        printf("%s:%s", param.first, param.second);
+    printf("Did get the following headers:");
+    for (const auto& header: req.headers)
+        printf("%s:%s", header.first, header.second);
+}
+
+void handleVoteCallback(const VoteWebsiteData& voteWebsite, const httplib::Request& req, const unsigned char* k)
+{
+    if (std::find(voteWebsite.callbackIps.begin(), voteWebsite.callbackIps.end(), req.remote_addr) == voteWebsite.callbackIps.end())
+    {
+        if (voteWebsite.callbackHostname == "")
+        {
+            printf("Vote callback for website: %s, came in from unexpected IP: %s", voteWebsite.name, req.remote_addr);
+            return;
+        }
+
+        std::vector<std::string> foundIps;
+        httplib::hosted_at(voteWebsite.callbackHostname, foundIps);
+        if (std::find(foundIps.begin(), foundIps.end(), req.remote_addr) == foundIps.end())
+        {
+            printf("Vote callback for website: %s, came in from unexpected IP: %s", voteWebsite.name, req.remote_addr);
+            return;
+        }
+    }
+
+    if (voteWebsite.checkKeyName != "")
+    {
+        if (!req.has_param(voteWebsite.checkKeyName) && !req.has_header(voteWebsite.checkKeyName))
+        {
+            printf("Vote callback for website: %s, came in without the expected parameter or header value.", voteWebsite.name);
+            printReqData(req);
+            return;
+        }
+
+        if (req.has_param(voteWebsite.checkKeyName) ?
+            req.get_param_value(voteWebsite.checkKeyName) != voteWebsite.checkKeyValue :
+            req.get_header_value(voteWebsite.checkKeyName) != voteWebsite.checkKeyValue)
+        {
+            printf("Vote check param/header value is incorrect.");
+            printReqData(req);
+            return;
+        }
+    }
+
+    if (!req.has_param(voteWebsite.callbackKeyName) && !req.has_header(voteWebsite.callbackKeyName))
+    {
+        printf("Vote callback missing required param/header containing the userRef.");
+        printReqData(req);
+        return;
+    }
+
+    std::string userRef = req.has_param(voteWebsite.callbackKeyName) ?
+        req.get_param_value(voteWebsite.callbackKeyName) : req.get_header_value(voteWebsite.callbackKeyName);
+
+    StateAccountReference sar;
+    if (!HexBytesStringToState(sar, k, userRef))
+    {
+        printf("Unable to parse StateAccountReference from provided userRef");
+        printReqData(req);
+        return;
+    }
+
+    if (voteWebsite.voteTokensGiven <= 0)
+        return;
+
+    if (!StartLoginDB())
+    {
+        printf("Unable to reward vote points due to a connection issue with the database.");
+        printReqData(req);
+        return;
+    }
+
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_OR_UPD_TOKEN);
+    stmt->setUInt32(0, sar.aId);
+    stmt->setUInt8(1, voteWebsite.voteTokenType);
+    stmt->setInt64(2, voteWebsite.voteTokensGiven);
+    stmt->setInt64(3, voteWebsite.voteTokensGiven);
+    LoginDatabase.DirectExecute(stmt);
+
+    StopLoginDB();
+}
+
 int main(int argc, char* argv[])
 {    
     if (!LoadConfig())
@@ -609,6 +762,8 @@ int main(int argc, char* argv[])
         sendNewsletter(smtpData, k);
         return 0;
     }
+
+    std::vector<VoteWebsiteData> voteWebsites(loadVoteWebsites());
 
     #undef CPPHTTPLIB_THREAD_POOL_COUNT
     #define CPPHTTPLIB_THREAD_POOL_COUNT 0
@@ -1789,6 +1944,100 @@ int main(int argc, char* argv[])
         output += std::string("content:\"") + refUrl + std::string("\";\n");
         output += std::string("}\n");
     
+        res.set_content(output, "text/css");
+    });
+
+    // VOTING
+    for (const auto& voteWebsite : voteWebsites)
+    {
+        std::string callbackRegex = voteWebsite.callbackUrl + std::string("/*$");
+        svr.Get(callbackRegex,
+            [k, &voteWebsite](const httplib::Request& req, httplib::Response& res)
+        {
+            handleVoteCallback(voteWebsite, req, k);
+        });
+        svr.Post(callbackRegex,
+            [k, &voteWebsite](const httplib::Request& req, httplib::Response& res)
+        {
+            handleVoteCallback(voteWebsite, req, k);
+        });
+        svr.Post(std::string("/account/vote/redirect/") + std::to_string(voteWebsite.id) + std::string("/api/*$"),
+            [k, &voteWebsite](const httplib::Request& req, httplib::Response& res)
+        {
+            StateLoggedIn sli;
+            if (!GetCookieState(sli, k, "loginSession", req) || std::chrono::seconds(sli.validTill) < std::chrono::system_clock::now().time_since_epoch())
+            {
+                StateLogin sl;
+                sl.returnUrl = std::string("/account/vote/redirect/") + std::to_string(voteWebsite.id) + std::string("/api/");
+                std::string newURL = sl.whereToNext() + StateToHexBytesString(sl, k) + std::string("/");
+                res.set_redirect(newURL.c_str());
+                return;
+            }
+
+            uint64_t secondsTillExpire = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::hours(16)).count();
+            std::string cookie = StateToHexBytesString(sli, k);
+            res.set_header("Set-Cookie", std::string("vote") + std::to_string(voteWebsite.id) + std::string("=") +
+                cookie + std::string("; Max-Age=") + std::to_string(secondsTillExpire));
+
+            StateAccountReference sar;
+            sar.aId = sli.accountId;
+            std::string redirectUrl = voteWebsite.voteUrl + StateToHexBytesString(sar, k);
+            res.set_redirect(redirectUrl);
+        });
+    }
+    svr.Get(R"(/account/vote/login/api/*$)",
+        [k](const httplib::Request& req, httplib::Response& res)
+    {
+        StateLoggedIn sli;
+        if (!GetCookieState(sli, k, "loginSession", req) || std::chrono::seconds(sli.validTill) < std::chrono::system_clock::now().time_since_epoch())
+        {
+            StateLogin sl;
+            sl.returnUrl = "/account/vote/login/api/";
+            std::string newURL = sl.whereToNext() + StateToHexBytesString(sl, k) + std::string("/");
+			res.set_redirect(newURL.c_str());
+            return;
+        }
+
+        res.set_redirect("/account/vote/");
+    });
+    svr.Get(R"(/account/vote/switch/api/*$)",
+        [k](const httplib::Request& req, httplib::Response& res)
+    {
+        StateLogin sl;
+        sl.returnUrl = "/account/vote/login/api/";
+        std::string newURL = sl.whereToNext() + StateToHexBytesString(sl, k) + std::string("/");
+        res.set_redirect(newURL.c_str());
+        return;
+    });
+    svr.Get(R"(/account/vote/api/*$)",
+        [k, &voteWebsites](const httplib::Request& req, httplib::Response& res)
+    {
+        StateLoggedIn sli;
+        if (!GetCookieState(sli, k, "loginSession", req) || std::chrono::seconds(sli.validTill) < std::chrono::system_clock::now().time_since_epoch())
+        {
+            res.set_content("", "text/css");
+            return;
+        }
+
+        std::string output = "";
+        output += std::string("#idaccount::before {\n");
+        output += std::string("content:\"") + sli.email + std::string("\";\n");
+        output += std::string("}\n");
+
+        for (const auto& voteWebsite : voteWebsites)
+        {
+            output += std::string("#vote-div") + std::to_string(voteWebsite.id) +  std::string("{display:block;}\n");
+            output += std::string(".vote-name") + std::to_string(voteWebsite.id) + std::string("::after {\n");
+            output += std::string("content:\"") + voteWebsite.name + std::string("\";\n");
+            output += std::string("}\n");
+
+            StateLoggedIn sli;
+            if (GetCookieState(sli, k, std::string("vote") + std::to_string(voteWebsite.id), req))
+                output += std::string("#vote-button-enabled") + std::to_string(voteWebsite.id) + std::string("{display:none;}\n");
+            else
+                output += std::string("#vote-button-disabled") + std::to_string(voteWebsite.id) + std::string("{display:none;}\n");
+        }
+
         res.set_content(output, "text/css");
     });
 
