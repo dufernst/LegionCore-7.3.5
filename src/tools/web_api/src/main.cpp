@@ -32,8 +32,8 @@ bool LoadConfig()
     std::string error;
     if (!sConfigMgr->LoadInitial(cfg_file, error))
     {
-        printf("Invalid or missing configuration file : %s", cfg_file);
-        printf("Verify that the file exists and has \'[webapi]\' written in the top of the file!");
+        printf("Invalid or missing configuration file : %s\n", cfg_file);
+        printf("Verify that the file exists and has \'[webapi]\' written in the top of the file!\n");
 
         printf(error.c_str());
         return false;
@@ -51,7 +51,7 @@ bool StartLoginDB()
     std::string dbstring = sConfigMgr->GetStringDefault("LoginDatabaseInfo", "");
     if (dbstring.empty())
     {
-        printf("Database not specified");
+        printf("Database not specified\n");
         return false;
     }
 
@@ -61,7 +61,7 @@ bool StartLoginDB()
     // NOTE: Authserver is singlethreaded you should keep synch_threads == 1, only 1 will ever be used anyway.
     if (!LoginDatabase.Open(dbstring.c_str(), uint8(worker_threads), uint8(synch_threads)))
     {
-        printf("Cannot connect to database");
+        printf("Cannot connect to database\n");
         return false;
     }
 
@@ -524,7 +524,7 @@ void sendNewsletter(const SMTPData& smtpData, const unsigned char* k)
     std::filesystem::rename("newsletter.html", newName, ec);
     if (ec.value() != 0)
     {
-        printf("Could not move newsletter.html to newsletter-epoch.html... abort...");
+        printf("Could not move newsletter.html to newsletter-epoch.html... abort...\n");
         return;
     }
 
@@ -623,29 +623,37 @@ std::vector<VoteWebsiteData> loadVoteWebsites()
 
 void printReqData(const httplib::Request& req)
 {
-    printf("Did get the following parameters:");
+    printf("Did get the following parameters:\n");
     for (const auto& param: req.params)
-        printf("%s:%s", param.first.c_str(), param.second.c_str());
-    printf("Did get the following headers:");
+        printf("%s:%s\n", param.first.c_str(), param.second.c_str());
+    printf("Did get the following headers:\n");
     for (const auto& header: req.headers)
-        printf("%s:%s", header.first.c_str(), header.second.c_str());
+        printf("%s:%s\n", header.first.c_str(), header.second.c_str());
 }
 
-void handleVoteCallback(const VoteWebsiteData& voteWebsite, const httplib::Request& req, const unsigned char* k)
+void handleVoteCallback(const VoteWebsiteData& voteWebsite, const std::string& ipFromHeader, const httplib::Request& req, const unsigned char* k)
 {
-    if (std::find(voteWebsite.callbackIps.begin(), voteWebsite.callbackIps.end(), req.remote_addr) == voteWebsite.callbackIps.end())
+    if (ipFromHeader != "" && !req.has_header(ipFromHeader))
+    {
+        printf("Vote callback lacking the configured header: %s\n", ipFromHeader.c_str());
+        printReqData(req);
+        return;
+    }
+
+    std::string realIp = (ipFromHeader != "") ? req.get_header_value(ipFromHeader) : req.remote_addr;
+    if (std::find(voteWebsite.callbackIps.begin(), voteWebsite.callbackIps.end(), realIp) == voteWebsite.callbackIps.end())
     {
         if (voteWebsite.callbackHostname == "")
         {
-            printf("Vote callback for website: %s, came in from unexpected IP: %s", voteWebsite.name.c_str(), req.remote_addr.c_str());
+            printf("Vote callback for website: %s, came in from unexpected IP: %s\n", voteWebsite.name.c_str(), realIp.c_str());
             return;
         }
 
         std::vector<std::string> foundIps;
         httplib::hosted_at(voteWebsite.callbackHostname, foundIps);
-        if (std::find(foundIps.begin(), foundIps.end(), req.remote_addr) == foundIps.end())
+        if (std::find(foundIps.begin(), foundIps.end(), realIp) == foundIps.end())
         {
-            printf("Vote callback for website: %s, came in from unexpected IP: %s", voteWebsite.name.c_str(), req.remote_addr.c_str());
+            printf("Vote callback for website: %s, came in from unexpected IP: %s\n", voteWebsite.name.c_str(), realIp.c_str());
             return;
         }
     }
@@ -654,7 +662,7 @@ void handleVoteCallback(const VoteWebsiteData& voteWebsite, const httplib::Reque
     {
         if (!req.has_param(voteWebsite.checkKeyName) && !req.has_header(voteWebsite.checkKeyName))
         {
-            printf("Vote callback for website: %s, came in without the expected parameter or header value.", voteWebsite.name.c_str());
+            printf("Vote callback for website: %s, came in without the expected parameter or header value.\n", voteWebsite.name.c_str());
             printReqData(req);
             return;
         }
@@ -663,7 +671,7 @@ void handleVoteCallback(const VoteWebsiteData& voteWebsite, const httplib::Reque
             req.get_param_value(voteWebsite.checkKeyName) != voteWebsite.checkKeyValue :
             req.get_header_value(voteWebsite.checkKeyName) != voteWebsite.checkKeyValue)
         {
-            printf("Vote check param/header value is incorrect.");
+            printf("Vote check param/header value is incorrect.\n");
             printReqData(req);
             return;
         }
@@ -671,7 +679,7 @@ void handleVoteCallback(const VoteWebsiteData& voteWebsite, const httplib::Reque
 
     if (!req.has_param(voteWebsite.callbackKeyName) && !req.has_header(voteWebsite.callbackKeyName))
     {
-        printf("Vote callback missing required param/header containing the userRef.");
+        printf("Vote callback missing required param/header containing the userRef.\n");
         printReqData(req);
         return;
     }
@@ -682,7 +690,7 @@ void handleVoteCallback(const VoteWebsiteData& voteWebsite, const httplib::Reque
     StateAccountReference sar;
     if (!HexBytesStringToState(sar, k, userRef))
     {
-        printf("Unable to parse StateAccountReference from provided userRef");
+        printf("Unable to parse StateAccountReference from provided userRef.\n");
         printReqData(req);
         return;
     }
@@ -692,7 +700,7 @@ void handleVoteCallback(const VoteWebsiteData& voteWebsite, const httplib::Reque
 
     if (!StartLoginDB())
     {
-        printf("Unable to reward vote points due to a connection issue with the database.");
+        printf("Unable to reward vote points due to a connection issue with the database.\n");
         printReqData(req);
         return;
     }
@@ -740,7 +748,7 @@ int main(int argc, char* argv[])
     int32 port = sConfigMgr->GetIntDefault("Port", 8090);
     if (port < 0 || port > 0xFFFF)
     {
-        printf("Specified port out of allowed range (1-65535)");
+        printf("Specified port out of allowed range (1-65535).\n");
         return 1;
     }
 
@@ -768,6 +776,7 @@ int main(int argc, char* argv[])
     std::vector<VoteWebsiteData> voteWebsites(loadVoteWebsites());
     std::string refUrlHeader = sConfigMgr->GetStringDefault("RefUrlHeader", "");
     std::string refUrlFooter = sConfigMgr->GetStringDefault("RefUrlFooter", "");
+    std::string ipFromHeader = sConfigMgr->GetStringDefault("IpFromHeader", "");
 
     #undef CPPHTTPLIB_THREAD_POOL_COUNT
     #define CPPHTTPLIB_THREAD_POOL_COUNT 0
@@ -1977,14 +1986,14 @@ int main(int argc, char* argv[])
     {
         std::string callbackRegex = voteWebsite.callbackUrl + std::string("/*$");
         svr.Get(callbackRegex,
-            [k, &voteWebsite](const httplib::Request& req, httplib::Response& res)
+            [k, &voteWebsite, &ipFromHeader](const httplib::Request& req, httplib::Response& res)
         {
-            handleVoteCallback(voteWebsite, req, k);
+            handleVoteCallback(voteWebsite, ipFromHeader, req, k);
         });
         svr.Post(callbackRegex,
-            [k, &voteWebsite](const httplib::Request& req, httplib::Response& res)
+            [k, &voteWebsite, &ipFromHeader](const httplib::Request& req, httplib::Response& res)
         {
-            handleVoteCallback(voteWebsite, req, k);
+            handleVoteCallback(voteWebsite, ipFromHeader, req, k);
         });
         svr.Post(std::string("/account/vote/redirect/") + std::to_string(voteWebsite.id) + std::string("/api/*$"),
             [k, &voteWebsite](const httplib::Request& req, httplib::Response& res)
