@@ -625,10 +625,10 @@ void printReqData(const httplib::Request& req)
 {
     printf("Did get the following parameters:");
     for (const auto& param: req.params)
-        printf("%s:%s", param.first, param.second);
+        printf("%s:%s", param.first.c_str(), param.second.c_str());
     printf("Did get the following headers:");
     for (const auto& header: req.headers)
-        printf("%s:%s", header.first, header.second);
+        printf("%s:%s", header.first.c_str(), header.second.c_str());
 }
 
 void handleVoteCallback(const VoteWebsiteData& voteWebsite, const httplib::Request& req, const unsigned char* k)
@@ -637,7 +637,7 @@ void handleVoteCallback(const VoteWebsiteData& voteWebsite, const httplib::Reque
     {
         if (voteWebsite.callbackHostname == "")
         {
-            printf("Vote callback for website: %s, came in from unexpected IP: %s", voteWebsite.name, req.remote_addr);
+            printf("Vote callback for website: %s, came in from unexpected IP: %s", voteWebsite.name.c_str(), req.remote_addr.c_str());
             return;
         }
 
@@ -645,7 +645,7 @@ void handleVoteCallback(const VoteWebsiteData& voteWebsite, const httplib::Reque
         httplib::hosted_at(voteWebsite.callbackHostname, foundIps);
         if (std::find(foundIps.begin(), foundIps.end(), req.remote_addr) == foundIps.end())
         {
-            printf("Vote callback for website: %s, came in from unexpected IP: %s", voteWebsite.name, req.remote_addr);
+            printf("Vote callback for website: %s, came in from unexpected IP: %s", voteWebsite.name.c_str(), req.remote_addr.c_str());
             return;
         }
     }
@@ -654,7 +654,7 @@ void handleVoteCallback(const VoteWebsiteData& voteWebsite, const httplib::Reque
     {
         if (!req.has_param(voteWebsite.checkKeyName) && !req.has_header(voteWebsite.checkKeyName))
         {
-            printf("Vote callback for website: %s, came in without the expected parameter or header value.", voteWebsite.name);
+            printf("Vote callback for website: %s, came in without the expected parameter or header value.", voteWebsite.name.c_str());
             printReqData(req);
             return;
         }
