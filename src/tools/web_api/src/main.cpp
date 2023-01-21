@@ -766,6 +766,8 @@ int main(int argc, char* argv[])
     }
 
     std::vector<VoteWebsiteData> voteWebsites(loadVoteWebsites());
+    std::string refUrlHeader = sConfigMgr->GetStringDefault("RefUrlHeader", "");
+    std::string refUrlFooter = sConfigMgr->GetStringDefault("RefUrlFooter", "");
 
     #undef CPPHTTPLIB_THREAD_POOL_COUNT
     #define CPPHTTPLIB_THREAD_POOL_COUNT 0
@@ -1947,6 +1949,27 @@ int main(int argc, char* argv[])
         output += std::string("}\n");
     
         res.set_content(output, "text/css");
+    });
+    svr.Get(R"(/account/myref/iframe/api/*$)",
+        [k, &smtpData, &refUrlHeader, &refUrlFooter](const httplib::Request& req, httplib::Response& res)
+    {
+        StateLoggedIn sli;
+        if (!GetCookieState(sli, k, "loginSession", req) || std::chrono::seconds(sli.validTill) < std::chrono::system_clock::now().time_since_epoch())
+        {
+            res.set_content("", "text/html");
+            return;
+        }
+
+        StateAccountReference sar;
+        sar.aId = sli.accountId;
+        std::string refUrl(smtpData.SMTPReturnDomain + std::string("/ref/") + StateToHexBytesString(sar, k) + std::string("/api/"));
+
+        std::string output = "";
+        output += refUrlHeader;
+        output += std::string("\n") + refUrl + std::string("\n");
+        output += refUrlFooter;
+
+        res.set_content(output, "text/html");
     });
 
     // VOTING
