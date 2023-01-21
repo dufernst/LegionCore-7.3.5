@@ -390,12 +390,12 @@ bool GetCookieState(T& data, const unsigned char* k, const std::string& name, co
     std::string cookies = req.get_header_value("Cookie");
     std::string nameWithEqual(name + std::string("="));
     size_t startPos = cookies.find(nameWithEqual);
-    size_t endPos = std::string::npos;
 
     if (startPos == std::string::npos)
         return false;
 
-    return HexBytesStringToState(data, k, cookies.substr(startPos + nameWithEqual.size(), cookies.find(';', startPos)));
+    return HexBytesStringToState(data, k, cookies.substr(
+        startPos + nameWithEqual.size(), cookies.find(';', startPos) - startPos - nameWithEqual.size()));
 }
 
 struct SMTPData
@@ -596,7 +596,7 @@ std::vector<VoteWebsiteData> loadVoteWebsites()
 
             voteWebsites[i - 1].callbackIps.emplace_back(std::move(callbackIp));
 
-            if (startSearch == std::string::npos)
+            if (endSearch == std::string::npos)
                 break;
 
             // skip the space on the next round
@@ -610,12 +610,12 @@ std::vector<VoteWebsiteData> loadVoteWebsites()
         voteWebsites[i - 1].voteTokenType = sConfigMgr->GetIntDefault(std::string("VoteToken") + std::to_string(i), 0);
         voteWebsites[i - 1].voteTokensGiven = sConfigMgr->GetIntDefault(std::string("VoteTokensGiven") + std::to_string(i), 0);
 
-        printf("Loaded vote site: %s, with CallbackKeyName: %s, CallbackHostname: %s, CallbackUrl: %s, VoteUrl: %s, CheckKeyName: %s, CheckKeyValue: %s, VoteToken: %d, VoteTokensGiven: %d",
-            voteWebsites[i - 1].name, voteWebsites[i - 1].callbackKeyName, voteWebsites[i - 1].callbackHostname,
-            voteWebsites[i - 1].callbackUrl, voteWebsites[i - 1].voteUrl, voteWebsites[i - 1].checkKeyName, voteWebsites[i - 1].checkKeyValue,
+        printf("Loaded vote site: %s, with CallbackKeyName: %s, CallbackHostname: %s, CallbackUrl: %s, VoteUrl: %s, CheckKeyName: %s, CheckKeyValue: %s, VoteToken: %d, VoteTokensGiven: %d\n",
+            voteWebsites[i - 1].name.c_str(), voteWebsites[i - 1].callbackKeyName.c_str(), voteWebsites[i - 1].callbackHostname.c_str(),
+            voteWebsites[i - 1].callbackUrl.c_str(), voteWebsites[i - 1].voteUrl.c_str(), voteWebsites[i - 1].checkKeyName.c_str(), voteWebsites[i - 1].checkKeyValue.c_str(),
             voteWebsites[i - 1].voteTokenType, voteWebsites[i - 1].voteTokensGiven);
         for (auto& ip : voteWebsites[i - 1].callbackIps)
-            printf("Added callbackIp: %s", ip);
+            printf("Added callbackIp: %s\n", ip.c_str());
     }
 
     return voteWebsites;
@@ -709,6 +709,8 @@ void handleVoteCallback(const VoteWebsiteData& voteWebsite, const httplib::Reque
 
 int main(int argc, char* argv[])
 {    
+    setvbuf(stdout, NULL, _IONBF, 0);
+
     if (!LoadConfig())
         return 1;
 
@@ -2033,9 +2035,9 @@ int main(int argc, char* argv[])
 
             StateLoggedIn sli;
             if (GetCookieState(sli, k, std::string("vote") + std::to_string(voteWebsite.id), req))
-                output += std::string("#vote-button-enabled") + std::to_string(voteWebsite.id) + std::string("{display:none;}\n");
+                output += std::string("#vote-button-disabled") + std::to_string(voteWebsite.id) + std::string("{display:block;}\n");
             else
-                output += std::string("#vote-button-disabled") + std::to_string(voteWebsite.id) + std::string("{display:none;}\n");
+                output += std::string("#vote-button-enable") + std::to_string(voteWebsite.id) + std::string("{display:block;}\n");
         }
 
         res.set_content(output, "text/css");
