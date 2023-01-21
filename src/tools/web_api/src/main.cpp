@@ -1879,7 +1879,7 @@ int main(int argc, char* argv[])
 
         std::string cookie = StateToHexBytesString(sli, k);
 
-        res.set_header("Set-Cookie", std::string("loginSession=") + cookie + std::string("; Max-Age=") + std::to_string(secondsTillExpire));
+        res.set_header("Set-Cookie", std::string("loginSession=") + cookie + std::string("; Path=/; Max-Age=") + std::to_string(secondsTillExpire));
         res.set_redirect(sl.returnUrl.size() > 0 ? sl.returnUrl : "/");
     });
 
@@ -1893,7 +1893,7 @@ int main(int argc, char* argv[])
         if (HexBytesStringToState(sar, k, hexString))
         {
             uint64_t secondsTillExpire = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::hours(14 * 24)).count();
-            res.set_header("Set-Cookie", std::string("ref=") + hexString + std::string("; Max-Age=") + std::to_string(secondsTillExpire));
+            res.set_header("Set-Cookie", std::string("ref=") + hexString + std::string("; Path=/; Max-Age=") + std::to_string(secondsTillExpire));
         }
 
         res.set_redirect("/");
@@ -1977,7 +1977,7 @@ int main(int argc, char* argv[])
             uint64_t secondsTillExpire = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::hours(16)).count();
             std::string cookie = StateToHexBytesString(sli, k);
             res.set_header("Set-Cookie", std::string("vote") + std::to_string(voteWebsite.id) + std::string("=") +
-                cookie + std::string("; Max-Age=") + std::to_string(secondsTillExpire));
+                cookie + std::string("; Path=/; Max-Age=") + std::to_string(secondsTillExpire));
 
             StateAccountReference sar;
             sar.aId = sli.accountId;
