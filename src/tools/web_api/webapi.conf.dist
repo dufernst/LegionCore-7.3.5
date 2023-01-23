@@ -164,6 +164,7 @@ WebisteName4 = GamingTop100
 CallbackKeyName4 = userid
 CallbackHostname4 = gamingtop100.net
 CallbackUrl4 = /callback/gamingtop100-vote/api
+CallbackIdOnlyDigits4 = 1
 VoteUrl4 = http://gamingtop100.net/in-SITEID-
 VoteToken4 = 1
 VoteTokensGiven4 = 1
