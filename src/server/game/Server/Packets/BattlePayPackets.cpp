@@ -64,7 +64,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePay::ProductDisplay
         data.FlushBits();
         data << itr.DisplayId;
         data << itr.VisualId;
-        data << itr.ProductName;
+        data.WriteString(itr.ProductName);
     }
 
     return data;
@@ -231,13 +231,13 @@ WorldPacket const* WorldPackets::BattlePay::ProductListResponse::Write()
         _worldPacket << productGroupData.IconFileDataID;
         _worldPacket << productGroupData.DisplayType;
         _worldPacket << productGroupData.Ordering;
-        _worldPacket << productGroupData.UnkInt;
+        _worldPacket << productGroupData.Flags;
 
         _worldPacket.WriteBits(productGroupData.Name.length(), 8);
         _worldPacket.WriteBits(productGroupData.IsAvailableDescription.length() + 1, 24);
         _worldPacket.WriteString(productGroupData.Name);
         if (!productGroupData.IsAvailableDescription.empty())
-            _worldPacket << productGroupData.IsAvailableDescription;
+            _worldPacket.WriteString(productGroupData.IsAvailableDescription);
     }
 
     for (BattlePayShopEntry const& shopData : ProductList.Shop)

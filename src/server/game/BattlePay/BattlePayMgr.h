@@ -165,6 +165,15 @@ namespace Battlepay
         };
     };
 
+    namespace BattlepayDisplayInfoFlag
+    {
+        enum : uint8
+        {
+            None = 0x0,
+            HidePrice = 0x8,
+        };
+    }
+
     /// Client error enum See Blizzard_StoreUISecure.lua Last update : 6.2.3 20779
     enum Error
     {
@@ -331,8 +340,9 @@ namespace Battlepay
     struct ProductGroup
     {
         uint32 GroupID;
-        int32 IconFileDataID;
-        int32 Ordering;
+        uint32 IconFileDataID;
+        uint32 Ordering;
+        uint32 Flags;
         std::string Name;
         uint8 DisplayType; ///< BattlepayGroupDisplayType
         uint8 TokenType;

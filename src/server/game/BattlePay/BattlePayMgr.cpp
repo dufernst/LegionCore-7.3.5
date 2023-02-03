@@ -368,7 +368,7 @@ void BattlepayManager::SendProductList()
         pGroup.GroupID = itr.GroupID;
         pGroup.IconFileDataID = itr.IconFileDataID;
         pGroup.Ordering = itr.Ordering;
-        pGroup.UnkInt = 0;
+        pGroup.Flags = itr.Flags;
         pGroup.IsAvailableDescription = "";
         pGroup.DisplayType = itr.DisplayType;
 
@@ -422,7 +422,8 @@ void BattlepayManager::SendProductList()
         if (!player && productGroup->IngameOnly)
             continue;
 
-        if (productGroup->OwnsTokensOnly && _session->GetTokenBalance(productGroup->TokenType) <= 0)
+        int64 tokenBalance = _session->GetTokenBalance(productGroup->TokenType);
+        if (productGroup->OwnsTokensOnly && tokenBalance <= 0)
             continue;
 
         WorldPackets::BattlePay::ProductInfoStruct pInfo;
@@ -440,6 +441,11 @@ void BattlepayManager::SendProductList()
             pInfo.DisplayInfo = boost::in_place();
             pInfo.DisplayInfo = std::get<1>(dataPI);
         }
+
+        bool hideProductPrice = false;
+        if (pInfo.DisplayInfo.is_initialized() && pInfo.DisplayInfo->Flags.is_initialized())
+            hideProductPrice = pInfo.DisplayInfo->Flags.get() & BattlepayDisplayInfoFlag::HidePrice;
+        bool hasEnoughTokens = tokenBalance >= product.CurrentPriceFixedPoint;
 
         response.ProductList.ProductInfo.emplace_back(pInfo);
 
@@ -465,7 +471,11 @@ void BattlepayManager::SendProductList()
             //pItem.UnkInt1 = 0;
             //pItem.UnkInt2 = 0;
             //pItem.UnkByte = 0;
-            pItem.HasPet = AlreadyOwnProduct(item.ItemID);
+
+            // if the product is already owned disable the buy button
+            // also disable the button if we don't show the price for a product
+            // and the player does not have enough tokens to pay for the product
+            pItem.HasPet = AlreadyOwnProduct(item.ItemID) || (hideProductPrice && !hasEnoughTokens);
             pItem.PetResult = item.PetResult;
 
             auto dataP = WriteDisplayInfo(item.DisplayInfoID, localeIndex);

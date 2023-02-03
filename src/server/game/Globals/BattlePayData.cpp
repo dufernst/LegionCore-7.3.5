@@ -114,7 +114,7 @@ void BattlePayDataStoreMgr::LoadProductGroups()
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Battlepay product groups ...");
     _productGroups.clear();
 
-    auto result = WorldDatabase.PQuery("SELECT GroupID, Name, IconFileDataID, DisplayType, Ordering, TokenType, IngameOnly, OwnsTokensOnly FROM battlepay_product_group");
+    auto result = WorldDatabase.PQuery("SELECT GroupID, Name, IconFileDataID, DisplayType, Ordering, Flags, TokenType, IngameOnly, OwnsTokensOnly FROM battlepay_product_group");
     if (!result)
         return;
 
@@ -127,12 +127,13 @@ void BattlePayDataStoreMgr::LoadProductGroups()
         Battlepay::ProductGroup productGroup;
         productGroup.GroupID = fields[0].GetUInt32();
         productGroup.Name = fields[1].GetString();
-        productGroup.IconFileDataID = fields[2].GetInt32();
+        productGroup.IconFileDataID = fields[2].GetUInt32();
         productGroup.DisplayType = fields[3].GetUInt8();
-        productGroup.Ordering = fields[4].GetInt32();
-        productGroup.TokenType = fields[5].GetUInt8();
-        productGroup.IngameOnly = fields[6].GetUInt8();
-        productGroup.OwnsTokensOnly = fields[7].GetUInt8();
+        productGroup.Ordering = fields[4].GetUInt32();
+        productGroup.Flags = fields[5].GetUInt32();
+        productGroup.TokenType = fields[6].GetUInt8();
+        productGroup.IngameOnly = fields[7].GetUInt8();
+        productGroup.OwnsTokensOnly = fields[8].GetUInt8();
         _productGroups.push_back(productGroup);
     } while (result->NextRow());
 
