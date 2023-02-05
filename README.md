@@ -17,12 +17,10 @@ If you want you can join the community discord: [here](https://discord.gg/uaP2ae
 
 # Requirements
  
- ### All
- - [Boost 1.64.0](https://sourceforge.net/projects/boost/files/boost-binaries/1.64.0/)
- - [MySQL 5.6.51](https://downloads.mysql.com/archives/community/) *Click product version and scroll down to 5.6.51*
- - [CMake latest](https://cmake.org/download/)
- - [Visual Studio 2017](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=15)  *⚠️ will start a instant download*
- - [Visual Studio tools](https://aka.ms/vs/15/release/vs_buildtools.exe) *⚠️ will start a instant download*
+ ### Important
+ The main difference to note is that LegionCore requires Boost (1.64.0), Visual Studio 2017 && 2017 build tools, and MySQL (5.6.51).
+ 
+[Windows specific](https://www.trinitycore.info/en/install/requirements/windows)
   
 [Linux specific](https://www.trinitycore.info/en/install/requirements/linux)
 
