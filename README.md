@@ -11,7 +11,7 @@
 * [Thank you](#thank-you)
 
 # Introduction
-LegionCore is a **RPGMMO** framework for WOW Legion *(Build 26972)*. This core is based off of the UWOW core leak of 2020. Which was derived from an old version of [TrinityCore](https://github.com/TrinityCore/TrinityCore). LegionCore is completely opensource and is developed by the community. To submit a pull request please follow this template [here](submitting-fixes).
+LegionCore is a **MMORPG** framework for WOW Legion *(Build 26972)*. This core is based off of the UWOW core leak of 2020. Which was derived from an old version of [TrinityCore](https://github.com/TrinityCore/TrinityCore). LegionCore is completely opensource and is developed by the community. To submit a pull request please follow this template [here](submitting-fixes).
 
 If you want you can join the community discord: [here](https://discord.gg/uaP2aeJ7sj).
 
