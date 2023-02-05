@@ -30,7 +30,7 @@ If you want you can join the community discord: [here](https://discord.gg/uaP2ae
 Most of the install steps are the same as the TrinityCore ones [here](https://www.trinitycore.info/en/install/Core-Installation).
 
 # Data Files
-To avoid any problems with World of Warcraft we will not be providing the data files for LegionCore instead you can aquire them from [here](https://www.emucoach.com/legion-7-3-5-/6945-repack-7-3-5-legion-wow-repack-wow-legion-7-3-5-repack-blizzlike-fun.html)
+This core has been optimized for DBC/vmap/map/mmaps files from UWoW and are not provided as part of this source code package. Instead the data files for LegionCore can be acquired [here](https://www.emucoach.com/legion-7-3-5-/6945-repack-7-3-5-legion-wow-repack-wow-legion-7-3-5-repack-blizzlike-fun.html).
 
 ***⚠️ We will not provide further assistance if those files are not available anymore.***
 
