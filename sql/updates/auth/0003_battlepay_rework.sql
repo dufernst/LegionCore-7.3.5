@@ -20,7 +20,11 @@ SELECT id, 1, balans
 FROM account
 WHERE balans > 0;
 
--- add referer colum to account table
+-- add first_ip colum to account table
 ALTER TABLE `account`
 	ADD COLUMN `first_ip` VARCHAR(15) NOT NULL DEFAULT '127.0.0.1' AFTER `joindate`,
-	CHANGE COLUMN `referer` `referer` INT(10) UNSIGNED NOT NULL DEFAULT 0 AFTER `lang`;
+	DROP COLUMN `referer`;
+
+-- add first_ip colum to account table
+ALTER TABLE `account`
+	ADD COLUMN `referer` INT(10) UNSIGNED NOT NULL DEFAULT 0 AFTER `lang`;
