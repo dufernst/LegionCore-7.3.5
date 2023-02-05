@@ -1,59 +1,51 @@
+![image](https://user-images.githubusercontent.com/24784631/216797451-f3d58b02-c900-4d37-9a3c-03ce48ffc411.png)
+
+## Table of Contents
 * [Introduction](#introduction)
 * [Requirements](#requirements)
 * [Install](#install)
 * [Data Files](#data-files)
+* [Common Issues](#common-issues)
 * [Reporting issues](#reporting-issues)
 * [Submitting fixes](#submitting-fixes)
-* [Copyright](#copyright)
+* [Thank you](#thank-you)
 
-## Introduction
+# Introduction
+LegionCore is a **RPGMMO** framework for WOW Legion *(Build 26972)*. This core is based off of the UWOW core leak of 2020. Which was derived from an old version of [TrinityCore](https://github.com/TrinityCore/TrinityCore). LegionCore is completely opensource and is developed by the community to submit a pull request please follow this template [here](submitting-fixes).
 
-LegionCore is an *MMORPG* Framework for Legion (26972) based on the uwow.biz core leaked early 2020.
-LegionCore itself has been derived from an old version of TrinityCore.
+If you want you can join the community discord: [here](https://discord.gg/uaP2aeJ7sj).
 
-TrinityCore is a *MMORPG* Framework based mostly in C++.
+# Requirements
+ 
+ ### All
+ - [Boost 1.64.0](https://sourceforge.net/projects/boost/files/boost-binaries/1.64.0/)
+ - [MySQL 5.6.51](https://downloads.mysql.com/archives/community/) *Click product version and scroll down to 5.6.51*
+ - [CMake latest](https://cmake.org/download/)
+ - [Visual Studio 2017](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=15)  *⚠️ will start a instant download*
+ - [Visual Studio tools](https://aka.ms/vs/15/release/vs_buildtools.exe) *⚠️ will start a instant download*
+  
+[Linux specific](https://www.trinitycore.info/en/install/requirements/linux)
 
-TrinityCore is derived from *MaNGOS*, the *Massive Network Game Object Server*, and is
-based on the code of that project with extensive changes over time to optimize,
-improve and cleanup the codebase at the same time as improving the in-game
-mechanics and functionality.
+[Mac specific](https://www.trinitycore.info/en/install/requirements/macos)
 
-LegionCore development is completely open source; community involvement is highly encouraged.
+# Install
+Most of the install steps are the same as the TrinityCore ones [here](https://www.trinitycore.info/en/install/Core-Installation).
 
+# Data Files
+To avoid any problems with World of Warcraft we will not be providing the data files for LegionCore instead you can aquire them from [here](https://www.emucoach.com/legion-7-3-5-/6945-repack-7-3-5-legion-wow-repack-wow-legion-7-3-5-repack-blizzlike-fun.html)
 
-## Requirements
+***⚠️ We will not provide further assistance if those files are not available anymore.***
 
-The software requirements for LegionCore are very similar to the one from TrinityCore.
-The main difference worth mentioning is that on Windows currently BOOST version 1.64 is required.
+Some files from the above data files are wrong.
+Use the [TrinityCore 7.3.5 tools](https://github.com/TrinityCore/TrinityCore/releases/tag/7.3.5%2F26972) to generate the following files:
+> gt/xp.txt
 
-Software requirements are available in the [wiki](https://www.trinitycore.info/display/tc/Requirements) for
-Windows, Linux and macOS.
+Replace the listed above file(s) with the one(s) you generated yourself.
 
+# Common issues
+TODO
 
-## Install
-
-Detailed installation guides are available in the [wiki](https://www.trinitycore.info/display/tc/Installation+Guide) for
-Windows, Linux and macOS.
-
-### MySQL 5.7+
-
-Disable the NO_ZERO_IN_DATE sql_mode.
-
-
-## Data Files
-
-This core has been optimized for DBC/vmap/map/mmaps files from UWoW and are not provided as part of this source code package.
-More information on how to acquire those files can be found [here](https://www.emucoach.com/legion-7-3-5-/6945-repack-7-3-5-legion-wow-repack-wow-legion-7-3-5-repack-blizzlike-fun.html)
-We will not provide further assistance if those files are not available anymore.
-
-At least certain files from the linked data files are wrong.
-Use the TrinityCore 7.3.5 tools, of which the source code can be found [here](https://github.com/TrinityCore/TrinityCore/releases/tag/7.3.5%2F26972) to generate the following files:
-* gt/xp.txt
-
-Replace the listed above files with the ones you generated yourself.
-
-## Reporting issues
-
+# Reporting issues
 Issues can be reported via the [Github issue tracker](https://github.com/dufernst/LegionCore-7.3.5/issues).
 
 Please take the time to review existing issues before submitting your own to
@@ -65,16 +57,13 @@ reports are wasteful and are subject to deletion.
 
 Note that the issue tracker guide is from TrinityCore, but it also applies for this core.
 
-
-## Submitting fixes
-
+# Submitting fixes
 C++ fixes are submitted as pull requests via Github. For more information on how to
 properly submit a pull request, read the [how-to: maintain a remote fork](https://community.trinitycore.org/topic/9002-howto-maintain-a-remote-fork-for-pull-requests-tortoisegit/).
 For SQL only fixes, open a ticket; if a bug report exists for the bug, post on an existing ticket.
 
+### Thank you
+- [TrinityCore Authors](https://github.com/TrinityCore/TrinityCore/blob/master/AUTHORS)
+- [LegionCore Contributors](https://github.com/dufernst/LegionCore-7.3.5/graphs/contributors)
 
-## Copyright
-
-License: GPL 2.0
-
-Read file [COPYING](COPYING).
+> **License: GPL 2.0** read [COPYING](COPYING).
