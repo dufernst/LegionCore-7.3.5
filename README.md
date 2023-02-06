@@ -1,6 +1,6 @@
-![image](https://user-images.githubusercontent.com/24784631/216797451-f3d58b02-c900-4d37-9a3c-03ce48ffc411.png)
+# LegionCore
 
-## Table of Contents
+#### Table of Contents
 * [Introduction](#introduction)
 * [Requirements](#requirements)
 * [Install](#install)
