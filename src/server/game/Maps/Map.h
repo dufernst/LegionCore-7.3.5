@@ -545,8 +545,8 @@ class Map
         void RemoveGameObjectModel(GameObjectModel const& model) { _dynamicTree.remove(model); }
         void InsertGameObjectModel(GameObjectModel const& model) { _dynamicTree.insert(model); }
         bool ContainsGameObjectModel(GameObjectModel const& model) const { return _dynamicTree.contains(model);}
-        bool getObjectHitPos(std::set<uint32> const& phases, bool otherIsPlayer, Position startPos, Position destPos, float modifyDist, DynamicTreeCallback* dCallback = nullptr);
-        bool getObjectHitPos(std::set<uint32> const& phases, bool otherIsPlayer, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float &ry, float& rz, float modifyDist, DynamicTreeCallback* dCallback = nullptr);
+        bool getObjectHitPos(std::set<uint32> const& phases, bool otherUsePlayerPhasingRules, Position startPos, Position destPos, float modifyDist, DynamicTreeCallback* dCallback = nullptr);
+        bool getObjectHitPos(std::set<uint32> const& phases, bool otherUsePlayerPhasingRules, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float &ry, float& rz, float modifyDist, DynamicTreeCallback* dCallback = nullptr);
         void UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* sourc, Unit* player);
 
         virtual ObjectGuid::LowType GetOwnerGuildId(uint32 /*team*/ = TEAM_OTHER) const { return 0; }

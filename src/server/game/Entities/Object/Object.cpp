@@ -2046,7 +2046,7 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
                 G3D::Vector3 pos2(ox, oy, oz + 2.f);
                 transport->CalculatePassengerPosition(pos1.x, pos1.y, pos1.z);
                 transport->CalculatePassengerPosition(pos2.x, pos2.y, pos2.z);
-                return _model->isInLineOfSight(pos1, pos2, GetPhases(), IsPlayer());
+                return _model->isInLineOfSight(pos1, pos2, GetPhases(), IsPlayer() || IsUnitOwnedByPlayer());
             }
         }
     }
@@ -2068,7 +2068,7 @@ bool WorldObject::IsWithinLOS(float ox, float oy, float oz) const
                 G3D::Vector3 pos2(ox, oy, oz + 2.f);
                 transport->CalculatePassengerPosition(pos1.x, pos1.y, pos1.z);
                 // transport->CalculatePassengerPosition(pos2.x, pos2.y, pos2.z);
-                return _model->isInLineOfSight(pos1, pos2, GetPhases(), IsPlayer());
+                return _model->isInLineOfSight(pos1, pos2, GetPhases(), IsPlayer() || IsUnitOwnedByPlayer());
             }
         }
         if (!GetMap())
@@ -2085,7 +2085,7 @@ float WorldObject::GetWaterOrGroundLevel(float x, float y, float z, float* groun
     {
         if (GameObjectModel* _model = transport->m_model)
         {
-            float ground_z = _model->getHeight(x, y, z, DEFAULT_HEIGHT_SEARCH, GetPhases(), IsPlayer());
+            float ground_z = _model->getHeight(x, y, z, DEFAULT_HEIGHT_SEARCH, GetPhases(), IsPlayer() || IsUnitOwnedByPlayer());
             if (ground_z == -G3D::finf() || ground_z == G3D::finf())
                 return VMAP_INVALID_HEIGHT_VALUE;
 
@@ -2106,7 +2106,7 @@ float WorldObject::GetHeight(float x, float y, float z, bool vmap /*= true*/, fl
     {
         if (GameObjectModel* _model = transport->m_model)
         {
-            float ground_z = _model->getHeight(x, y, z, maxSearchDist, GetPhases(), IsPlayer());
+            float ground_z = _model->getHeight(x, y, z, maxSearchDist, GetPhases(), IsPlayer() || IsUnitOwnedByPlayer());
             if (ground_z == -G3D::finf() || ground_z == G3D::finf())
                 return VMAP_INVALID_HEIGHT_VALUE;
             return ground_z;
@@ -2793,6 +2793,15 @@ void Object::ForceValuesUpdateAtIndex(uint32 i)
 {
     _changesMask[i] = 1;
     AddToObjectUpdateIfNeeded();
+}
+
+bool Object::IsUnitOwnedByPlayer() const
+{
+    if (IsUnit())
+        if (Unit* owner = ToUnit()->GetAnyOwner())
+            return owner->IsPlayer();
+
+    return false;
 }
 
 void WorldObject::Talk(std::string const& text, ChatMsg msgType, Language language, float textRange, WorldObject const* target)
@@ -3494,7 +3503,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
         destz -= 0.5f;
 
     // check dynamic collision
-    col = GetMap()->getObjectHitPos(GetPhases(), IsPlayer(), pos.m_positionX, pos.m_positionY, pos.m_positionZ + 0.5f, destx, desty, destz + 0.5f, destx, desty, destz, -0.5f);
+    col = GetMap()->getObjectHitPos(GetPhases(), IsPlayer() || IsUnitOwnedByPlayer(), pos.m_positionX, pos.m_positionY, pos.m_positionZ + 0.5f, destx, desty, destz + 0.5f, destx, desty, destz, -0.5f);
 
     // Collided with a gameobject
     if (col)
@@ -3593,7 +3602,7 @@ void WorldObject::MovePositionToTransportCollision(Position &pos, float dist, fl
     G3D::Vector3 pos2(destx, desty, destz + 2.0f);
     G3D::Vector3 resultPos;
 
-    bool col = _model->getObjectHitPos(GetPhases(), IsPlayer(), pos1, pos2, resultPos, -0.5f);
+    bool col = _model->getObjectHitPos(GetPhases(), IsPlayer() || IsUnitOwnedByPlayer(), pos1, pos2, resultPos, -0.5f);
     destx = resultPos.x;
     desty = resultPos.y;
     destz = resultPos.z;
@@ -3683,7 +3692,7 @@ void WorldObject::MovePositionToCollisionBetween(Position &pos, float distMin, f
     }
 
     // check dynamic collision
-    col = GetMap()->getObjectHitPos(GetPhases(), IsPlayer(), tempDestx, tempDesty, pos.m_positionZ + 0.5f, destx, desty, destz + 0.5f, destx, desty, destz, -0.5f);
+    col = GetMap()->getObjectHitPos(GetPhases(), IsPlayer() || IsUnitOwnedByPlayer(), tempDestx, tempDesty, pos.m_positionZ + 0.5f, destx, desty, destz + 0.5f, destx, desty, destz, -0.5f);
 
     // Collided with a gameobject
     if (col)
@@ -3935,21 +3944,23 @@ ObjectGuid WorldObject::GetTransGUID() const
 //! If some have 1 2 enother has 1 = see each other.
 //! ir some have 1 2 enorther has 3 - not see.
 //! if some has ignorePhase id - see each.
-bool WorldObject::InSamePhaseId(std::set<uint32> const& phase, bool otherIsPlayer) const
+bool WorldObject::InSamePhaseId(std::set<uint32> const& phase, bool otherUsePlayerPhasingRules) const
 {
+    bool usePlayerPhasingRules = IsPlayer() || IsUnitOwnedByPlayer();
+
     if (IgnorePhaseId())
         return true;
 
-    if (IsPlayer() && otherIsPlayer)
+    if (usePlayerPhasingRules && otherUsePlayerPhasingRules)
         return true;
 
     if (phase.empty() && m_phaseId.empty())
         return true;
 
-    if (IsPlayer() && phase.empty())
+    if (usePlayerPhasingRules && phase.empty())
         return true;
 
-    if (otherIsPlayer && m_phaseId.empty())
+    if (otherUsePlayerPhasingRules && m_phaseId.empty())
         return true;
 
     //! speed up case. should be done in any way. 
@@ -3976,23 +3987,18 @@ std::set<uint32> const& WorldObject::GetPhases() const
 
 bool WorldObject::InSamePhaseId(WorldObject const* obj) const
 {
-    return obj->IgnorePhaseId() || InSamePhaseId(obj->GetPhases(), obj->IsPlayer());
+    return obj->IgnorePhaseId() || InSamePhaseId(obj->GetPhases(), obj->IsPlayer() || obj->IsUnitOwnedByPlayer());
 }
 
 bool WorldObject::InSamePhase(WorldObject const* obj) const
 {
-    auto isPlayer = IsPlayer();
-    auto isObjPlayer = obj->IsPlayer();
+    bool usePlayerPhasingRules = IsPlayer() || IsUnitOwnedByPlayer();
+    bool otherUsePlayerPhasingRules = obj->IsPlayer() || obj->IsUnitOwnedByPlayer();
 
-    if (!isPlayer && IsUnit())
-        if (auto owner = ToUnit()->GetAnyOwner())
-            isPlayer = owner->IsPlayer();
+    if (!InSamePhase(obj->GetPhaseMask()))
+        return false;
 
-    if (!isObjPlayer && obj->IsUnit())
-        if (auto owner = obj->ToUnit()->GetAnyOwner())
-            isObjPlayer = owner->IsPlayer();
-
-    return InSamePhase(obj->GetPhaseMask()) && (isPlayer && isObjPlayer || InSamePhaseId(obj));
+    return (usePlayerPhasingRules && otherUsePlayerPhasingRules) || InSamePhaseId(obj);
 }
 
 bool WorldObject::RemovePhase(uint32 PhaseID)
