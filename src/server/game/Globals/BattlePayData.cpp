@@ -40,6 +40,7 @@ namespace
     std::map<uint32, Battlepay::ProductGroupLocale> _productGroupLocales;
     std::map<uint32, BattlePayDisplayInfoLocale> _displayInfoLocales;
     std::map<uint32, std::vector<WorldPackets::BattlePay::ProductDisplayVisualData>> _visuals;
+    std::unordered_map<uint8, Battlepay::TokenType> _tokenTypes;
 }
 
 void BattlePayDataStoreMgr::Initialize()
@@ -51,6 +52,7 @@ void BattlePayDataStoreMgr::Initialize()
     LoadShopEntires();
     LoadProductGroupLocales();
     LoadDisplayInfoLocales();
+    LoadTokenTypes();
 }
 
 void BattlePayDataStoreMgr::LoadDisplayInfos()
@@ -112,7 +114,7 @@ void BattlePayDataStoreMgr::LoadProductGroups()
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Battlepay product groups ...");
     _productGroups.clear();
 
-    auto result = WorldDatabase.PQuery("SELECT GroupID, Name, IconFileDataID, DisplayType, Ordering FROM battlepay_product_group");
+    auto result = WorldDatabase.PQuery("SELECT GroupID, Name, IconFileDataID, DisplayType, Ordering, Flags, TokenType, IngameOnly, OwnsTokensOnly FROM battlepay_product_group");
     if (!result)
         return;
 
@@ -125,9 +127,13 @@ void BattlePayDataStoreMgr::LoadProductGroups()
         Battlepay::ProductGroup productGroup;
         productGroup.GroupID = fields[0].GetUInt32();
         productGroup.Name = fields[1].GetString();
-        productGroup.IconFileDataID = fields[2].GetInt32();
+        productGroup.IconFileDataID = fields[2].GetUInt32();
         productGroup.DisplayType = fields[3].GetUInt8();
-        productGroup.Ordering = fields[4].GetInt32();
+        productGroup.Ordering = fields[4].GetUInt32();
+        productGroup.Flags = fields[5].GetUInt32();
+        productGroup.TokenType = fields[6].GetUInt8();
+        productGroup.IngameOnly = fields[7].GetUInt8();
+        productGroup.OwnsTokensOnly = fields[8].GetUInt8();
         _productGroups.push_back(productGroup);
     } while (result->NextRow());
 
@@ -286,6 +292,39 @@ void BattlePayDataStoreMgr::LoadDisplayInfoLocales()
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Battlepay display info locales strings in %u ms", uint64(_displayInfoLocales.size()), GetMSTimeDiffToNow(oldMsTime));
 }
 
+void BattlePayDataStoreMgr::LoadTokenTypes()
+{
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Battlepay token types ...");
+
+    auto oldMsTime = getMSTime();
+
+    _tokenTypes.clear();
+
+    auto result = WorldDatabase.PQuery("SELECT tokenType, name, loginMessage, listIfNone FROM battlepay_tokens");
+
+    if (!result)
+    {
+        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Battlepay token types in %u ms. DB table `battlepay_tokens` is empty.", uint64(_tokenTypes.size()), GetMSTimeDiffToNow(oldMsTime));
+        return;
+    }
+
+    do
+    {
+        auto fields = result->Fetch();
+
+        Battlepay::TokenType token;
+        token.type = fields[0].GetUInt8();
+        token.name = fields[1].GetString();
+        token.hasLoginMessage = !fields[2].IsNull();
+        token.loginMessage = fields[2].GetString();
+        token.listIfNone = fields[3].GetUInt8();
+        
+        _tokenTypes[token.type] = token;
+    } while (result->NextRow());
+
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu Battlepay token types in %u ms", uint64(_tokenTypes.size()), GetMSTimeDiffToNow(oldMsTime));
+}
+
 std::vector<Battlepay::ProductGroup> const& BattlePayDataStoreMgr::GetProductGroups() const
 {
     return _productGroups;
@@ -296,7 +335,7 @@ std::vector<Battlepay::ShopEntry> const& BattlePayDataStoreMgr::GetShopEntries()
     return _shopEntries;
 }
 
-uint32 BattlePayDataStoreMgr::GetProductGroupId(uint32 productId)
+uint32 BattlePayDataStoreMgr::GetProductGroupId(uint32 productId) const
 {
     for (auto const& shop : _shopEntries)
         if (shop.ProductID == productId)
@@ -345,4 +384,24 @@ Battlepay::ProductGroupLocale const* BattlePayDataStoreMgr::GetProductGroupLocal
 BattlePayDisplayInfoLocale const* BattlePayDataStoreMgr::GetDisplayInfoLocale(uint32 entry) const
 {
     return Trinity::Containers::MapGetValuePtr(_displayInfoLocales, entry);
+}
+
+Battlepay::ProductGroup* BattlePayDataStoreMgr::GetProductGroupForProductId(uint32 productID) const
+{
+    uint32 groupId = GetProductGroupId(productID);
+    return GetProductGroup(groupId);
+}
+
+Battlepay::ProductGroup* BattlePayDataStoreMgr::GetProductGroup(uint32 groupId) const
+{
+    for (auto& group : _productGroups)
+        if (group.GroupID == groupId)
+            return &group;
+
+    return NULL;
+}
+
+std::unordered_map<uint8, Battlepay::TokenType>& BattlePayDataStoreMgr::GetTokenTypes()
+{
+    return _tokenTypes;
 }

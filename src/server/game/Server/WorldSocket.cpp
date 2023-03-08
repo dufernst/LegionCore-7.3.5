@@ -647,6 +647,7 @@ struct AccountInfo
     {
         bool IsLockedToIP;
         std::string LastIP;
+        std::string FirstIP;
         std::string LockCountry;
         LocaleConstant Locale;
 
@@ -660,7 +661,7 @@ struct AccountInfo
         uint32 Id;
         uint32 Recruiter;
         uint16 AtAuthFlag;
-        uint32 BPayBalance;
+        uint32 Referer;
         AccountTypes Security;
         std::string OS;
         uint8 Expansion;
@@ -675,28 +676,29 @@ struct AccountInfo
 
     explicit AccountInfo(Field* fields)
     {
-        //          0          1            2          3               4           5           6          7           8     9           10          11         12
-        // SELECT a.id, a.sessionkey, a.last_ip, a.locked, a.lock_country, a.expansion, a.mutetime, a.locale, a.recruiter, a.os, aa.gmLevel, a.AtAuthFlag, a.balans
-        //                                                           13   14       15
+        //          0          1            2          3          4           5           6          7           8          9           10          11         12        13
+        // SELECT a.id, a.sessionkey, a.last_ip, a.first_ip, a.locked, a.lock_country, a.expansion, a.mutetime, a.locale, a.recruiter, a.os, aa.gmLevel, a.AtAuthFlag, a.referer
+        //                                                           14   15       16
         // ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate, r.id, a.hwid
         // FROM account a LEFT JOIN account r ON a.id = r.recruiter LEFT JOIN account_access aa ON a.id = aa.id AND aa.RealmID IN (-1, ?) LEFT JOIN account_banned ab ON a.id = ab.id AND ab.active = 1
         // WHERE a.username = ? ORDER BY aa.RealmID DESC LIMIT 1
         Game.Id = fields[0].GetUInt32();
         HexStrToByteArray(fields[1].GetString(), Game.KeyData.data());
         BattleNet.LastIP = fields[2].GetString();
-        BattleNet.IsLockedToIP = fields[3].GetBool();
-        BattleNet.LockCountry = fields[4].GetString();
-        Game.Expansion = /*std::max(fields[5].GetUInt8(), */CURRENT_EXPANSION;//);
-        Game.MuteTime = fields[6].GetInt64();
-        BattleNet.Locale = LocaleConstant(fields[7].GetUInt8());
-        Game.Recruiter = fields[8].GetUInt32();
-        Game.OS = fields[9].GetString();
-        Game.Security = AccountTypes(fields[10].GetUInt8());
-        Game.IsBanned = fields[13].GetUInt64() != 0;
-        Game.IsRectuiter = fields[14].GetUInt32() != 0;
-        Game.AtAuthFlag = AuthFlags(fields[11].GetUInt16());
-        Game.BPayBalance = fields[12].GetUInt32();
-        Game.Hwid = fields[15].GetUInt64();
+        BattleNet.FirstIP = fields[3].GetString();
+        BattleNet.IsLockedToIP = fields[4].GetBool();
+        BattleNet.LockCountry = fields[5].GetString();
+        Game.Expansion = /*std::max(fields[6].GetUInt8(), */CURRENT_EXPANSION;//);
+        Game.MuteTime = fields[7].GetInt64();
+        BattleNet.Locale = LocaleConstant(fields[8].GetUInt8());
+        Game.Recruiter = fields[9].GetUInt32();
+        Game.OS = fields[10].GetString();
+        Game.Security = AccountTypes(fields[11].GetUInt8());
+        Game.IsBanned = fields[14].GetUInt64() != 0;
+        Game.IsRectuiter = fields[15].GetUInt32() != 0;
+        Game.AtAuthFlag = AuthFlags(fields[12].GetUInt16());
+        Game.Referer = fields[13].GetUInt32();
+        Game.Hwid = fields[16].GetUInt64();
         if (BattleNet.Locale >= MAX_LOCALES)
             BattleNet.Locale = LOCALE_enUS;
     }
@@ -862,6 +864,50 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
         return;
     }
 
+    // if first login
+    if (account.BattleNet.FirstIP == "127.0.0.1")
+    {
+        if (sWorld->getIntConfig(CONFIG_UNIQUE_IP_TOKEN_AMOUNT) > 0)
+        {
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_EXPANSION_FIRST_IP);
+            stmt->setString(0, address);
+            PreparedQueryResult firstIpCheck = LoginDatabase.Query(stmt);
+
+            // if this is the first time we see this IP we give the user a free level boost
+            if (!firstIpCheck)
+            {
+                stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_OR_UPD_TOKEN);
+                stmt->setUInt32(0, account.Game.Id);
+                stmt->setUInt8(1, sWorld->getIntConfig(CONFIG_UNIQUE_IP_TOKEN_TYPE));
+                stmt->setInt64(2, sWorld->getIntConfig(CONFIG_UNIQUE_IP_TOKEN_AMOUNT));
+                stmt->setInt64(3, sWorld->getIntConfig(CONFIG_UNIQUE_IP_TOKEN_AMOUNT));
+                // blocking execute to be certain the change has been saved before we get to LOGIN_SEL_ACCOUNT_TOKENS
+                LoginDatabase.DirectExecute(stmt);
+            }
+        }
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_FIRST_IP);
+
+        stmt->setString(0, address);
+        stmt->setUInt32(1, account.Game.Id);
+
+        LoginDatabase.Execute(stmt);
+    }
+
+    // Load account tokens, wait till the first login check happened so we 
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_TOKENS);
+    stmt->setUInt32(0, account.Game.Id);
+    PreparedQueryResult accountTokensResult = LoginDatabase.Query(stmt);
+    std::unordered_map<uint8, int64> accountTokenMap;
+    if (accountTokensResult)
+    {
+        do
+        {
+            Field* accountTokenRow = accountTokensResult->Fetch();
+            accountTokenMap[accountTokenRow[0].GetUInt8()] = accountTokenRow[1].GetInt64();
+        } while (accountTokensResult->NextRow());
+    }
+
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_IP);
 
     stmt->setString(0, address);
@@ -872,7 +918,8 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     _authed = true;
 
     _worldSession = std::make_shared<WorldSession>(account.Game.Id, std::move(authSession->RealmJoinTicket), shared_from_this(), account.Game.Security,
-        account.Game.Expansion, mutetime, account.Game.OS, account.BattleNet.Locale, account.Game.Recruiter, account.Game.IsRectuiter, AuthFlags(account.Game.AtAuthFlag), account.Game.BPayBalance);
+        account.Game.Expansion, mutetime, account.Game.OS, account.BattleNet.Locale, account.Game.Recruiter, account.Game.IsRectuiter, AuthFlags(account.Game.AtAuthFlag),
+        std::move(accountTokenMap), account.Game.Referer);
 
     _worldSession->_realmID = authSession->RealmID;
     _worldSession->_hwid = account.Game.Hwid;

@@ -32,8 +32,8 @@ bool LoadConfig()
     std::string error;
     if (!sConfigMgr->LoadInitial(cfg_file, error))
     {
-        printf("Invalid or missing configuration file : %s", cfg_file);
-        printf("Verify that the file exists and has \'[webapi]\' written in the top of the file!");
+        printf("Invalid or missing configuration file : %s\n", cfg_file);
+        printf("Verify that the file exists and has \'[webapi]\' written in the top of the file!\n");
 
         printf(error.c_str());
         return false;
@@ -51,7 +51,7 @@ bool StartLoginDB()
     std::string dbstring = sConfigMgr->GetStringDefault("LoginDatabaseInfo", "");
     if (dbstring.empty())
     {
-        printf("Database not specified");
+        printf("Database not specified\n");
         return false;
     }
 
@@ -61,7 +61,7 @@ bool StartLoginDB()
     // NOTE: Authserver is singlethreaded you should keep synch_threads == 1, only 1 will ever be used anyway.
     if (!LoginDatabase.Open(dbstring.c_str(), uint8(worker_threads), uint8(synch_threads)))
     {
-        printf("Cannot connect to database");
+        printf("Cannot connect to database\n");
         return false;
     }
 
@@ -255,8 +255,54 @@ struct StateUnsubscribe
     }
 };
 
+struct StateLogin
+{
+    std::string returnUrl;
+    std::string emailAddress;
+    std::string password;
+    std::vector<unsigned char> captcha;
+    uint64_t validTill;
+
+    template <class Archive>
+    void serialize(Archive& ar)
+    {
+        ar(returnUrl, emailAddress, password, captcha, validTill);
+    }
+
+    std::string whereToNext()
+    {
+        if (emailAddress == "" || password == "")
+            return std::string("/account/login/credentials/");
+
+        return std::string("/account/login/captcha/");
+    }
+};
+
+struct StateLoggedIn
+{
+    uint32_t accountId;
+    uint64_t validTill;
+    std::string email;
+
+    template <class Archive>
+    void serialize(Archive& ar)
+    {
+        ar(accountId, validTill, email);
+    }
+};
+
+struct StateAccountReference
+{
+    uint32_t aId;
+    template <class Archive>
+    void serialize(Archive& ar)
+    {
+        ar(aId);
+    }
+};
+
 template <typename T>
-std::string StateToHexBytesString(const T& data, const unsigned char* k)
+std::string StateToHexBytesString(const T& data, const unsigned char* k, const bool onlyDigits = false)
 {
     unsigned char nonce[crypto_secretbox_NONCEBYTES];
 	randombytes(nonce, crypto_secretbox_NONCEBYTES);
@@ -277,29 +323,31 @@ std::string StateToHexBytesString(const T& data, const unsigned char* k)
     for (int i = 0; i < crypto_secretbox_NONCEBYTES; i++)
         encryptedV[i] = nonce[i];
 
-    char buffer[3];
+    char buffer[onlyDigits ? 4 : 3];
     std::string result;
     for (const unsigned char byte : encryptedV)
-        if (snprintf(buffer, 3, "%.2X", byte) == 2)
+        if (snprintf(buffer, onlyDigits ? 4 : 3, onlyDigits ? "%.3u" : "%.2X", byte) == onlyDigits ? 3 : 2)
             result += std::string(buffer);
 
     return result;
 }
 
 template <typename T>
-bool HexBytesStringToState(T& data, const unsigned char* k, const std::string& bytesAsHexString)
+bool HexBytesStringToState(T& data, const unsigned char* k, const std::string& bytesAsHexString, const bool onlyDigits = false)
 {
-    if (bytesAsHexString.length() % 2 || bytesAsHexString.length() <= crypto_secretbox_NONCEBYTES * 2)
+    uint64_t charsPerByte = onlyDigits ? 3 : 2;
+    if (bytesAsHexString.length() % charsPerByte || bytesAsHexString.length() <= crypto_secretbox_NONCEBYTES * charsPerByte)
         return false;
 
     unsigned char nonce[crypto_secretbox_NONCEBYTES];
-    for (int i = 0; i < crypto_secretbox_NONCEBYTES * 2; i += 2)
-        sscanf(bytesAsHexString.c_str() + i, "%2hhx", &nonce[i / 2]);
+    for (int i = 0; i < crypto_secretbox_NONCEBYTES * charsPerByte; i += charsPerByte)
+        sscanf(bytesAsHexString.c_str() + i, onlyDigits ? "%3hhu" : "%2hhx", &nonce[i / charsPerByte]);
 
 
-    std::vector<unsigned char> encryptedV(crypto_secretbox_BOXZEROBYTES + (bytesAsHexString.length() / 2) - crypto_secretbox_NONCEBYTES, '\0');
-    for (int i = crypto_secretbox_NONCEBYTES * 2; i < bytesAsHexString.length(); i += 2)
-        sscanf(bytesAsHexString.c_str() + i, "%2hhx", &encryptedV[crypto_secretbox_BOXZEROBYTES + (i - crypto_secretbox_NONCEBYTES * 2) / 2]);
+    std::vector<unsigned char> encryptedV(crypto_secretbox_BOXZEROBYTES + (bytesAsHexString.length() / charsPerByte) - crypto_secretbox_NONCEBYTES, '\0');
+    for (int i = crypto_secretbox_NONCEBYTES * charsPerByte; i < bytesAsHexString.length(); i += charsPerByte)
+        sscanf(bytesAsHexString.c_str() + i, onlyDigits ? "%3hhu" : "%2hhx",
+                &encryptedV[crypto_secretbox_BOXZEROBYTES + (i - crypto_secretbox_NONCEBYTES * charsPerByte) / charsPerByte]);
 
     std::vector<unsigned char> m(encryptedV.size(), '\0');
     if (crypto_secretbox_open(m.data(), encryptedV.data(), encryptedV.size(), nonce, k))
@@ -335,6 +383,23 @@ std::string ReturnCaptcha(const std::string& hexString, const unsigned char* k)
     return std::string((const char*)gif, gifsize);
 }
 
+template <typename T>
+bool GetCookieState(T& data, const unsigned char* k, const std::string& name, const httplib::Request& req)
+{
+    if (!req.has_header("Cookie"))
+        return false;
+
+    std::string cookies = req.get_header_value("Cookie");
+    std::string nameWithEqual(name + std::string("="));
+    size_t startPos = cookies.find(nameWithEqual);
+
+    if (startPos == std::string::npos)
+        return false;
+
+    return HexBytesStringToState(data, k, cookies.substr(
+        startPos + nameWithEqual.size(), cookies.find(';', startPos) - startPos - nameWithEqual.size()));
+}
+
 struct SMTPData
 {
     std::string SMTPPort;
@@ -348,6 +413,22 @@ struct SMTPData
     std::string SMTPMailValidationSubject;
     std::string SMTPMailConfirmationSubject;
     std::string SMTPReturnDomain;
+};
+
+struct VoteWebsiteData
+{
+    uint8_t id;
+    std::string name;
+    std::string callbackKeyName;
+    std::string callbackHostname;
+    std::vector<std::string> callbackIps;
+    std::string callbackUrl;
+    bool callbackIdOnlyDigits;
+    std::string voteUrl;
+    std::string checkKeyName;
+    std::string checkKeyValue;
+    uint8_t voteTokenType;
+    uint8_t voteTokensGiven;
 };
 
 std::vector<std::string> LoadJSonDatabase(const std::string& filename)
@@ -446,7 +527,7 @@ void sendNewsletter(const SMTPData& smtpData, const unsigned char* k)
     std::filesystem::rename("newsletter.html", newName, ec);
     if (ec.value() != 0)
     {
-        printf("Could not move newsletter.html to newsletter-epoch.html... abort...");
+        printf("Could not move newsletter.html to newsletter-epoch.html... abort...\n");
         return;
     }
 
@@ -491,8 +572,158 @@ void sendNewsletter(const SMTPData& smtpData, const unsigned char* k)
     }
 }
 
+std::vector<VoteWebsiteData> loadVoteWebsites()
+{
+    std::vector<VoteWebsiteData> voteWebsites;
+
+    for (int i = 1; i < std::numeric_limits<uint8_t>::max(); i++)
+    {
+        if (sConfigMgr->GetStringDefault(std::string("WebsiteName") + std::to_string(i), "") == "")
+            break;
+
+        voteWebsites.emplace_back();
+        voteWebsites[i - 1].id = i;
+        voteWebsites[i - 1].name = sConfigMgr->GetStringDefault(std::string("WebsiteName") + std::to_string(i), "");
+        voteWebsites[i - 1].callbackKeyName = sConfigMgr->GetStringDefault(std::string("CallbackKeyName") + std::to_string(i), "");
+        voteWebsites[i - 1].callbackHostname = sConfigMgr->GetStringDefault(std::string("CallbackHostname") + std::to_string(i), "");
+
+        voteWebsites[i - 1].callbackIps = std::vector<std::string>();
+        std::string callbackIps = sConfigMgr->GetStringDefault(std::string("CallbackIps") + std::to_string(i), "");
+        size_t startSearch = 0;
+        while (true)
+        {
+            size_t endSearch = callbackIps.find(' ', startSearch);
+            std::string callbackIp = callbackIps.substr(startSearch, endSearch);
+            if (callbackIp == "")
+                break;
+
+            voteWebsites[i - 1].callbackIps.emplace_back(std::move(callbackIp));
+
+            if (endSearch == std::string::npos)
+                break;
+
+            // skip the space on the next round
+            startSearch = endSearch + 1;
+        }
+
+        voteWebsites[i - 1].callbackUrl = sConfigMgr->GetStringDefault(std::string("CallbackUrl") + std::to_string(i), "");
+        voteWebsites[i - 1].callbackIdOnlyDigits = sConfigMgr->GetBoolDefault(std::string("CallbackIdOnlyDigits") + std::to_string(i), false);
+        voteWebsites[i - 1].voteUrl = sConfigMgr->GetStringDefault(std::string("VoteUrl") + std::to_string(i), "");
+        voteWebsites[i - 1].checkKeyName = sConfigMgr->GetStringDefault(std::string("CheckKeyName") + std::to_string(i), "");
+        voteWebsites[i - 1].checkKeyValue = sConfigMgr->GetStringDefault(std::string("CheckKeyValue") + std::to_string(i), "");
+        voteWebsites[i - 1].voteTokenType = sConfigMgr->GetIntDefault(std::string("VoteToken") + std::to_string(i), 0);
+        voteWebsites[i - 1].voteTokensGiven = sConfigMgr->GetIntDefault(std::string("VoteTokensGiven") + std::to_string(i), 0);
+
+        printf("Loaded vote site: %s, with CallbackKeyName: %s, CallbackHostname: %s, CallbackUrl: %s, CallbackIdOnlyDigits: %u, VoteUrl: %s, CheckKeyName: %s, CheckKeyValue: %s, VoteToken: %d, VoteTokensGiven: %d\n",
+            voteWebsites[i - 1].name.c_str(), voteWebsites[i - 1].callbackKeyName.c_str(), voteWebsites[i - 1].callbackHostname.c_str(),
+            voteWebsites[i - 1].callbackUrl.c_str(), voteWebsites[i - 1].callbackIdOnlyDigits,
+            voteWebsites[i - 1].voteUrl.c_str(), voteWebsites[i - 1].checkKeyName.c_str(), voteWebsites[i - 1].checkKeyValue.c_str(),
+            voteWebsites[i - 1].voteTokenType, voteWebsites[i - 1].voteTokensGiven);
+        for (auto& ip : voteWebsites[i - 1].callbackIps)
+            printf("Added callbackIp: %s\n", ip.c_str());
+    }
+
+    return voteWebsites;
+}
+
+void printReqData(const httplib::Request& req)
+{
+    printf("Did get the following parameters:\n");
+    for (const auto& param: req.params)
+        printf("%s:%s\n", param.first.c_str(), param.second.c_str());
+    printf("Did get the following headers:\n");
+    for (const auto& header: req.headers)
+        printf("%s:%s\n", header.first.c_str(), header.second.c_str());
+}
+
+void handleVoteCallback(const VoteWebsiteData& voteWebsite, const std::string& ipFromHeader, const httplib::Request& req, const unsigned char* k)
+{
+    if (ipFromHeader != "" && !req.has_header(ipFromHeader))
+    {
+        printf("Vote callback lacking the configured header: %s\n", ipFromHeader.c_str());
+        printReqData(req);
+        return;
+    }
+
+    std::string realIp = (ipFromHeader != "") ? req.get_header_value(ipFromHeader) : req.remote_addr;
+    if (std::find(voteWebsite.callbackIps.begin(), voteWebsite.callbackIps.end(), realIp) == voteWebsite.callbackIps.end())
+    {
+        if (voteWebsite.callbackHostname == "")
+        {
+            printf("Vote callback for website: %s, came in from unexpected IP: %s\n", voteWebsite.name.c_str(), realIp.c_str());
+            return;
+        }
+
+        std::vector<std::string> foundIps;
+        httplib::hosted_at(voteWebsite.callbackHostname, foundIps);
+        if (std::find(foundIps.begin(), foundIps.end(), realIp) == foundIps.end())
+        {
+            printf("Vote callback for website: %s, came in from unexpected IP: %s\n", voteWebsite.name.c_str(), realIp.c_str());
+            return;
+        }
+    }
+
+    if (voteWebsite.checkKeyName != "")
+    {
+        if (!req.has_param(voteWebsite.checkKeyName) && !req.has_header(voteWebsite.checkKeyName))
+        {
+            printf("Vote callback for website: %s, came in without the expected parameter or header value.\n", voteWebsite.name.c_str());
+            printReqData(req);
+            return;
+        }
+
+        if (req.has_param(voteWebsite.checkKeyName) ?
+            req.get_param_value(voteWebsite.checkKeyName) != voteWebsite.checkKeyValue :
+            req.get_header_value(voteWebsite.checkKeyName) != voteWebsite.checkKeyValue)
+        {
+            printf("Vote check param/header value is incorrect.\n");
+            printReqData(req);
+            return;
+        }
+    }
+
+    if (!req.has_param(voteWebsite.callbackKeyName) && !req.has_header(voteWebsite.callbackKeyName))
+    {
+        printf("Vote callback missing required param/header containing the userRef.\n");
+        printReqData(req);
+        return;
+    }
+
+    std::string userRef = req.has_param(voteWebsite.callbackKeyName) ?
+        req.get_param_value(voteWebsite.callbackKeyName) : req.get_header_value(voteWebsite.callbackKeyName);
+
+    StateAccountReference sar;
+    if (!HexBytesStringToState(sar, k, userRef, voteWebsite.callbackIdOnlyDigits))
+    {
+        printf("Unable to parse StateAccountReference from provided userRef.\n");
+        printReqData(req);
+        return;
+    }
+
+    if (voteWebsite.voteTokensGiven <= 0)
+        return;
+
+    if (!StartLoginDB())
+    {
+        printf("Unable to reward vote points due to a connection issue with the database.\n");
+        printReqData(req);
+        return;
+    }
+
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_OR_UPD_TOKEN);
+    stmt->setUInt32(0, sar.aId);
+    stmt->setUInt8(1, voteWebsite.voteTokenType);
+    stmt->setInt64(2, voteWebsite.voteTokensGiven);
+    stmt->setInt64(3, voteWebsite.voteTokensGiven);
+    LoginDatabase.DirectExecute(stmt);
+
+    StopLoginDB();
+}
+
 int main(int argc, char* argv[])
 {    
+    setvbuf(stdout, NULL, _IONBF, 0);
+
     if (!LoadConfig())
         return 1;
 
@@ -522,7 +753,7 @@ int main(int argc, char* argv[])
     int32 port = sConfigMgr->GetIntDefault("Port", 8090);
     if (port < 0 || port > 0xFFFF)
     {
-        printf("Specified port out of allowed range (1-65535)");
+        printf("Specified port out of allowed range (1-65535).\n");
         return 1;
     }
 
@@ -546,6 +777,11 @@ int main(int argc, char* argv[])
         sendNewsletter(smtpData, k);
         return 0;
     }
+
+    std::vector<VoteWebsiteData> voteWebsites(loadVoteWebsites());
+    std::string refUrlHeader = sConfigMgr->GetStringDefault("RefUrlHeader", "");
+    std::string refUrlFooter = sConfigMgr->GetStringDefault("RefUrlFooter", "");
+    std::string ipFromHeader = sConfigMgr->GetStringDefault("IpFromHeader", "");
 
     #undef CPPHTTPLIB_THREAD_POOL_COUNT
     #define CPPHTTPLIB_THREAD_POOL_COUNT 0
@@ -745,6 +981,12 @@ int main(int argc, char* argv[])
 			return;
         }
 
+        // if the cookie is set this account is created after a referral
+        StateAccountReference sar;
+        uint32_t refererId = 0;
+        if (GetCookieState(sar, k, "ref", req))
+            refererId = sar.aId;
+
         if (!StartLoginDB())
         {
             std::string newURL = sdr.whereToNext() + std::string("error-internal/");
@@ -753,6 +995,20 @@ int main(int argc, char* argv[])
         }
 
         AccountOpResult result = AccountMgr::CreateAccount(sdr.email, sdr.password, false);
+        // only set the referer if the creation was a success
+        if (result == AccountOpResult::AOR_OK)
+        {
+            uint32_t createdAccountId = AccountMgr::GetId(sdr.email);
+
+            if (createdAccountId)
+            {
+                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_REFERER);
+                stmt->setUInt32(0, refererId);
+                stmt->setUInt32(1, createdAccountId);
+                LoginDatabase.DirectExecute(stmt);
+            }
+        }
+
         StopLoginDB();
 
         if (result == AccountOpResult::AOR_NAME_ALREADY_EXIST)
@@ -1514,6 +1770,314 @@ int main(int argc, char* argv[])
         archive(unsubscribed);
 
         res.set_content("You have been successfully unsubscribed from any further emails! Please contact an admin to undo this if you change your mind :)", "text/plain");
+    });
+
+    // LOGIN
+    svr.Post(R"(/account/login/credentials(?:/error-wrong)?/*([a-zA-z0-9]*)/*$)",
+        [k](const httplib::Request& req, httplib::Response& res)
+    {
+        std::string hexString = req.matches[1];
+
+        StateLogin sl;
+        if (!HexBytesStringToState(sl, k, hexString))
+        {
+            sl.captcha = std::vector<unsigned char>(6);
+            randombytes(sl.captcha.data(), 6);
+
+            std::string newURL = sl.whereToNext() + std::string("error-wrong/") + StateToHexBytesString(sl, k) + std::string("/");
+			res.set_redirect(newURL.c_str());
+			return;
+        }
+
+        sl.emailAddress = "";
+        sl.password = "";
+        sl.captcha = std::vector<unsigned char>(6);
+        randombytes(sl.captcha.data(), 6);
+
+		if (!req.has_param("emailAddress") || !req.has_param("password"))
+		{
+            std::string newURL = sl.whereToNext() + std::string("error-wrong/") + StateToHexBytesString(sl, k) + std::string("/");
+			res.set_redirect(newURL.c_str());
+			return;
+		}
+
+        sl.emailAddress = req.get_param_value("emailAddress");
+        sl.password = req.get_param_value("password");
+        uint64_t now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        uint64_t secondsTillExpire = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::hours(1)).count();
+        sl.validTill = now + secondsTillExpire;
+
+        std::string newURL = sl.whereToNext() + StateToHexBytesString(sl, k) + std::string("/");
+        res.set_redirect(newURL.c_str());
+    });
+    svr.Get(R"(/account/login/captcha(?:/error-wrong)?(?:/error-internal)?/*([a-zA-z0-9]*)/+api/*$)",
+        [k](const httplib::Request& req, httplib::Response& res)
+    {
+        std::string hexString = req.matches[1];
+        res.set_content(ReturnCaptcha<StateLogin>(hexString, k), "image/gif");
+    });
+    svr.Post(R"(/account/login/captcha(?:/error-wrong)?(?:/error-internal)?/*([a-zA-z0-9]*)/*$)",
+        [k](const httplib::Request& req, httplib::Response& res)
+    {
+        std::string hexString = req.matches[1];
+
+        StateLogin sl;
+        if (!HexBytesStringToState(sl, k, hexString))
+        {
+            sl.captcha = std::vector<unsigned char>(6);
+            randombytes(sl.captcha.data(), 6);
+
+            std::string newURL = sl.whereToNext() + std::string("error-wrong/") + StateToHexBytesString(sl, k) + std::string("/");
+			res.set_redirect(newURL.c_str());
+			return;
+        }
+
+        uint64_t now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+        if (now >= sl.validTill || !req.has_param("captcha") || req.get_param_value("captcha").length() != 5 || sl.captcha.size() == 0)
+		{
+            sl.captcha = std::vector<unsigned char>(6);
+            randombytes(sl.captcha.data(), 6);
+
+            std::string newURL = sl.whereToNext() + std::string("error-wrong/") + StateToHexBytesString(sl, k) + std::string("/");
+			res.set_redirect(newURL.c_str());
+			return;
+		}
+
+        unsigned char im[70 * 200];
+        captcha(im, sl.captcha.data());
+        unsigned char foundWrong = 0;
+        for (int i = 0; i < 5; i++)
+            if (req.get_param_value("captcha")[i] != (char)sl.captcha[i])
+                foundWrong++;
+
+        // allow one mistake
+        if (foundWrong > 1)
+        {
+            sl.captcha = std::vector<unsigned char>(6);
+            randombytes(sl.captcha.data(), 6);
+
+            std::string newURL = sl.whereToNext() + std::string("error-wrong/") + StateToHexBytesString(sl, k) + std::string("/");
+			res.set_redirect(newURL.c_str());
+			return;
+        }
+
+        if (!StartLoginDB())
+        {
+            std::string newURL = sl.whereToNext() + std::string("error-internal/") + StateToHexBytesString(sl, k) + std::string("/");
+			res.set_redirect(newURL.c_str());
+			return;
+        }
+
+        uint32 accountId = AccountMgr::GetId(sl.emailAddress);
+        bool correctPassword = false;
+        if (accountId)
+            correctPassword = AccountMgr::CheckPassword(accountId, sl.password);
+
+        StopLoginDB();
+
+        if (!correctPassword)
+        {
+            sl.emailAddress = "";
+            sl.password = "";
+            sl.captcha = std::vector<unsigned char>(6);
+            randombytes(sl.captcha.data(), 6);
+
+            std::string newURL = sl.whereToNext() + std::string("error-wrong/") + StateToHexBytesString(sl, k) + std::string("/");
+			res.set_redirect(newURL.c_str());
+			return;
+        }
+
+        StateLoggedIn sli;
+        sli.accountId = accountId;
+        sli.email = sl.emailAddress;
+
+        uint64_t secondsTillExpire = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::hours(62 * 24)).count();
+        sli.validTill = now + secondsTillExpire;
+
+        std::string cookie = StateToHexBytesString(sli, k);
+
+        res.set_header("Set-Cookie", std::string("loginSession=") + cookie + std::string("; Path=/; Max-Age=") + std::to_string(secondsTillExpire));
+        res.set_redirect(sl.returnUrl.size() > 0 ? sl.returnUrl : "/");
+    });
+
+    // REFERENCE URL
+    svr.Get(R"(/ref/*([a-zA-z0-9]*)/+api/*$)",
+        [k](const httplib::Request& req, httplib::Response& res)
+    {
+        std::string hexString = req.matches[1];
+
+        StateAccountReference sar;
+        if (HexBytesStringToState(sar, k, hexString))
+        {
+            uint64_t secondsTillExpire = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::hours(14 * 24)).count();
+            res.set_header("Set-Cookie", std::string("ref=") + hexString + std::string("; Path=/; Max-Age=") + std::to_string(secondsTillExpire));
+        }
+
+        res.set_redirect("/");
+    });
+    svr.Get(R"(/account/myref/login/api/*$)",
+        [k](const httplib::Request& req, httplib::Response& res)
+    {
+        StateLoggedIn sli;
+        if (!GetCookieState(sli, k, "loginSession", req) || std::chrono::seconds(sli.validTill) < std::chrono::system_clock::now().time_since_epoch())
+        {
+            StateLogin sl;
+            sl.returnUrl = "/account/myref/login/api/";
+            std::string newURL = sl.whereToNext() + StateToHexBytesString(sl, k) + std::string("/");
+			res.set_redirect(newURL.c_str());
+            return;
+        }
+
+        res.set_redirect("/account/myref/");
+    });
+    svr.Get(R"(/account/myref/switch/api/*$)",
+        [k](const httplib::Request& req, httplib::Response& res)
+    {
+        StateLogin sl;
+        sl.returnUrl = "/account/myref/login/api/";
+        std::string newURL = sl.whereToNext() + StateToHexBytesString(sl, k) + std::string("/");
+        res.set_redirect(newURL.c_str());
+        return;
+    });
+    svr.Get(R"(/account/myref/api/*$)",
+        [k, &smtpData](const httplib::Request& req, httplib::Response& res)
+    {
+        StateLoggedIn sli;
+        if (!GetCookieState(sli, k, "loginSession", req) || std::chrono::seconds(sli.validTill) < std::chrono::system_clock::now().time_since_epoch())
+        {
+            res.set_content("", "text/css");
+            return;
+        }
+
+        StateAccountReference sar;
+        sar.aId = sli.accountId;
+        std::string refUrl(smtpData.SMTPReturnDomain + std::string("/ref/") + StateToHexBytesString(sar, k) + std::string("/api/"));
+
+        std::string output = "";
+        output += std::string("#idaccount::before {\n");
+        output += std::string("content:\"") + sli.email + std::string("\";\n");
+        output += std::string("}\n");
+        output += std::string("#idurl::before {\n");
+        output += std::string("content:\"") + refUrl + std::string("\";\n");
+        output += std::string("}\n");
+    
+        res.set_content(output, "text/css");
+    });
+    svr.Get(R"(/account/myref/iframe/api/*$)",
+        [k, &smtpData, &refUrlHeader, &refUrlFooter](const httplib::Request& req, httplib::Response& res)
+    {
+        StateLoggedIn sli;
+        if (!GetCookieState(sli, k, "loginSession", req) || std::chrono::seconds(sli.validTill) < std::chrono::system_clock::now().time_since_epoch())
+        {
+            res.set_content("", "text/html");
+            return;
+        }
+
+        StateAccountReference sar;
+        sar.aId = sli.accountId;
+        std::string refUrl(smtpData.SMTPReturnDomain + std::string("/ref/") + StateToHexBytesString(sar, k) + std::string("/api/"));
+
+        std::string output = "";
+        output += refUrlHeader;
+        output += std::string("\n") + refUrl + std::string("\n");
+        output += refUrlFooter;
+
+        res.set_content(output, "text/html");
+    });
+
+    // VOTING
+    for (const auto& voteWebsite : voteWebsites)
+    {
+        std::string callbackRegex = voteWebsite.callbackUrl + std::string("/*$");
+        svr.Get(callbackRegex,
+            [k, &voteWebsite, &ipFromHeader](const httplib::Request& req, httplib::Response& res)
+        {
+            handleVoteCallback(voteWebsite, ipFromHeader, req, k);
+        });
+        svr.Post(callbackRegex,
+            [k, &voteWebsite, &ipFromHeader](const httplib::Request& req, httplib::Response& res)
+        {
+            handleVoteCallback(voteWebsite, ipFromHeader, req, k);
+        });
+        svr.Post(std::string("/account/vote/redirect/") + std::to_string(voteWebsite.id) + std::string("/api/*$"),
+            [k, &voteWebsite](const httplib::Request& req, httplib::Response& res)
+        {
+            StateLoggedIn sli;
+            if (!GetCookieState(sli, k, "loginSession", req) || std::chrono::seconds(sli.validTill) < std::chrono::system_clock::now().time_since_epoch())
+            {
+                StateLogin sl;
+                sl.returnUrl = std::string("/account/vote/redirect/") + std::to_string(voteWebsite.id) + std::string("/api/");
+                std::string newURL = sl.whereToNext() + StateToHexBytesString(sl, k) + std::string("/");
+                res.set_redirect(newURL.c_str());
+                return;
+            }
+
+            uint64_t secondsTillExpire = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::hours(16)).count();
+            std::string cookie = StateToHexBytesString(sli, k);
+            res.set_header("Set-Cookie", std::string("vote") + std::to_string(voteWebsite.id) + std::string("=") +
+                cookie + std::string("; Path=/; Max-Age=") + std::to_string(secondsTillExpire));
+
+            StateAccountReference sar;
+            sar.aId = sli.accountId;
+            std::string redirectUrl = voteWebsite.voteUrl + StateToHexBytesString(sar, k, voteWebsite.callbackIdOnlyDigits);
+            res.set_redirect(redirectUrl);
+        });
+    }
+    svr.Get(R"(/account/vote/login/api/*$)",
+        [k](const httplib::Request& req, httplib::Response& res)
+    {
+        StateLoggedIn sli;
+        if (!GetCookieState(sli, k, "loginSession", req) || std::chrono::seconds(sli.validTill) < std::chrono::system_clock::now().time_since_epoch())
+        {
+            StateLogin sl;
+            sl.returnUrl = "/account/vote/login/api/";
+            std::string newURL = sl.whereToNext() + StateToHexBytesString(sl, k) + std::string("/");
+			res.set_redirect(newURL.c_str());
+            return;
+        }
+
+        res.set_redirect("/account/vote/");
+    });
+    svr.Get(R"(/account/vote/switch/api/*$)",
+        [k](const httplib::Request& req, httplib::Response& res)
+    {
+        StateLogin sl;
+        sl.returnUrl = "/account/vote/login/api/";
+        std::string newURL = sl.whereToNext() + StateToHexBytesString(sl, k) + std::string("/");
+        res.set_redirect(newURL.c_str());
+        return;
+    });
+    svr.Get(R"(/account/vote/api/*$)",
+        [k, &voteWebsites](const httplib::Request& req, httplib::Response& res)
+    {
+        StateLoggedIn sli;
+        if (!GetCookieState(sli, k, "loginSession", req) || std::chrono::seconds(sli.validTill) < std::chrono::system_clock::now().time_since_epoch())
+        {
+            res.set_content("", "text/css");
+            return;
+        }
+
+        std::string output = "";
+        output += std::string("#idaccount::before {\n");
+        output += std::string("content:\"") + sli.email + std::string("\";\n");
+        output += std::string("}\n");
+
+        for (const auto& voteWebsite : voteWebsites)
+        {
+            output += std::string("#vote-div") + std::to_string(voteWebsite.id) +  std::string("{display:block;}\n");
+            output += std::string(".vote-name") + std::to_string(voteWebsite.id) + std::string("::after {\n");
+            output += std::string("content:\"") + voteWebsite.name + std::string("\";\n");
+            output += std::string("}\n");
+
+            StateLoggedIn sli;
+            if (GetCookieState(sli, k, std::string("vote") + std::to_string(voteWebsite.id), req))
+                output += std::string("#vote-button-disabled") + std::to_string(voteWebsite.id) + std::string("{display:block;}\n");
+            else
+                output += std::string("#vote-button-enable") + std::to_string(voteWebsite.id) + std::string("{display:block;}\n");
+        }
+
+        res.set_content(output, "text/css");
     });
 
     svr.listen(bind_ip.c_str(), port);

@@ -165,6 +165,15 @@ namespace Battlepay
         };
     };
 
+    namespace BattlepayDisplayInfoFlag
+    {
+        enum : uint8
+        {
+            None = 0x0,
+            HidePrice = 0x8,
+        };
+    }
+
     /// Client error enum See Blizzard_StoreUISecure.lua Last update : 6.2.3 20779
     enum Error
     {
@@ -231,28 +240,6 @@ namespace Battlepay
             Ready = 6,
             Finish = 3
         };
-    }
-
-    namespace CustomMessage
-    {
-        enum
-        {
-            StoreBalance,
-            AccountName,
-            StoreBuyFailed
-        };
-
-        static const char* CustomMessage[] =
-        {
-            "STORE_BALANCE",
-            "ACCOUNT_NAME",
-            "STORE_BUY_FAILED"
-        };
-
-        inline const char* GetCustomMessage(uint8 id)
-        {
-            return CustomMessage[id];
-        }
     }
 
     enum BattlePayCurrency
@@ -353,10 +340,14 @@ namespace Battlepay
     struct ProductGroup
     {
         uint32 GroupID;
-        int32 IconFileDataID;
-        int32 Ordering;
+        uint32 IconFileDataID;
+        uint32 Ordering;
+        uint32 Flags;
         std::string Name;
         uint8 DisplayType; ///< BattlepayGroupDisplayType
+        uint8 TokenType;
+        bool IngameOnly;
+        bool OwnsTokensOnly;
     };
 
     struct DisplayInfo
@@ -432,6 +423,15 @@ namespace Battlepay
     struct ProductGroupLocale
     {
         StringVector Name;
+    };
+
+    struct TokenType
+    {
+        uint8 type;
+        std::string name;
+        bool hasLoginMessage;
+        std::string loginMessage;
+        bool listIfNone;
     };
 }
 

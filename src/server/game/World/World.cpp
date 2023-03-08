@@ -1147,6 +1147,11 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_ARENA_SEASON_IN_PROGRESS]                  = sConfigMgr->GetBoolDefault("Arena.ArenaSeason.InProgress", true);
     m_bool_configs[CONFIG_ARENA_LOG_EXTENDED_INFO]                   = sConfigMgr->GetBoolDefault("ArenaLog.ExtendedInfo", false);
     m_bool_configs[CONFIG_ARENA_DEATHMATCH]                          = sConfigMgr->GetBoolDefault("DeathMatch", false);
+    m_int_configs[CONFIG_UNIQUE_IP_TOKEN_TYPE]                       = sConfigMgr->GetIntDefault("UniqueIpEnableTokenType", 0);
+    m_int_configs[CONFIG_UNIQUE_IP_TOKEN_AMOUNT]                     = sConfigMgr->GetIntDefault("UniqueIpEnableTokenAmount", 0);
+    m_int_configs[CONFIG_DONATE_VENDOR_TOKEN_TYPE]                   = sConfigMgr->GetIntDefault("DonateVendorTokenType", 1);
+    m_int_configs[CONFIG_REFERRAL_TRACKER_TOKEN_TYPE]                = sConfigMgr->GetIntDefault("ReferralTrackerTokenType", 0);
+    m_int_configs[CONFIG_REFERRAL_TRACKER_LEVEL_THRESHOLD]           = sConfigMgr->GetIntDefault("ReferralTrackerLevelThreshold", 110);
 
     m_bool_configs[CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN]            = sConfigMgr->GetBoolDefault("OffhandCheckAtSpellUnlearn", true);
 

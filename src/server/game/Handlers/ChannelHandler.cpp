@@ -79,10 +79,7 @@ void WorldSession::HandleLeaveChannel(WorldPackets::Channel::LeaveChannel& packe
 void WorldSession::HandleChannelCommandAnnounce(WorldPackets::Channel::ChannelPlayerCommand& packet)
 {
     Player* player = GetPlayer();
-    if (packet.Name.length() >= MAX_CHANNEL_NAME_STR || !player)
-        return;
-
-    if (!normalizePlayerName(packet.Name))
+    if (!player)
         return;
 
     if (packet.ChannelName.empty())
@@ -99,10 +96,7 @@ void WorldSession::HandleChannelCommandAnnounce(WorldPackets::Channel::ChannelPl
 void WorldSession::HandleChannelCommandDeclineInvite(WorldPackets::Channel::ChannelPlayerCommand& packet)
 {
     Player* player = GetPlayer();
-    if (packet.Name.length() >= MAX_CHANNEL_NAME_STR || !player)
-        return;
-
-    if (!normalizePlayerName(packet.Name))
+    if (!player)
         return;
 
     if (packet.ChannelName.empty())
@@ -119,10 +113,7 @@ void WorldSession::HandleChannelCommandDeclineInvite(WorldPackets::Channel::Chan
 void WorldSession::HandleChannelCommandList(WorldPackets::Channel::ChannelPlayerCommand& packet)
 {
     Player* player = GetPlayer();
-    if (packet.Name.length() >= MAX_CHANNEL_NAME_STR || !player)
-        return;
-
-    if (!normalizePlayerName(packet.Name))
+    if (!player)
         return;
 
     if (packet.ChannelName.empty())
@@ -139,10 +130,7 @@ void WorldSession::HandleChannelCommandList(WorldPackets::Channel::ChannelPlayer
 void WorldSession::HandleChannelCommandSendWhoOwner(WorldPackets::Channel::ChannelPlayerCommand& packet)
 {
     Player* player = GetPlayer();
-    if (packet.Name.length() >= MAX_CHANNEL_NAME_STR || !player)
-        return;
-
-    if (!normalizePlayerName(packet.Name))
+    if (!player)
         return;
 
     if (packet.ChannelName.empty())

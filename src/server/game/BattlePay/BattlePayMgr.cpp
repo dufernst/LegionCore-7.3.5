@@ -31,6 +31,7 @@
 #include "BattlePetData.h"
 #include "CharacterService.h"
 #include "CollectionMgr.h"
+#include "Chat.h"
 
 using namespace Battlepay;
 
@@ -240,21 +241,6 @@ bool BattlepayManager::AlreadyOwnProduct(uint32 itemId) const
     return false;
 }
 
-auto GroupFilterForSession = [](uint32 groupId) -> bool
-{
-    switch (groupId)
-    {
-    case ProductGroups::Mount:
-    case ProductGroups::Pets:
-    case ProductGroups::Services:
-    case ProductGroups::Boosts:
-    case ProductGroups::Heirlooms:
-        return true;
-    default:
-        return false;
-    }
-};
-
 auto BattlepayManager::ProductFilter(Product product) -> bool
 {
     auto player = _session->GetPlayer();
@@ -372,14 +358,17 @@ void BattlepayManager::SendProductList()
 
     for (auto& itr : sBattlePayDataStore->GetProductGroups())
     {
-        if (!player && !GroupFilterForSession(itr.GroupID))
+        if (!player && itr.IngameOnly)
+            continue;
+
+        if (itr.OwnsTokensOnly && _session->GetTokenBalance(itr.TokenType) <= 0)
             continue;
 
         WorldPackets::BattlePay::BattlePayProductGroup pGroup;
         pGroup.GroupID = itr.GroupID;
         pGroup.IconFileDataID = itr.IconFileDataID;
         pGroup.Ordering = itr.Ordering;
-        pGroup.UnkInt = 0;
+        pGroup.Flags = itr.Flags;
         pGroup.IsAvailableDescription = "";
         pGroup.DisplayType = itr.DisplayType;
 
@@ -392,7 +381,14 @@ void BattlepayManager::SendProductList()
 
     for (auto const& itr : sBattlePayDataStore->GetShopEntries())
     {
-        if (!player && !GroupFilterForSession(itr.GroupID))
+        Battlepay::ProductGroup* productGroup = sBattlePayDataStore->GetProductGroup(itr.GroupID);
+        if (!productGroup)
+            continue;
+
+        if (!player && productGroup->IngameOnly)
+            continue;
+
+        if (productGroup->OwnsTokensOnly && _session->GetTokenBalance(productGroup->TokenType) <= 0)
             continue;
 
         WorldPackets::BattlePay::BattlePayShopEntry sEntry;
@@ -419,7 +415,15 @@ void BattlepayManager::SendProductList()
         if (!ProductFilter(product))
             continue;
 
-        if (!player && !GroupFilterForSession(sBattlePayDataStore->GetProductGroupId(product.ProductID)))
+        Battlepay::ProductGroup* productGroup = sBattlePayDataStore->GetProductGroupForProductId(product.ProductID);
+        if (!productGroup)
+            continue;
+
+        if (!player && productGroup->IngameOnly)
+            continue;
+
+        int64 tokenBalance = _session->GetTokenBalance(productGroup->TokenType);
+        if (productGroup->OwnsTokensOnly && tokenBalance <= 0)
             continue;
 
         WorldPackets::BattlePay::ProductInfoStruct pInfo;
@@ -437,6 +441,11 @@ void BattlepayManager::SendProductList()
             pInfo.DisplayInfo = boost::in_place();
             pInfo.DisplayInfo = std::get<1>(dataPI);
         }
+
+        bool hideProductPrice = false;
+        if (pInfo.DisplayInfo.is_initialized() && pInfo.DisplayInfo->Flags.is_initialized())
+            hideProductPrice = pInfo.DisplayInfo->Flags.get() & BattlepayDisplayInfoFlag::HidePrice;
+        bool hasEnoughTokens = tokenBalance >= product.CurrentPriceFixedPoint;
 
         response.ProductList.ProductInfo.emplace_back(pInfo);
 
@@ -462,7 +471,11 @@ void BattlepayManager::SendProductList()
             //pItem.UnkInt1 = 0;
             //pItem.UnkInt2 = 0;
             //pItem.UnkByte = 0;
-            pItem.HasPet = AlreadyOwnProduct(item.ItemID);
+
+            // if the product is already owned disable the buy button
+            // also disable the button if we don't show the price for a product
+            // and the player does not have enough tokens to pay for the product
+            pItem.HasPet = AlreadyOwnProduct(item.ItemID) || (hideProductPrice && !hasEnoughTokens);
             pItem.PetResult = item.PetResult;
 
             auto dataP = WriteDisplayInfo(item.DisplayInfoID, localeIndex);
@@ -588,15 +601,17 @@ std::tuple<bool, WorldPackets::BattlePay::ProductDisplayInfo> BattlepayManager::
 
 void BattlepayManager::SendPointsBalance()
 {
-    if (auto player = _session->GetPlayer())
-    {
-        std::ostringstream dataName;
-        dataName << _session->GetAccountName();
-        player->SendCustomMessage(GetCustomMessage(CustomMessage::AccountName), dataName);
+    ChatHandler chatHandler(_session);
+    if (!_session->GetPlayer())
+        return;
 
-        std::ostringstream dataBalance;
-        dataBalance << _session->GetBattlePayBalance();
-        player->SendCustomMessage(GetCustomMessage(CustomMessage::StoreBalance), dataBalance);
+    chatHandler.PSendSysMessage("Account name: %s", _session->GetAccountName());
+
+    for (auto& tokenType : sBattlePayDataStore->GetTokenTypes())
+    {
+        int64 balance = _session->GetTokenBalance(tokenType.first);
+        if (balance || tokenType.second.listIfNone)
+            chatHandler.PSendSysMessage("%s: %d", tokenType.second.name, balance);
     }
 }
 

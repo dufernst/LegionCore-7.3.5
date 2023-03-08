@@ -47,6 +47,7 @@ EndScriptData */
 #include "QuestData.h"
 #include "GossipData.h"
 #include "ScriptsData.h"
+#include "BattlePayData.h"
 
 class reload_commandscript : public CommandScript
 {
@@ -83,6 +84,7 @@ public:
             { "bad_word",                     SEC_ADMINISTRATOR, true,  &HandleReloadBadWordCommand,                    ""},
             { "bad_senteces",                 SEC_ADMINISTRATOR, true,  &HandleReloadBadSentencesCommand,               ""},
             { "autobroadcast",                SEC_ADMINISTRATOR, true,  &HandleReloadAutobroadcastCommand,              ""},
+            { "battlepay",                    SEC_ADMINISTRATOR, true,  &HandleReloadBattlepayCommand,                  ""},
             { "command",                      SEC_ADMINISTRATOR, true,  &HandleReloadCommandCommand,                    ""},
             { "conditions",                   SEC_ADMINISTRATOR, true,  &HandleReloadConditions,                        ""},
             { "config",                       SEC_ADMINISTRATOR, true,  &HandleReloadConfigCommand,                     ""},
@@ -391,6 +393,14 @@ public:
         TC_LOG_INFO(LOG_FILTER_GENERAL, "Re-Loading Autobroadcasts...");
         sWorld->LoadAutobroadcasts();
         handler->SendGlobalGMSysMessage("DB table `autobroadcast` reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadBattlepayCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "Re-Loading Battlepay...");
+        sBattlePayDataStore->Initialize();
+        handler->SendGlobalGMSysMessage("Battlepay DB tables reloaded.");
         return true;
     }
 

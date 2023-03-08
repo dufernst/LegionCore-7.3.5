@@ -3365,21 +3365,21 @@ bool Map::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, floa
         && _dynamicTree.isInLineOfSight({ x1, y1, z1 }, { x2, y2, z2 }, phases, dCallback);
 }
 
-bool Map::getObjectHitPos(std::set<uint32> const& phases, bool otherIsPlayer, Position startPos, Position destPos, float modifyDist, DynamicTreeCallback* dCallback /*= nullptr*/)
+bool Map::getObjectHitPos(std::set<uint32> const& phases, bool otherUsePlayerPhasingRules, Position startPos, Position destPos, float modifyDist, DynamicTreeCallback* dCallback /*= nullptr*/)
 {
     G3D::Vector3 resultPos;
     G3D::Vector3 _startPos = G3D::Vector3(startPos.m_positionX, startPos.m_positionY, startPos.m_positionZ);
     G3D::Vector3 _dstPos = G3D::Vector3(destPos.m_positionX, destPos.m_positionY, destPos.m_positionZ);
-    return _dynamicTree.getObjectHitPos(phases, otherIsPlayer, _startPos, _dstPos, resultPos, modifyDist, dCallback);
+    return _dynamicTree.getObjectHitPos(phases, otherUsePlayerPhasingRules, _startPos, _dstPos, resultPos, modifyDist, dCallback);
 }
 
-bool Map::getObjectHitPos(std::set<uint32> const& phases, bool otherIsPlayer, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float modifyDist, DynamicTreeCallback* dCallback /*= nullptr*/)
+bool Map::getObjectHitPos(std::set<uint32> const& phases, bool otherUsePlayerPhasingRules, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float modifyDist, DynamicTreeCallback* dCallback /*= nullptr*/)
 {
     G3D::Vector3 startPos = G3D::Vector3(x1, y1, z1);
     G3D::Vector3 dstPos = G3D::Vector3(x2, y2, z2);
 
     G3D::Vector3 resultPos;
-    bool result = _dynamicTree.getObjectHitPos(phases, otherIsPlayer, startPos, dstPos, resultPos, modifyDist, dCallback);
+    bool result = _dynamicTree.getObjectHitPos(phases, otherUsePlayerPhasingRules, startPos, dstPos, resultPos, modifyDist, dCallback);
     rx = resultPos.x;
     ry = resultPos.y;
     rz = resultPos.z;

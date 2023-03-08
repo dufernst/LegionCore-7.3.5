@@ -164,7 +164,7 @@ namespace WorldPackets
             uint32 GroupID = 0;
             uint32 IconFileDataID = 0;
             uint32 Ordering = 0;
-            uint32 UnkInt = 0;
+            uint32 Flags = 0;
             std::string Name;
             std::string IsAvailableDescription;
             uint8 DisplayType = 0;

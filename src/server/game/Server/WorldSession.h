@@ -1045,7 +1045,7 @@ typedef std::map<uint32, CharacterTemplateData> CharacterTemplateDataMap;
 class WorldSession
 {
     public:
-        WorldSession(uint32 id, std::string&& name, const std::shared_ptr<WorldSocket>& sock, AccountTypes sec, uint8 expansion, time_t mute_time, std::string os, LocaleConstant locale, uint32 recruiter, bool isARecruiter, AuthFlags flag, int64 balance);
+        WorldSession(uint32 id, std::string&& name, const std::shared_ptr<WorldSocket>& sock, AccountTypes sec, uint8 expansion, time_t mute_time, std::string os, LocaleConstant locale, uint32 recruiter, bool isARecruiter, AuthFlags flag, std::unordered_map<uint8, int64>&& accountTokenMap, uint32 referer);
         ~WorldSession();
 
         bool PlayerLoading() const { return !m_playerLoading.IsEmpty(); }
@@ -1974,8 +1974,9 @@ class WorldSession
         void AddAuthFlag(AuthFlags f);
         void RemoveAuthFlag(AuthFlags f);
         void SaveAuthFlag();
-        int64 GetBattlePayBalance() { return battlePayBalance; }
-        void ChangeBattlePayBalance(int64 change) { battlePayBalance += change; }
+        int64 GetTokenBalance(uint8 tokenType) { return tokens.count(tokenType) > 0 ? tokens[tokenType] : 0; }
+        void ChangeTokenBalance(uint8 tokenType, int64 change) { tokens.count(tokenType) > 0 ? tokens[tokenType] += change : tokens[tokenType] = change; }
+        uint32 GetReferer() { return _referer; }
 
         void SendCharacterEnum(bool deleted = false);
 
@@ -2115,7 +2116,8 @@ class WorldSession
         uint32 expireTime;
         bool forceExit;
         std::atomic<bool> m_sUpdate;
-        int64 battlePayBalance;
+        std::unordered_map<uint8, int64> tokens;
+        uint32 _referer;
 
         bool wardenModuleFailed;
 

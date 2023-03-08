@@ -7195,6 +7195,8 @@ void ObjectMgr::LoadScriptNames()
       "UNION "
       "SELECT DISTINCT(ScriptName) FROM eventobject_template WHERE ScriptName <> '' "
       "UNION "
+      "SELECT DISTINCT(ScriptName) FROM battlepay_product WHERE ScriptName <> '' "
+      "UNION "
       "SELECT DISTINCT(script) FROM instance_template WHERE script <> ''");
 
     if (!result)

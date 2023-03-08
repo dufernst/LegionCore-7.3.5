@@ -49,12 +49,12 @@ public:
     DynamicMapTree();
     ~DynamicMapTree();
 
-    bool isInLineOfSight(G3D::Vector3 const& startPos, G3D::Vector3 const& endPos, std::set<uint32> const& phases, bool otherIsPlayer, DynamicTreeCallback* dCallback = nullptr) const;
-    bool getIntersectionTime(std::set<uint32> const& phases, bool otherIsPlayer, G3D::Ray const& ray, G3D::Vector3 const& endPos, float& maxDist, DynamicTreeCallback* dCallback = nullptr) const;
-    bool getObjectHitPos(std::set<uint32> const& phases, bool otherIsPlayer, G3D::Vector3 const& startPos, G3D::Vector3 const& endPos, G3D::Vector3& resultHitPos, float modifyDist, DynamicTreeCallback* dCallback = nullptr) const;
+    bool isInLineOfSight(G3D::Vector3 const& startPos, G3D::Vector3 const& endPos, std::set<uint32> const& phases, bool otherUsePlayerPhasingRules, DynamicTreeCallback* dCallback = nullptr) const;
+    bool getIntersectionTime(std::set<uint32> const& phases, bool otherUsePlayerPhasingRules, G3D::Ray const& ray, G3D::Vector3 const& endPos, float& maxDist, DynamicTreeCallback* dCallback = nullptr) const;
+    bool getObjectHitPos(std::set<uint32> const& phases, bool otherUsePlayerPhasingRules, G3D::Vector3 const& startPos, G3D::Vector3 const& endPos, G3D::Vector3& resultHitPos, float modifyDist, DynamicTreeCallback* dCallback = nullptr) const;
 
-    float getHeight(float x, float y, float z, float maxSearchDist, std::set<uint32> const& phases, bool otherIsPlayer, DynamicTreeCallback* dCallback = nullptr) const;
-    bool getAreaInfo(float x, float y, float& z, std::set<uint32> const& phases, bool otherIsPlayer, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const;
+    float getHeight(float x, float y, float z, float maxSearchDist, std::set<uint32> const& phases, bool otherUsePlayerPhasingRules, DynamicTreeCallback* dCallback = nullptr) const;
+    bool getAreaInfo(float x, float y, float& z, std::set<uint32> const& phases, bool otherUsePlayerPhasingRules, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const;
 
     void insert(const GameObjectModel&);
     void remove(const GameObjectModel&);

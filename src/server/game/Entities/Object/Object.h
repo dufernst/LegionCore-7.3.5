@@ -330,6 +330,8 @@ class Object
         Unit* ToUnit() { if (IsUnit()) return reinterpret_cast<Unit*>(this); return nullptr; }
         Unit const* ToUnit() const { if (IsUnit()) return reinterpret_cast<Unit const*>(this); return nullptr; }
 
+        bool IsUnitOwnedByPlayer() const;
+
         bool IsGameObject() const { return GetTypeId() == TYPEID_GAMEOBJECT; }
         GameObject* ToGameObject() { if (IsGameObject()) return reinterpret_cast<GameObject*>(this); return nullptr; }
         GameObject const* ToGameObject() const { if (IsGameObject()) return reinterpret_cast<GameObject const*>(this); return nullptr; }
@@ -493,7 +495,7 @@ class WorldObject : public Object, public WorldLocation
         bool HasPhaseId(uint32 PhaseID) const;
         std::set<uint32> const& GetPhases() const;
         bool InSamePhaseId(WorldObject const* obj) const;
-        bool InSamePhaseId(std::set<uint32> const& phase, bool otherIsPlayer) const;
+        bool InSamePhaseId(std::set<uint32> const& phase, bool otherUsePlayerPhasingRules) const;
         void RebuildTerrainSwaps();
         void RebuildWorldMapAreaSwaps();
         std::set<uint32> const& GetTerrainSwaps() const { return _terrainSwaps; }
