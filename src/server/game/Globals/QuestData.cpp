@@ -576,8 +576,8 @@ void QuestDataStoreMgr::LoadQuests()
     }
 
     // Load `quest_objectives` order by descending storage index to reduce resizes
-    //                                   0   1        2     3             4         5       6      7       8         9
-    result = WorldDatabase.Query("SELECT ID, QuestID, Type, StorageIndex, ObjectID, Amount, Flags, Flags2, TaskStep, Description FROM quest_objectives ORDER BY StorageIndex ASC");
+    //                                   0   1        2     3             4         5       6      7       8         9            10
+    result = WorldDatabase.Query("SELECT ID, QuestID, Type, StorageIndex, ObjectID, Amount, Flags, Flags2, TaskStep, Description, Bugged FROM quest_objectives ORDER BY StorageIndex ASC");
 
     if (!result)
     {
@@ -606,6 +606,8 @@ void QuestDataStoreMgr::LoadQuests()
                 obj.Flags2 = fields[7].GetUInt32();
                 obj.TaskStep = fields[8].GetFloat();
                 obj.Description = fields[9].GetString();
+                obj.Bugged = fields[10].GetBool();
+
                 _questObjectiveByType[QuestObjectiveType(obj.Type)].push_back(obj);
             }
             else
@@ -2888,6 +2890,14 @@ void QuestDataStoreMgr::ResetWorldQuest()
     CharacterDatabase.CommitTransaction(trans);
     CharacterDatabase.WaitExecution();
     needWait = false;
+}
+
+void QuestDataStoreMgr::SetQuestObjectiveBuggedState(uint32 questId, uint32 objectiveId, bool working)
+{
+    if (questId > _maxQuestId)
+        return;
+
+    _questVTemplates[questId]->SetObjectiveBuggedState(objectiveId, working);
 }
 
 void QuestDataStoreMgr::ClearWorldQuest()

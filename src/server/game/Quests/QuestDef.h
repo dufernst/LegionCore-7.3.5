@@ -363,6 +363,7 @@ struct QuestObjective
     float  TaskStep = 0.0f;
     std::string Description;
     std::vector<int32> VisualEffects;
+    bool Bugged = false;
 
     bool IsStoringFlag() const;
 };
@@ -422,6 +423,8 @@ class Quest
         bool   IsLegionInvasion() const { return QuestInfoID == QUEST_INFO_LEGION_INVASION_WORLD_QUEST_WRAPPER; }
         bool   IsInvasionPoint() const { return QuestInfoID == QUEST_INFO_INVASION_POINT || QuestInfoID == QUEST_INFO_GREATER_INVASION_POINT; }
         bool   IsRated() const { return QuestInfoID == QUEST_INFO_RATED_REWARD; }
+
+        void SetObjectiveBuggedState(uint32 objectiveId, bool working);
 
         uint32 ItemDrop[QUEST_ITEM_COUNT] = { };
         uint32 ItemDropQuantity[QUEST_ITEM_COUNT] = { };

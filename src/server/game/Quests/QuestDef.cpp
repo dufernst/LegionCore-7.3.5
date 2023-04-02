@@ -215,6 +215,7 @@ void Quest::LoadQuestObjective(Field* fields)
 {
     QuestObjective obj;
     obj.ID = fields[0].GetUInt32();
+    obj.QuestID = fields[1].GetUInt32();
     obj.Type = fields[2].GetUInt8();
     obj.StorageIndex = fields[3].GetInt8();
     obj.ObjectID = fields[4].GetInt32();
@@ -223,6 +224,7 @@ void Quest::LoadQuestObjective(Field* fields)
     obj.Flags2 = fields[7].GetUInt32();
     obj.TaskStep = fields[8].GetFloat();
     obj.Description = fields[9].GetString();
+    obj.Bugged = fields[10].GetBool();
     Objectives.push_back(obj);
 
     // dont enable this before test in game - this data seems mostly related to location quest ( kill / destruct etc smthng in zone to get 100 % bar )
@@ -406,4 +408,11 @@ bool Quest::IsAllowedInRaid(Difficulty difficulty) const
         return true;
 
     return sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_RAID);
+}
+
+void Quest::SetObjectiveBuggedState(uint32 objectiveId, bool working)
+{
+    for (QuestObjective& objective : Objectives)
+        if (objective.ID == objectiveId)
+            objective.Bugged = !working;
 }

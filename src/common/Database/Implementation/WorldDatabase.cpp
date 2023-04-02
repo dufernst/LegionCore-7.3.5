@@ -98,4 +98,6 @@ void WorldDatabaseConnection::DoPrepareStatements()
 
     PrepareStatement(WORLD_SEL_CHARACTER_TEMPLATES, "SELECT ID, Name, Description, level, ilevel, fromID FROM character_template", CONNECTION_SYNCH);
     PrepareStatement(WORLD_SEL_CHARACTER_TEMPLATE_CLASSES, "SELECT FactionGroup, Class, X, Y, Z, O, MapID, Money, RaceMask FROM character_template_class WHERE TemplateID = ?", CONNECTION_SYNCH);
+
+    PrepareStatement(WORLD_UPD_QUEST_OBJECTIVE_BUGGED_STATE, "UPDATE quest_objectives SET Bugged = ? WHERE ID = ?", CONNECTION_ASYNC);
 }

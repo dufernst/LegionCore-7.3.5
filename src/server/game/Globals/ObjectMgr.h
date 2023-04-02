@@ -941,6 +941,8 @@ class ObjectMgr
         ObjectGuid::LowType AddCreData(uint32 entry, uint32 team, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0);
         bool MoveCreData(ObjectGuid::LowType const& guid, uint32 map, Position pos);
 
+        void AddQuestObjectiveBuggedState(QuestObjective const& obj, bool working);
+
         GameTele const* GetGameTele(uint32 id) const
         {
             return Trinity::Containers::MapGetValuePtr(_gameTeleStore, id);

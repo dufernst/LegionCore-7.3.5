@@ -253,6 +253,8 @@ public:
     WorldQuest const* GenerateNewWorldQuest(uint32 QuestID, uint32 VariableID = 0);
     void ResetWorldQuest(uint32 QuestID);
 
+    void SetQuestObjectiveBuggedState(uint32 questId, uint32 objectiveId, bool working);
+
     ExclusiveQuestGroups mExclusiveQuestGroups;
     uint32 WorldLegionInvasionZoneID = 0;
     std::atomic<bool> needWait;

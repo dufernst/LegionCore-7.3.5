@@ -18716,6 +18716,120 @@ bool Player::CanAddQuest(Quest const* quest, bool msg)
     return true;
 }
 
+void Player::AutoCompleteObjectives(Quest const* quest, bool onlyBugged)
+{
+    for (uint32 i = 0; i < quest->Objectives.size(); ++i)
+    {
+        QuestObjective const& obj = quest->Objectives[i];
+        if (onlyBugged && !obj.Bugged)
+            continue;
+
+        switch (obj.Type)
+        {
+            case QUEST_OBJECTIVE_ITEM:
+            {
+                uint32 curItemCount = GetItemCount(obj.ObjectID, true);
+                ItemPosCountVec dest;
+                uint8 msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, obj.ObjectID, obj.Amount - curItemCount);
+                if (msg == EQUIP_ERR_OK)
+                {
+                    Item* item = StoreNewItem(dest, obj.ObjectID, true);
+                    SendNewItem(item, obj.Amount - curItemCount, true, false);
+                }
+                break;
+            }
+            case QUEST_OBJECTIVE_MONSTER:
+            {
+                if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(obj.ObjectID))
+                    for (uint16 z = 0; z < obj.Amount; ++z)
+                        KilledMonster(creatureInfo, ObjectGuid::Empty);
+                break;
+            }
+            case QUEST_OBJECTIVE_GAMEOBJECT:
+            {
+                for (uint16 z = 0; z < obj.Amount; ++z)
+                    KillCreditGO(obj.ObjectID, ObjectGuid::Empty);
+                break;
+            }
+            case QUEST_OBJECTIVE_MIN_REPUTATION:
+            {
+                // assume that rep is always feasible
+                if (onlyBugged)
+                    break;
+
+                uint32 curRep = GetReputationMgr().GetReputation(obj.ObjectID);
+                if (curRep < uint32(obj.Amount))
+                    if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(obj.ObjectID))
+                        GetReputationMgr().SetReputation(factionEntry, obj.Amount);
+                break;
+            }
+            case QUEST_OBJECTIVE_MAX_REPUTATION:
+            {
+                // assume that rep is always feasible
+                if (onlyBugged)
+                    break;
+
+                uint32 curRep = GetReputationMgr().GetReputation(obj.ObjectID);
+                if (curRep > uint32(obj.Amount))
+                    if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(obj.ObjectID))
+                        GetReputationMgr().SetReputation(factionEntry, obj.Amount);
+                break;
+            }
+            case QUEST_OBJECTIVE_MONEY:
+            {
+                // assume that money is always feasible
+                if (onlyBugged)
+                    break;
+
+                ModifyMoney(obj.Amount);
+                break;
+            }
+        }
+    }
+}
+
+bool Player::HasQuestObjectiveComplete(Quest const* qInfo, QuestObjective const& obj)
+{
+    switch (obj.Type)
+    {
+        case QUEST_OBJECTIVE_TASK_IN_ZONE:
+        {
+            float scale = 0.0f;
+            for (QuestObjective const& task : qInfo->GetObjectives())
+            {
+                if (task.Flags & (QUEST_OBJECTIVE_FLAG_HIDE_ITEM_GAINS | QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR))
+                    scale += float(GetQuestObjectiveData(qInfo, task.StorageIndex) * task.TaskStep);
+            }
+            return scale >= 100.0f;
+        }
+        case QUEST_OBJECTIVE_PET_TRAINER_DEFEAT:
+        case QUEST_OBJECTIVE_MONSTER:
+        case QUEST_OBJECTIVE_ITEM:
+        case QUEST_OBJECTIVE_GAMEOBJECT:
+        case QUEST_OBJECTIVE_PLAYERKILLS:
+        case QUEST_OBJECTIVE_TALKTO:
+        case QUEST_OBJECTIVE_COMPLETE_CRITERIA_TREE:
+        case QUEST_OBJECTIVE_HAVE_CURRENCY:
+        case QUEST_OBJECTIVE_OBTAIN_CURRENCY:
+            return GetQuestObjectiveData(qInfo, obj.StorageIndex) >= obj.Amount;
+        case QUEST_OBJECTIVE_MIN_REPUTATION:
+            return GetReputationMgr().GetReputation(obj.ObjectID) >= obj.Amount;
+        case QUEST_OBJECTIVE_MAX_REPUTATION:
+            return GetReputationMgr().GetReputation(obj.ObjectID) <= obj.Amount;
+        case QUEST_OBJECTIVE_MONEY:
+            return HasEnoughMoney(uint64(obj.Amount));
+        case QUEST_OBJECTIVE_AREATRIGGER:
+            return GetQuestObjectiveData(qInfo, obj.StorageIndex);
+        case QUEST_OBJECTIVE_LEARNSPELL:
+            return HasSpell(obj.ObjectID);
+        case QUEST_OBJECTIVE_CURRENCY:
+            return HasCurrency(obj.ObjectID, obj.Amount);
+        default:
+            TC_LOG_DEBUG(LOG_FILTER_PLAYER, "Player::CanCompleteQuest unknown objective type %u", obj.Type);
+            return false;
+    }
+}
+
 bool Player::CanCompleteQuest(uint32 quest_id)
 {
     if (quest_id)
@@ -18746,8 +18860,6 @@ bool Player::CanCompleteQuest(uint32 quest_id)
 
         if (q_status->Status == QUEST_STATUS_INCOMPLETE)
         {
-            bool allObjComplete = true;
-
             for (QuestObjective const& obj : qInfo->GetObjectives())
             {
                 if (obj.Flags & (QUEST_OBJECTIVE_FLAG_HIDE_ITEM_GAINS | QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR))
@@ -18756,67 +18868,17 @@ bool Player::CanCompleteQuest(uint32 quest_id)
                 if (obj.Flags & QUEST_OBJECTIVE_FLAG_OPTIONAL) 
                     continue;
 
-                switch (obj.Type)
-                {
-                    case QUEST_OBJECTIVE_TASK_IN_ZONE:
-                    {
-                        float scale = 0.0f;
-                        for (QuestObjective const& task : qInfo->GetObjectives())
-                        {
-                            if (task.Flags & (QUEST_OBJECTIVE_FLAG_HIDE_ITEM_GAINS | QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR))
-                                scale += float(GetQuestObjectiveData(qInfo, task.StorageIndex) * task.TaskStep);
-                        }
-                        allObjComplete = scale >= 100.0f;
-                        break;
-                    }
-                    case QUEST_OBJECTIVE_PET_TRAINER_DEFEAT:
-                    case QUEST_OBJECTIVE_MONSTER:
-                    case QUEST_OBJECTIVE_ITEM:
-                    case QUEST_OBJECTIVE_GAMEOBJECT:
-                    case QUEST_OBJECTIVE_PLAYERKILLS:
-                    case QUEST_OBJECTIVE_TALKTO:
-                    case QUEST_OBJECTIVE_COMPLETE_CRITERIA_TREE:
-                    case QUEST_OBJECTIVE_HAVE_CURRENCY:
-                    case QUEST_OBJECTIVE_OBTAIN_CURRENCY:
-                        if (GetQuestObjectiveData(qInfo, obj.StorageIndex) < obj.Amount)
-                            allObjComplete = false;
-                        break;
-                    case QUEST_OBJECTIVE_MIN_REPUTATION:
-                        if (GetReputationMgr().GetReputation(obj.ObjectID) < obj.Amount)
-                            allObjComplete = false;
-                        break;
-                    case QUEST_OBJECTIVE_MAX_REPUTATION:
-                        if (GetReputationMgr().GetReputation(obj.ObjectID) > obj.Amount)
-                            allObjComplete = false;
-                        break;
-                    case QUEST_OBJECTIVE_MONEY:
-                        if (!HasEnoughMoney(uint64(obj.Amount)))
-                            allObjComplete = false;
-                        break;
-                    case QUEST_OBJECTIVE_AREATRIGGER:
-                        if (!GetQuestObjectiveData(qInfo, obj.StorageIndex))
-                            allObjComplete = false;
-                        break;
-                    case QUEST_OBJECTIVE_LEARNSPELL:
-                        if (!HasSpell(obj.ObjectID))
-                            allObjComplete = false;
-                        break;
-                    case QUEST_OBJECTIVE_CURRENCY:
-                        if (!HasCurrency(obj.ObjectID, obj.Amount))
-                            allObjComplete = false;
-                        break;
-                    default:
-                        TC_LOG_DEBUG(LOG_FILTER_PLAYER, "Player::CanCompleteQuest unknown objective type %u", obj.Type);
-                        return false;
-                }
+                if (!HasQuestObjectiveComplete(qInfo, obj))
+                    return false;
             }
 
             if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED) && q_status->Timer == 0)
                 return false;
 
-            return allObjComplete;
+            return true;
         }
     }
+
     return false;
 }
 
@@ -19029,6 +19091,9 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         questGiver->ToCreature()->AI()->OnStartQuest(this, quest);
 
     SetQuestUpdate(quest_id);
+
+    // automatically complete objectives marked as bugged
+    AutoCompleteObjectives(quest, true);
 
     AddDelayedEvent(100, [this, quest_id]() -> void
     {

@@ -1931,6 +1931,8 @@ class Player : public Unit, public GridObject<Player>
         bool CanSeeStartQuest(Quest const* quest);
         bool CanTakeQuest(Quest const* quest, bool msg);
         bool CanAddQuest(Quest const* quest, bool msg);
+        void AutoCompleteObjectives(Quest const* quest, bool onlyBugged);
+        bool HasQuestObjectiveComplete(Quest const* qInfo, QuestObjective const& obj);
         bool CanCompleteQuest(uint32 quest_id);
         bool CanCompleteRepeatableQuest(Quest const* quest);
         bool CanRewardQuest(Quest const* quest, bool msg);
