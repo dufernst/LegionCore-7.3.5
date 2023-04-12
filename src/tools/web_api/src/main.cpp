@@ -534,6 +534,7 @@ void sendNewsletter(const SMTPData& smtpData, const unsigned char* k)
     std::string unsubscribeDomain = sConfigMgr->GetStringDefault("NewsLetterUnsubDomain", "https://unsubscribe.wow.com/unsubscribe/");
     std::string subject = sConfigMgr->GetStringDefault("NewsLetterSubject", "WoW Subject");
     std::string unsubEmail = sConfigMgr->GetStringDefault("NewsLetterMailForUnsubscribe", "unsubscribe@wow.com");
+    int secondsBetweenMails = sConfigMgr->GetIntDefault("NewsLetterSecondsBetweenMails", 5);
 
     uint64_t index = 0;
     for (const std::string& email : cleanedUniqueAll)
@@ -568,7 +569,7 @@ void sendNewsletter(const SMTPData& smtpData, const unsigned char* k)
 
         printf("[%llu] Mailed to: %s\n", index, email.c_str());
         index++;
-        std::this_thread::sleep_for(std::chrono::seconds(5));
+        std::this_thread::sleep_for(std::chrono::seconds(secondsBetweenMails));
     }
 }
 

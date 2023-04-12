@@ -107,6 +107,7 @@ SMTPReturnDomain = "https://wow.com"
 NewsLetterUnsubDomain = "https://unsubscribe.wow.com/unsubscribe/"
 NewsLetterSubject = "WoW Subject"
 NewsLetterMailForUnsubscribe = "unsubscribe@wow.com"
+NewsLetterSecondsBetweenMails = 5
 
 
 #
