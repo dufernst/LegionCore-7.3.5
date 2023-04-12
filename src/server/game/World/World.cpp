@@ -4545,10 +4545,6 @@ void World::ProcessMailboxQueue()
 
 void World::InitServerAutoRestartTime()
 {
-    time_t serverRestartTime = sWorld->getWorldState(WS_AUTO_SERVER_RESTART_TIME);
-    if (!serverRestartTime)
-        m_NextServerRestart = time_t(time(nullptr));         // game time not yet init
-
     // generate time by config
     time_t curTime = time(nullptr);
     tm localTm = *localtime(&curTime);
@@ -4557,20 +4553,14 @@ void World::InitServerAutoRestartTime()
     localTm.tm_sec = 0;
 
     // current day reset time
-    time_t nextDayRestartTime = mktime(&localTm);
+    m_NextServerRestart = mktime(&localTm);
 
-    // next reset time before current moment
-    if (curTime >= nextDayRestartTime)
-        nextDayRestartTime += DAY;
+    // if the restart is scheduled before the current time, or in the next hour
+    // move the restart date back 1 day, no point in restarting in this case
+    if (curTime + HOUR >= m_NextServerRestart)
+        m_NextServerRestart += DAY;
 
-    // normalize reset time
-    m_NextServerRestart = serverRestartTime < curTime ? nextDayRestartTime - DAY : nextDayRestartTime;
-
-    if (!serverRestartTime)
-        sWorld->setWorldState(WS_AUTO_SERVER_RESTART_TIME, m_NextServerRestart);
-
-    if (!m_bool_configs[CONFIG_DISABLE_RESTART])
-        m_NextServerRestart += DAY*1;
+    sWorld->setWorldState(WS_AUTO_SERVER_RESTART_TIME, m_NextServerRestart);
 }
 
 void World::AutoRestartServer()
@@ -4579,7 +4569,7 @@ void World::AutoRestartServer()
 
     sWorld->ShutdownServ(60, SHUTDOWN_MASK_RESTART, RESTART_EXIT_CODE);
 
-    m_NextServerRestart = time_t(m_NextServerRestart + DAY*1);
+    m_NextServerRestart = time_t(m_NextServerRestart + DAY);
     sWorld->setWorldState(WS_AUTO_SERVER_RESTART_TIME, m_NextServerRestart);
 }
 
