@@ -5308,19 +5308,6 @@ public:
         player->TeleportTo(1220, DalaranPos.m_positionX, DalaranPos.m_positionY, DalaranPos.m_positionZ, DalaranPos.m_orientation);
     }
 
-    void OnMapChanged(Player* player)
-    {
-        if (auto sec = player->GetSession()->GetSecurity())
-        {
-            if (sec == 1 || sec == 2)
-            {
-                if (auto map = player->GetMap())
-                    if (map->IsDungeon() || map->IsRaid() || map->isChallenge() || map->IsBattlegroundOrArena())
-                        player->TeleportTo(1, 16222.12f, 16258.40f, 13.19f, 1.48f);
-            }
-        }
-    }
-
     void OnUpdate(Player* player, uint32 diff) override
     {
         if (player->isGameMaster())
