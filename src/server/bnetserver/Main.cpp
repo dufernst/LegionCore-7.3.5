@@ -23,18 +23,10 @@
 * authentication server
 */
 
-#include <boost/asio/io_service.hpp>
-#include <boost/bind/bind.hpp>
-#include <boost/program_options.hpp>
-#include <cds/gc/hp.h>
-#include <cds/init.h>
-#include <google/protobuf/stubs/common.h>
-#include <iostream>
-#include <openssl/crypto.h>
-
 #include "AppenderDB.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "DeadlineTimer.h"
 #include "GitRevision.h"
 #include "LoginRESTService.h"
 #include "ProcessPriority.h"
@@ -44,6 +36,14 @@
 #include "ThreadPoolMgr.hpp"
 #include "Util.h"
 #include "Banner.h"
+
+#include <boost/bind/bind.hpp>
+#include <boost/program_options.hpp>
+#include <cds/gc/hp.h>
+#include <cds/init.h>
+#include <google/protobuf/stubs/common.h>
+#include <iostream>
+#include <openssl/crypto.h>
 
 using boost::asio::ip::tcp;
 using namespace boost::program_options;
@@ -65,7 +65,7 @@ char serviceDescription[] = "LegionCore Battle.net emulator authentication servi
 */
 int m_ServiceStatus = -1;
 
-static boost::asio::deadline_timer* _serviceStatusWatchTimer;
+static Trinity::Asio::DeadlineTimer* _serviceStatusWatchTimer;
 void ServiceStatusWatcher(boost::system::error_code const& error);
 #endif
 
@@ -77,9 +77,9 @@ void BanExpiryHandler(boost::system::error_code const& error);
 variables_map GetConsoleArguments(int argc, char** argv, std::string& configFile, std::string& configService);
 
 Trinity::Asio::IoContext _ioContext;
-static boost::asio::deadline_timer* _dbPingTimer;
+static Trinity::Asio::DeadlineTimer* _dbPingTimer;
 static uint32 _dbPingInterval;
-static boost::asio::deadline_timer* _banExpiryCheckTimer;
+static Trinity::Asio::DeadlineTimer* _banExpiryCheckTimer;
 static uint32 _banExpiryCheckInterval;
 void ShutdownThreadPool(std::vector<std::thread>& threadPool);
 
@@ -217,12 +217,12 @@ int main(int argc, char** argv)
 
     // Enabled a timed callback for handling the database keep alive ping
     _dbPingInterval = sConfigMgr->GetIntDefault("MaxPingTime", 30);
-    _dbPingTimer = new boost::asio::deadline_timer(_ioContext);
+    _dbPingTimer = new Trinity::Asio::DeadlineTimer(_ioContext);
     _dbPingTimer->expires_from_now(boost::posix_time::minutes(_dbPingInterval));
     _dbPingTimer->async_wait(KeepDatabaseAliveHandler);
 
     _banExpiryCheckInterval = sConfigMgr->GetIntDefault("BanExpiryCheckInterval", 60);
-    _banExpiryCheckTimer = new boost::asio::deadline_timer(_ioContext);
+    _banExpiryCheckTimer = new Trinity::Asio::DeadlineTimer(_ioContext);
     _banExpiryCheckTimer->expires_from_now(boost::posix_time::seconds(_banExpiryCheckInterval));
     _banExpiryCheckTimer->async_wait(BanExpiryHandler);
 
@@ -231,7 +231,7 @@ int main(int argc, char** argv)
 #if PLATFORM == TC_PLATFORM_WINDOWS
     if (m_ServiceStatus != -1)
     {
-        _serviceStatusWatchTimer = new boost::asio::deadline_timer(_ioContext);
+        _serviceStatusWatchTimer = new Trinity::Asio::DeadlineTimer(_ioContext);
         _serviceStatusWatchTimer->expires_from_now(boost::posix_time::seconds(1));
         _serviceStatusWatchTimer->async_wait(ServiceStatusWatcher);
     }

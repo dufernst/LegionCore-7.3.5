@@ -24,7 +24,7 @@
 #include "Define.h"
 #include "Login.pb.h"
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/deadline_timer.hpp>
+#include "DeadlineTimer.h"
 #include <atomic>
 #include <mutex>
 #include <thread>
@@ -109,7 +109,7 @@ private:
     boost::asio::ip::address_v4 _localNetmask;
     std::mutex _loginTicketMutex;
     std::unordered_map<std::string, LoginTicket> _validLoginTickets;
-    boost::asio::deadline_timer* _loginTicketCleanupTimer;
+    Trinity::Asio::DeadlineTimer* _loginTicketCleanupTimer;
 };
 
 #define sLoginService LoginRESTService::Instance()

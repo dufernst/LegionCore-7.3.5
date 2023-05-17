@@ -99,7 +99,7 @@ bool LoginRESTService::Start(Trinity::Asio::IoContext& ioContext)
     input->set_type("submit");
     input->set_label("Log In");
 
-    _loginTicketCleanupTimer = new boost::asio::deadline_timer(ioContext);
+    _loginTicketCleanupTimer = new Trinity::Asio::DeadlineTimer(ioContext);
     _loginTicketCleanupTimer->expires_from_now(boost::posix_time::seconds(10));
     _loginTicketCleanupTimer->async_wait(std::bind(&LoginRESTService::CleanupLoginTickets, this, std::placeholders::_1));
 

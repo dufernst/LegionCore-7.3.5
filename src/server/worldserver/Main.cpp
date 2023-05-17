@@ -27,6 +27,7 @@
 #include "Common.h"
 #include "Configuration/Config.h"
 #include "DatabaseEnv.h"
+#include "DeadlineTimer.h"
 #include "GitRevision.h"
 #include "IoContext.h"
 #include "MapInstanced.h"
@@ -48,7 +49,6 @@
 #include "WorldSocketMgr.h"
 #include "Banner.h"
 
-#include <boost/asio/deadline_timer.hpp>
 #include <boost/bind/bind.hpp>
 #include <boost/program_options.hpp>
 #include <cds/gc/hp.h>
@@ -87,7 +87,7 @@ int m_ServiceStatus = -1;
 #endif
 
 Trinity::Asio::IoContext _ioContext;
-boost::asio::deadline_timer _freezeCheckTimer(_ioContext);
+Trinity::Asio::DeadlineTimer _freezeCheckTimer(_ioContext);
 
 std::vector<uint32> _lastMapChangeMsTime;
 std::vector<uint32> _mapLoopCounter;
