@@ -18,7 +18,7 @@ project(LegionCore)
 cmake_policy(SET CMP0005 OLD)
 if (CMAKE_VERSION VERSION_LESS "3.16.0")
   cmake_policy(SET CMP0043 OLD) # Disable 'Ignore COMPILE_DEFINITIONS_<Config> properties'
- else()
+else()
   cmake_policy(SET CMP0043 NEW) # Cotire isn't used so set to NEW
 endif()
 cmake_policy(SET CMP0054 NEW) # Only interpret if() arguments as variables or keywords when unquoted - prevents intepreting if (SOME_STRING_VARIABLE MATCHES "MSVC") as if (SOME_STRING_VARIABLE MATCHES "1")
