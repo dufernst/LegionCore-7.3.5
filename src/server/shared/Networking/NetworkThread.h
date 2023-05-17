@@ -19,12 +19,11 @@
 #define NetworkThread_h__
 
 #include "Define.h"
-#include "DeadlineTimer.h"
 #include "Errors.h"
-#include "IoContext.h"
 #include "Log.h"
 #include "Timer.h"
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/deadline_timer.hpp>
 #include <atomic>
 #include <chrono>
 #include <memory>
@@ -42,7 +41,7 @@ class NetworkThread
 {
 public:
     NetworkThread() : _connections(0), _stopped(false), _thread(nullptr),
-        _acceptSocket(_ioContext), _updateTimer(_ioContext)
+        _acceptSocket(_io_service), _updateTimer(_io_service)
     {
     }
 
@@ -59,7 +58,7 @@ public:
     void Stop()
     {
         _stopped = true;
-        _ioContext.stop();
+        _io_service.stop();
     }
 
     bool Start()
@@ -129,7 +128,7 @@ protected:
 
         _updateTimer.expires_from_now(boost::posix_time::milliseconds(10));
         _updateTimer.async_wait(std::bind(&NetworkThread<SocketType>::Update, this));
-        _ioContext.run();
+        _io_service.run();
 
         _newSockets.clear();
         _sockets.clear();
@@ -182,9 +181,9 @@ private:
     std::mutex _newSocketsLock;
     SocketContainer _newSockets;
 
-    Trinity::Asio::IoContext _ioContext;
+    boost::asio::io_service _io_service;
     tcp::socket _acceptSocket;
-    Trinity::Asio::DeadlineTimer _updateTimer;
+    boost::asio::deadline_timer _updateTimer;
 };
 
 #endif // NetworkThread_h__

@@ -18,29 +18,21 @@
 #ifndef __ASYNCACCEPT_H_
 #define __ASYNCACCEPT_H_
 
-#include "IoContext.h"
-#include "IpAddress.h"
 #include "Log.h"
-#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio.hpp>
 #include <functional>
 #include <atomic>
 
 using boost::asio::ip::tcp;
-
-#if BOOST_VERSION >= 106600
-#define TRINITY_MAX_LISTEN_CONNECTIONS boost::asio::socket_base::max_listen_connections
-#else
-#define TRINITY_MAX_LISTEN_CONNECTIONS boost::asio::socket_base::max_connections
-#endif
 
 class AsyncAcceptor
 {
 public:
     typedef void(*AcceptCallback)(tcp::socket&& newSocket, uint32 threadIndex);
 
-    AsyncAcceptor(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port) :
-        _acceptor(ioContext, tcp::endpoint(Trinity::Net::make_address(bindIp), port)),
-        _socket(ioContext), _closed(false), _socketFactory(std::bind(&AsyncAcceptor::DefeaultSocketFactory, this))
+    AsyncAcceptor(boost::asio::io_service& ioService, std::string const& bindIp, uint16 port) :
+        _acceptor(ioService, tcp::endpoint(boost::asio::ip::address::from_string(bindIp), port)),
+        _socket(ioService), _closed(false), _socketFactory(std::bind(&AsyncAcceptor::DefeaultSocketFactory, this))
     {
     }
 

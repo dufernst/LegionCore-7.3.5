@@ -55,13 +55,9 @@ WorldSocketMgr& WorldSocketMgr::Instance()
     return instance;
 }
 
-bool WorldSocketMgr::StartNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int threadCount)
+bool WorldSocketMgr::StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port, int threadCount)
 {
     _tcpNoDelay = sConfigMgr->GetBoolDefault("Network.TcpNodelay", true);
-
-    int const max_connections = TRINITY_MAX_LISTEN_CONNECTIONS;
-
-    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "Max allowed socket connections %d", max_connections);
 
     // -1 means use default
     _socketSendBufferSize = sConfigMgr->GetIntDefault("Network.OutKBuff", -1);
@@ -74,8 +70,8 @@ bool WorldSocketMgr::StartNetwork(Trinity::Asio::IoContext& ioContext, std::stri
         return false;
     }
 
-    BaseSocketMgr::StartNetwork(ioContext, bindIp, port, threadCount);
-    _instanceAcceptor = new AsyncAcceptor(ioContext, bindIp, uint16(sWorld->getIntConfig(CONFIG_PORT_INSTANCE)));
+    BaseSocketMgr::StartNetwork(service, bindIp, port, threadCount);
+    _instanceAcceptor = new AsyncAcceptor(service, bindIp, uint16(sWorld->getIntConfig(CONFIG_PORT_INSTANCE)));
 
     _acceptor->SetSocketFactory(std::bind(&BaseSocketMgr::GetSocketForAccept, this));
     _instanceAcceptor->SetSocketFactory(std::bind(&BaseSocketMgr::GetSocketForAccept, this));
