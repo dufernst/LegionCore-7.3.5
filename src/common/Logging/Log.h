@@ -23,8 +23,7 @@
 #include "LogCommon.h"
 #include "Appender.h"
 #include "Logger.h"
-#include <boost/asio/io_service.hpp>
-#include <boost/asio/strand.hpp>
+#include "Strand.h"
 #include <string>
 #include <unordered_map>
 #include <string>
@@ -32,6 +31,14 @@
 #include <safe_ptr.h>
 #include "StringFormat.h"
 #include "Common.h"
+
+namespace Trinity
+{
+    namespace Asio
+    {
+        class IoContext;
+    }
+}
 
 typedef std::unordered_map<uint8, Logger> LoggerMap;
 typedef std::vector<Logger*> LoggerList;
@@ -47,7 +54,7 @@ public:
     Log& operator=(Log const&) = delete;
     Log& operator=(Log&&) = delete;
 
-    static Log* instance(boost::asio::io_service* ioService = nullptr);
+    static Log* instance(Trinity::Asio::IoContext* ioContext = nullptr);
 
     void LoadFromConfig();
     void Close();
@@ -123,8 +130,8 @@ private:
     std::string m_logsTimestamp;
 
     uint32 realm{};
-    boost::asio::io_service* _ioService;
-    boost::asio::strand* _strand;
+    Trinity::Asio::IoContext* _ioContext;
+    Trinity::Asio::Strand* _strand;
 };
 
 #define sLog Log::instance()
