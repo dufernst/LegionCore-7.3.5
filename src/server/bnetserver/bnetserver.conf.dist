@@ -70,6 +70,22 @@ LoginREST.LocalAddress=127.0.0.1
 BindIP = "0.0.0.0"
 
 #
+#    CertificatesFile
+#        Description: Certificates file.
+#        Example:     "/etc/ssl/certs/bnetserver.cert.pem"
+#        Default:     "./bnetserver.cert.pem"
+
+CertificatesFile = "./bnetserver.cert.pem"
+
+#
+#    PrivateKeyFile
+#        Description: Private key file.
+#        Example:     "/etc/ssl/private/bnetserver.key.pem"
+#        Default:     "./bnetserver.key.pem"
+
+PrivateKeyFile = "./bnetserver.key.pem"
+
+#
 #    UseProcessors
 #        Description: Processors mask for Windows and Linux based multi-processor systems.
 #        Example:     A computer with 2 CPUs:
