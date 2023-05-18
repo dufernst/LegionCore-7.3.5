@@ -18,6 +18,7 @@
 
 #include "Log.h"
 #include "Common.h"
+#include "Strand.h"
 #include "Config.h"
 #include "Util.h"
 #include "AppenderConsole.h"
@@ -31,7 +32,7 @@
 #include <sstream>
 #include "StringFormat.h"
 
-Log::Log() : _ioService(nullptr), _strand(nullptr)
+Log::Log() : _ioContext(nullptr), _strand(nullptr)
 {
     arenaLogFile2v2 = nullptr;
     arenaLogFile3v3 = nullptr;
@@ -56,14 +57,14 @@ Log::~Log()
     Close();
 }
 
-Log* Log::instance(boost::asio::io_service* ioService)
+Log* Log::instance(Trinity::Asio::IoContext* ioContext)
 {
     static Log instance;
 
-    if (ioService != nullptr)
+    if (ioContext != nullptr)
     {
-        instance._ioService = ioService;
-        instance._strand = new boost::asio::strand(*ioService);
+        instance._ioContext = ioContext;
+        instance._strand = new Trinity::Asio::Strand(*ioContext);
     }
 
     return &instance;
@@ -311,10 +312,10 @@ void Log::write(std::unique_ptr<LogMessage>&& msg)
     auto logger = GetLoggerByType(msg->type);
     msg->text.append("\n");
 
-    if (_ioService)
+    if (_ioContext)
     {
-        auto logOperation = std::make_shared<LogOperation>(logger, std::move(msg));
-        _ioService->post(_strand->wrap([logOperation]() { logOperation->call(); }));
+        std::shared_ptr<LogOperation> logOperation = std::make_shared<LogOperation>(logger, std::move(msg));
+        Trinity::Asio::post(*_ioContext, Trinity::Asio::bind_executor(*_strand, [logOperation]() { logOperation->call(); }));
     }
     else
         logger->write(msg.get());

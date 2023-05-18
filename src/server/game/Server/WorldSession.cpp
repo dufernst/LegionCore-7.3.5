@@ -42,6 +42,7 @@
 #include "GuildMgr.h"
 #include "LFGListMgr.h"
 #include "Log.h"
+#include "IpAddress.h"
 #include "MapManager.h"
 #include "MiscPackets.h"
 #include "ObjectAccessor.h"
