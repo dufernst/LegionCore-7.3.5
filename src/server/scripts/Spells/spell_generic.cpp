@@ -8334,6 +8334,39 @@ class spell_legion_hearty_feast : public AuraScript
     }
 };
 
+// 43958
+class spell_youre_infected : public AuraScript
+{
+    PrepareAuraScript(spell_youre_infected);
+
+    uint32 checkTimer = 10000;
+
+    void OnUpdate(uint32 diff, AuraEffect* /auraEffect/)
+    {
+        if (checkTimer <= diff)
+        {
+            checkTimer = 10000;
+
+            if (Player* player = GetCaster()->ToPlayer())
+            {
+                if (player->HasAura(43958))
+
+                    player->CastSpell(player, 43869);
+
+                else
+                    player->RemoveAura(43869);
+            }
+        }
+        else
+            checkTimer -= diff;
+    }
+
+    void Register() override
+    {
+        OnEffectUpdate += AuraEffectUpdateFn(spell_youre_infected::OnUpdate, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
 //    new spell_gen_protect();
@@ -8524,4 +8557,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_hearthstone_board);
     RegisterAuraScript(spell_legion_food_table);
     RegisterAuraScript(spell_legion_hearty_feast);
+	RegisterAuraScript(spell_youre_infected);
 }
