@@ -110,7 +110,7 @@ private:
 
     void LoadBuildInfo();
     void UpdateRealms(boost::system::error_code const& error);
-    void UpdateRealm(Battlenet::RealmHandle const& id, uint32 build, std::string const& name, boost::asio::ip::address address, boost::asio::ip::address localAddr, boost::asio::ip::address localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population);
+    void UpdateRealm(Battlenet::RealmHandle const& id, uint32 build, std::string const& name, boost::asio::ip::address&& address, boost::asio::ip::address&& localAddr, boost::asio::ip::address&& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population);
 
     std::vector<RealmBuildInfo> _builds;
     RealmMap _realms;
