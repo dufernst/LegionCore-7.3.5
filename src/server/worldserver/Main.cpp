@@ -64,6 +64,8 @@
 #include <signal.h>
 #endif
 
+#include "Hacks/boost_program_options_with_filesystem_path.h"
+
 using namespace boost::program_options;
 
 #ifndef _TRINITY_CORE_CONFIG
