@@ -424,7 +424,7 @@ bool LoadRealmInfo()
     if (!result)
         return false;
 
-    Trinity::Asio::Resolver resolver(ioContext);
+    Trinity::Asio::Resolver resolver(_ioContext);
 
     Field* fields = result->Fetch();
     realm.Name = fields[1].GetString();
