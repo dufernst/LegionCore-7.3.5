@@ -18,7 +18,7 @@
 #include "Random.h"
 #include "Common.h"
 #include "Errors.h"
-#include "SFMT.h"
+#include "SFMTRand.h"
 #include <boost/thread/tss.hpp>
 
 static boost::thread_specific_ptr<SFMTRand> sfmtRand;
