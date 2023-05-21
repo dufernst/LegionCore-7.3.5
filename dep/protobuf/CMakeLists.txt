@@ -68,8 +68,19 @@ target_include_directories(protobuf
 target_link_libraries(protobuf
   PRIVATE
     trinity-default-interface
+    trinity-no-warning-interface
   PUBLIC
     threads)
+
+if (MSVC)
+  target_compile_options(protobuf
+    PRIVATE
+      /wd4996)
+
+  target_compile_definitions(protobuf
+    PRIVATE
+      -D_SCL_SECURE_NO_WARNINGS)
+endif()
 
 set_target_properties(protobuf
     PROPERTIES
