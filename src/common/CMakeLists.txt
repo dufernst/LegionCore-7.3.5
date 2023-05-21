@@ -25,10 +25,6 @@ list(APPEND PRIVATE_SOURCES
 
 if (USE_COREPCH)
   set(PRIVATE_PCH_HEADER PrecompiledHeaders/commonPCH.h)
-  set(PRIVATE_PCH_SOURCE PrecompiledHeaders/commonPCH.cpp)
-  if (MSVC)
-    list(INSERT PRIVATE_SOURCES 0 PrecompiledHeaders/commonPCH.cpp)
-  endif (MSVC)
 endif (USE_COREPCH)
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
@@ -86,5 +82,5 @@ set_target_properties(common
 
 # Generate precompiled header
 if (USE_COREPCH)
-  add_cxx_pch(common ${PRIVATE_PCH_HEADER} ${PRIVATE_PCH_SOURCE})
+  add_cxx_pch(common ${PRIVATE_PCH_HEADER})
 endif ()
