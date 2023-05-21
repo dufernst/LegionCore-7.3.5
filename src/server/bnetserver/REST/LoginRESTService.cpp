@@ -175,7 +175,7 @@ void LoginRESTService::Run()
 
         TC_LOG_DEBUG(LOG_FILTER_BATTLENET, "REST Accepted connection from IP=%s", address.to_string().c_str());
 
-        _ioContext->post([soapClient]()
+        ioContext->post([soapClient]()
         {
             soapClient->user = (void*)&soapClient; // this allows us to make a copy of pointer inside GET/POST handlers to increment reference count
             soap_begin(soapClient.get());
