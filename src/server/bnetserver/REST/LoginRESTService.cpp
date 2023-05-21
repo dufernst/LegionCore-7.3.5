@@ -45,9 +45,8 @@ int32 handle_post_plugin(soap* soapClient)
     return sLoginService.HandlePost(soapClient);
 }
 
-bool LoginRESTService::Start(Trinity::Asio::IoContext* ioContext)
+bool LoginRESTService::Start(Trinity::Asio::IoContext& ioContext)
 {
-    _ioContext = ioContext;
     _waitTime = sConfigMgr->GetIntDefault("RestWaitTime", 60);
 
     _bindIP = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
@@ -59,7 +58,7 @@ bool LoginRESTService::Start(Trinity::Asio::IoContext* ioContext)
     }
 
     boost::system::error_code ec;
-    Trinity::Asio::Resolver resolver(*ioContext);
+    Trinity::Asio::Resolver resolver(ioContext);
 
     std::string configuredAddress = sConfigMgr->GetStringDefault("LoginREST.ExternalAddress", "127.0.0.1");
     Optional<boost::asio::ip::tcp::endpoint> externalAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), configuredAddress, std::to_string(_port));
@@ -102,7 +101,7 @@ bool LoginRESTService::Start(Trinity::Asio::IoContext* ioContext)
     input->set_type("submit");
     input->set_label("Log In");
 
-    _loginTicketCleanupTimer = new Trinity::Asio::DeadlineTimer(*ioContext);
+    _loginTicketCleanupTimer = new Trinity::Asio::DeadlineTimer(ioContext);
     _loginTicketCleanupTimer->expires_from_now(boost::posix_time::seconds(10));
     _loginTicketCleanupTimer->async_wait(std::bind(&LoginRESTService::CleanupLoginTickets, this, std::placeholders::_1));
 
