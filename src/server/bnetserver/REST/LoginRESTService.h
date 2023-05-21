@@ -39,7 +39,7 @@ public:
 
     static LoginRESTService& Instance();
 
-    bool Start(Trinity::Asio::IoContext& ioContext);
+    bool Start(Trinity::Asio::IoContext* ioContext);
     void Stop();
 
     boost::asio::ip::tcp::endpoint const& GetAddressForClient(boost::asio::ip::address const& address) const;
