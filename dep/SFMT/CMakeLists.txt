@@ -1,4 +1,5 @@
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+# This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+# Copyright 2019 Josua Mayer <josua.mayer97@gmail.com>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -75,3 +76,8 @@ endif ()
 
 # inherit trinitycore generic build options (e.g. fPIC)
 target_link_libraries(sfmt PRIVATE trinity-dependency-interface)
+
+set_target_properties(sfmt
+    PROPERTIES
+      FOLDER
+        "dep")
