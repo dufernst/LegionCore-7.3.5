@@ -190,7 +190,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    if (!sLoginService.Start(*ioContext))
+    if (!sLoginService.Start(_ioContext))
     {
         StopDB();
         // delete _ioService;
