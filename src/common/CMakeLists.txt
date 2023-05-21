@@ -64,6 +64,7 @@ target_link_libraries(common
   PRIVATE
     process
   PUBLIC
+    trinity-core-interface
     mysql
     cds
     boost

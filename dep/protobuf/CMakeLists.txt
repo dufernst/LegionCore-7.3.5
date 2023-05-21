@@ -66,6 +66,8 @@ target_include_directories(protobuf
     ${CMAKE_CURRENT_SOURCE_DIR}/tc_custom)
 
 target_link_libraries(protobuf
+  PRIVATE
+    trinity-default-interface
   PUBLIC
     threads)
 
