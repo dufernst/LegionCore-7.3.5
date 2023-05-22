@@ -220,13 +220,13 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
         return 404;
     }
 
-    char *buf;
-    size_t len;
+    char* buf = nullptr;
+    size_t len = 0;
     soap_http_body(soapClient, &buf, &len);
 
     Battlenet::JSON::Login::LoginForm loginForm;
     Battlenet::JSON::Login::LoginResult loginResult;
-    if (!JSON::Deserialize(buf, &loginForm))
+    if (!buf || !JSON::Deserialize(buf, &loginForm))
     {
         if (soap_register_plugin_arg(soapClient, &ResponseCodePlugin::Init, nullptr) != SOAP_OK)
         {
