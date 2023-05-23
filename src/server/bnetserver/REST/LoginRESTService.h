@@ -98,7 +98,7 @@ private:
         char const* ContentType;
     };
 
-    Trinity::Asio::IoContext& _ioContext;
+    Trinity::Asio::IoContext* _ioContext;
     std::thread _thread;
     std::atomic<bool> _stopped;
     Battlenet::JSON::Login::FormInputs _formInputs;
