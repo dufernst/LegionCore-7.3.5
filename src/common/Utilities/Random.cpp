@@ -21,7 +21,7 @@
 #include "SFMTRand.h"
 #include <memory>
 
-static boost::thread_specific_ptr<SFMTRand> sfmtRand;
+static thread_local std::unique_ptr<SFMTRand> sfmtRand;
 static SFMTEngine engine;
 
 static SFMTRand* GetRng()
