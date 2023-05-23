@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2021 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,18 +15,28 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AsioHacksImpl_h__
-#define AsioHacksImpl_h__
+#ifndef Strand_h__
+#define Strand_h__
 
+#include "IoContext.h"
+#include <boost/asio/bind_executor.hpp>
 #include <boost/asio/strand.hpp>
 
 namespace Trinity
 {
-    class AsioStrand : public boost::asio::io_service::strand
+    namespace Asio
     {
-    public:
-        explicit AsioStrand(boost::asio::io_service& io_service) : boost::asio::io_service::strand(io_service) { }
-    };
+        /**
+          Hack to make it possible to forward declare strand (which is a inner class)
+        */
+        class Strand : public boost::asio::io_context::strand
+        {
+        public:
+            Strand(IoContext& ioContext) : boost::asio::io_context::strand(ioContext) { }
+        };
+
+        using boost::asio::bind_executor;
+    }
 }
 
-#endif // AsioHacksImpl_h__
+#endif // Strand_h__

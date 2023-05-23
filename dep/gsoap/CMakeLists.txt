@@ -8,7 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-file(GLOB sources *.cpp *.h)
+file(GLOB sources *.cpp *.c *.h)
 
 add_library(gsoap STATIC ${sources})
 
@@ -23,6 +23,8 @@ target_compile_definitions(gsoap
     -DWITH_OPENSSL)
 
 target_link_libraries(gsoap
+  PRIVATE
+    trinity-dependency-interface
   PUBLIC
     openssl)
 

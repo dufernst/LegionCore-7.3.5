@@ -8,25 +8,21 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-# We require CMake >= 3.9
-cmake_minimum_required(VERSION 3.9)
+# We require CMake >= 3.18
+cmake_minimum_required(VERSION 3.18)
+
+# add this options before PROJECT keyword
+set(CMAKE_DISABLE_SOURCE_CHANGES ON)
+set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 
 # Set projectname (must be done AFTER setting configurationtypes)
 project(LegionCore)
 
 # CMake policies (can not be handled elsewhere)
-cmake_policy(SET CMP0005 OLD)
-if(POLICY CMP0043)
-  cmake_policy(SET CMP0043 OLD) # Disable 'Ignore COMPILE_DEFINITIONS_<Config> properties'
-endif()
-
-if(POLICY CMP0054)
-  cmake_policy(SET CMP0054 NEW) # Only interpret if() arguments as variables or keywords when unquoted - prevents intepreting if (SOME_STRING_VARIABLE MATCHES "MSVC") as if (SOME_STRING_VARIABLE MATCHES "1")
-endif()
-
-# add this options before PROJECT keyword
-set(CMAKE_DISABLE_SOURCE_CHANGES ON)
-set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
+cmake_policy(SET CMP0005 NEW)
+cmake_policy(SET CMP0043 NEW) # Ignore COMPILE_DEFINITIONS_<Config> properties
+cmake_policy(SET CMP0054 NEW) # Only interpret if() arguments as variables or keywords when unquoted - prevents intepreting if(SOME_STRING_VARIABLE MATCHES "MSVC") as if(SOME_STRING_VARIABLE MATCHES "1")
+cmake_policy(SET CMP0074 NEW) # find_package() uses <PackageName>_ROOT variables
 
 # Set RPATH-handing (CMake parameters)
 set(CMAKE_SKIP_BUILD_RPATH 0)
@@ -35,7 +31,9 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH 1)
 
 # set macro-directory
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/macros")
+list(APPEND CMAKE_MODULE_PATH
+  "${CMAKE_SOURCE_DIR}/cmake/macros"
+  "${CMAKE_SOURCE_DIR}/dep/cotire/CMake")
 
 # build in Release-mode by default if not explicitly set
 if( NOT CMAKE_BUILD_TYPE )
@@ -54,6 +52,7 @@ if( NOPCH )
   set(USE_SCRIPTPCH 0)
 endif()
 
+include(ConfigureBaseTargets)
 include(CheckPlatform)
 
 include(GroupSources)

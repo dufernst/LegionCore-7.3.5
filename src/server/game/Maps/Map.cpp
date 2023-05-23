@@ -60,6 +60,8 @@ union u_map_magic
     uint32 asUInt;
 };
 
+#include "Hacks/boost_1_74_fibonacci_heap.h"
+
 u_map_magic MapMagic        = { {'M','A','P','S'} };
 u_map_magic MapVersionMagic = { {'v','1','.','9'} };
 u_map_magic MapAreaMagic    = { {'A','R','E','A'} };

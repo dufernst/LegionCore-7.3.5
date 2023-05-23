@@ -26,7 +26,7 @@ if(WIN32)
   set(Boost_USE_STATIC_RUNTIME     OFF)
 endif()
 
-find_package(Boost 1.64 REQUIRED system filesystem thread program_options iostreams regex)
+find_package(Boost 1.74 REQUIRED system filesystem thread program_options iostreams regex)
 
 # Find if Boost was compiled in C++03 mode because it requires -DBOOST_NO_CXX11_SCOPED_ENUMS
 
@@ -64,4 +64,7 @@ target_compile_definitions(boost
     -DBOOST_DATE_TIME_NO_LIB
     -DBOOST_REGEX_NO_LIB
     -DBOOST_CHRONO_NO_LIB
+    -DBOOST_CHRONO_NO_LIB
+    -DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
+    -DBOOST_ASIO_NO_DEPRECATED
     ${OPTIONAL_BOOST_NO_SCOPED_ENUMS})

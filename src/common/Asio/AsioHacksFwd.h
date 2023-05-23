@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,11 @@
 #ifndef AsioHacksFwd_h__
 #define AsioHacksFwd_h__
 
+#include <boost/version.hpp>
+
+/**
+  Collection of forward declarations to improve compile time
+ */
 namespace boost
 {
     namespace posix_time
@@ -27,6 +32,9 @@ namespace boost
 
     namespace asio
     {
+        template <typename Time>
+        struct time_traits;
+
         namespace ip
         {
             class address;
@@ -37,32 +45,19 @@ namespace boost
             class basic_endpoint;
 
             typedef basic_endpoint<tcp> tcp_endpoint;
-
-            template <typename InternetProtocol>
-            class resolver_service;
-
-            template <typename InternetProtocol, typename ResolverService>
-            class basic_resolver;
-
-            typedef basic_resolver<tcp, resolver_service<tcp>> tcp_resolver;
         }
-
-        template <typename Time>
-        struct time_traits;
-
-        template <typename TimeType, typename TimeTraits>
-        class deadline_timer_service;
-
-        template <typename Time, typename TimeTraits, typename TimerService>
-        class basic_deadline_timer;
-
-        typedef basic_deadline_timer<posix_time::ptime, time_traits<posix_time::ptime>, deadline_timer_service<posix_time::ptime, time_traits<posix_time::ptime>>> deadline_timer;
     }
 }
 
 namespace Trinity
 {
-    class AsioStrand;
+    namespace Asio
+    {
+        class DeadlineTimer;
+        class IoContext;
+        class Resolver;
+        class Strand;
+    }
 }
 
 #endif // AsioHacksFwd_h__

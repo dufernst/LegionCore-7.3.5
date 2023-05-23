@@ -16,10 +16,6 @@ CollectSourceFiles(
 
 if (USE_COREPCH)
   set(PRIVATE_PCH_HEADER PrecompiledHeaders/gamePCH.h)
-  set(PRIVATE_PCH_SOURCE PrecompiledHeaders/gamePCH.cpp)
-  if (MSVC)
-    list(INSERT PRIVATE_SOURCES 0 PrecompiledHeaders/gamePCH.cpp)
-  endif (MSVC)
 endif ()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
@@ -52,5 +48,5 @@ set_target_properties(game
 
 # Generate precompiled header
 if (USE_COREPCH)
-  add_cxx_pch(game ${PRIVATE_PCH_HEADER} ${PRIVATE_PCH_SOURCE})
+  add_cxx_pch(game ${PRIVATE_PCH_HEADER})
 endif ()
