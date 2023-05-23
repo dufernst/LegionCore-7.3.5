@@ -47,6 +47,7 @@ int32 handle_post_plugin(soap* soapClient)
 
 bool LoginRESTService::Start(Trinity::Asio::IoContext& ioContext)
 {
+	_ioContext = ioContext;
     _waitTime = sConfigMgr->GetIntDefault("RestWaitTime", 60);
 
     _bindIP = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
@@ -175,10 +176,12 @@ void LoginRESTService::Run()
 
         TC_LOG_DEBUG(LOG_FILTER_BATTLENET, "REST Accepted connection from IP=%s", address.to_string().c_str());
 
-        std::thread([soapClient]
+        Trinity::Asio::post(_ioContext, [soapClient]()
         {
-            soap_serve(soapClient.get());
-        }).detach();
+            soapClient->GetClient()->user = (void*)&soapClient; // this allows us to make a copy of pointer inside GET/POST handlers to increment reference count
+            soap_begin(soapClient->GetClient());
+            soap_begin_recv(soapClient->GetClient());
+        });
     }
 
     // and release the context handle here - soap does not own it so it should not free it on exit

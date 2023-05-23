@@ -35,7 +35,7 @@ struct soap_plugin;
 class LoginRESTService
 {
 public:
-    LoginRESTService() : _stopped(false), _port(0), _loginTicketCleanupTimer(nullptr) { }
+    LoginRESTService() : _ioContext(nullptr), _stopped(false), _port(0), _loginTicketCleanupTimer(nullptr) { }
 
     static LoginRESTService& Instance();
 
@@ -98,6 +98,7 @@ private:
         char const* ContentType;
     };
 
+    Trinity::Asio::IoContext& _ioContext;
     std::thread _thread;
     std::atomic<bool> _stopped;
     Battlenet::JSON::Login::FormInputs _formInputs;
