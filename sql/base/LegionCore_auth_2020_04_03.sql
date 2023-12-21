@@ -1,3 +1,5 @@
+SET sql_mode = '';
+
 /*
 SQLyog Community v13.1.5  (64 bit)
 MySQL - 5.6.47 : Database - auth
@@ -29,7 +31,7 @@ CREATE TABLE `account` (
   `failed_logins` int(10) unsigned NOT NULL DEFAULT '0',
   `locked` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `lock_country` varchar(2) NOT NULL DEFAULT '00',
-  `last_login` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `last_login` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
   `online` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `expansion` tinyint(3) unsigned NOT NULL DEFAULT '6',
   `mutetime` bigint(20) NOT NULL DEFAULT '0',
@@ -57,7 +59,7 @@ CREATE TABLE `account` (
 /*Data for the table `account` */
 
 insert  into `account`(`id`,`username`,`sha_pass_hash`,`sessionkey`,`v`,`s`,`email`,`joindate`,`last_ip`,`failed_logins`,`locked`,`lock_country`,`last_login`,`online`,`expansion`,`mutetime`,`locale`,`os`,`recruiter`,`battlenet_account`,`battlenet_index`,`mutereason`,`muteby`,`AtAuthFlag`,`coins`,`hwid`) values 
-(1,'GM@GM','586EF64D6BCF71292B55C8805E465172D876E0C7','','','','','2020-03-30 12:36:05','127.0.0.1',0,0,'00','0000-00-00 00:00:00',0,6,0,0,'',0,1,NULL,'','',0,0,0);
+(1,'GM@GM','586EF64D6BCF71292B55C8805E465172D876E0C7','','','','','2020-03-30 12:36:05','127.0.0.1',0,0,'00','1970-01-01 00:00:01',0,6,0,0,'',0,1,NULL,'','',0,0,0);
 
 /*Table structure for table `account_access` */
 
@@ -273,7 +275,7 @@ CREATE TABLE `battlenet_accounts` (
   `failed_logins` int(10) unsigned NOT NULL DEFAULT '0',
   `locked` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `lock_country` varchar(2) NOT NULL DEFAULT '00',
-  `last_login` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `last_login` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
   `last_email` timestamp NULL DEFAULT NULL,
   `online` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `locale` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -295,7 +297,7 @@ CREATE TABLE `battlenet_accounts` (
 /*Data for the table `battlenet_accounts` */
 
 insert  into `battlenet_accounts`(`id`,`email`,`email_blocked`,`sha_pass_hash`,`balans`,`karma`,`activate`,`verify`,`tested`,`donate`,`phone`,`phone_hash`,`telegram_lock`,`telegram_id`,`v`,`s`,`sessionKey`,`joindate`,`last_ip`,`access_ip`,`failed_logins`,`locked`,`lock_country`,`last_login`,`last_email`,`online`,`locale`,`os`,`recruiter`,`invite`,`lang`,`referer`,`unsubscribe`,`dt_vote`) values 
-(1,'GM@GM',0,'586EF64D6BCF71292B55C8805E465172D876E0C79968F925A0DCE5D9B4BAA492',0,0,1,0,0,0,'','',0,0,'','','','2020-03-30 12:36:05','127.0.0.1',0,0,0,'00','0000-00-00 00:00:00',NULL,0,0,'',0,'','en','','0',NULL);
+(1,'GM@GM',0,'586EF64D6BCF71292B55C8805E465172D876E0C79968F925A0DCE5D9B4BAA492',0,0,1,0,0,0,'','',0,0,'','','','2020-03-30 12:36:05','127.0.0.1',0,0,0,'00','1970-01-01 00:00:01',NULL,0,0,'',0,'','en','','0',NULL);
 
 /*Table structure for table `build_info` */
 
@@ -553,7 +555,7 @@ CREATE TABLE `store_category_locales` (
   `description_it` varchar(255) NOT NULL DEFAULT '',
   `description_ua` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`category`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPRESSED;
 
 /*Data for the table `store_category_locales` */
 
@@ -617,7 +619,7 @@ CREATE TABLE `store_history` (
   `trans_project` varchar(255) NOT NULL DEFAULT '',
   `trans_realm` int(11) unsigned NOT NULL DEFAULT '0',
   `dt_buy` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `dt_return` timestamp NULL DEFAULT '0000-00-00 00:00:00',
+  `dt_return` timestamp NULL DEFAULT '1970-01-01 00:00:01',
   PRIMARY KEY (`id`) USING BTREE,
   KEY `item_guid` (`item_guid`) USING BTREE,
   KEY `realm` (`realm`) USING BTREE,
@@ -670,7 +672,7 @@ CREATE TABLE `store_product_locales` (
   `ua` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`product`,`type`) USING BTREE,
   UNIQUE KEY `unique` (`product`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPRESSED;
 
 /*Data for the table `store_product_locales` */
 

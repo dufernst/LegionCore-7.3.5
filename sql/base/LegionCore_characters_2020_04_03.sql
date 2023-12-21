@@ -1,3 +1,5 @@
+SET sql_mode = '';
+
 /*
 SQLyog Community v13.1.5  (64 bit)
 MySQL - 5.6.47 : Database - characters
