@@ -201,7 +201,7 @@ void GroupMgr::LoadGroups()
         uint32 oldMSTime = getMSTime();
         //                                                      0           1        2            3             4                 5                6           7             8
         QueryResult result = CharacterDatabase.Query("SELECT gi.guid, gi.instance, gi.map, gi.difficulty, gi.permanent, gi.completedEncounters, gi.data, gi.resetTime, COUNT(g.guid) "
-            "FROM group_instance gi LEFT JOIN character_instance ci LEFT JOIN groups g ON g.leaderGuid = ci.guid ON ci.instance = gi.instance AND ci.permanent = 1 GROUP BY gi.instance ORDER BY gi.guid");
+            "FROM group_instance gi LEFT JOIN character_instance ci LEFT JOIN `groups` g ON g.leaderGuid = ci.guid ON ci.instance = gi.instance AND ci.permanent = 1 GROUP BY gi.instance ORDER BY gi.guid");
         if (!result)
         {
             TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 group-instance saves. DB table `group_instance` is empty!");
