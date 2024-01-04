@@ -175,15 +175,15 @@ void PlayerTaxi::AppendTaximaskTo(WorldPackets::Taxi::ShowTaxiNodes& data, bool 
             switch (node->ID)
             {
                 case 1985: // 1944
-                    // if (player->GetCurrentZoneID() != 8574) // Крокуун
+                    // if (player->GetCurrentZoneID() != 8574) // Krokuun
                         landNodes = false;
                     break;
                 case 1986: // 1987
-                    // if (player->GetCurrentZoneID() != 8701) // Мак\'Ари
+                    // if (player->GetCurrentZoneID() != 8701) // Mac'Aree
                         landNodes = false;
                     break;
                 case 1987: // 1994
-                    // if (player->GetCurrentZoneID() != 8899) // Пустоши Анторуса
+                    // if (player->GetCurrentZoneID() != 8899) // Antoran Wastes
                         landNodes = false;
                     break;
             }
