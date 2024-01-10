@@ -7315,7 +7315,9 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
                 case 3: lastSec = 17; break;
             }
 
-            if (sWorld->getBoolConfig(CONFIG_INSTANT_FISHING))
+            if (sWorld->getIntConfig(CONFIG_FAST_FISHING) == 1)
+                duration = 17;
+            else if (sWorld->getIntConfig(CONFIG_FAST_FISHING) == 2)
                 duration = 1;
             else
             {

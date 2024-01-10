@@ -815,12 +815,13 @@ PlayerDump.DisallowOverwrite = 1
 DisableWaterBreath = 1
 
 #
-#    InstantFishing
-#        Description: Removes wait for bobber.
+#    FastFishing
+#        Description: Makes fishing faster, or removes the wait entirely.
 #        Default:     0  - (Disabled)
-#                     1  - (Enabled)
+#                     1  - (Faster)
+#                     2  - (Instant)
 
-InstantFishing = 0
+FastFishing = 0
 
 #
 #    PlayerStart.AllReputation
