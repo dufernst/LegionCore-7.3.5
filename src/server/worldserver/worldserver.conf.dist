@@ -815,6 +815,14 @@ PlayerDump.DisallowOverwrite = 1
 DisableWaterBreath = 1
 
 #
+#    InstantFishing
+#        Description: Removes wait for bobber.
+#        Default:     0  - (Disabled)
+#                     1  - (Enabled)
+
+InstantFishing = 0
+
+#
 #    PlayerStart.AllReputation
 #        Description: Players will start with most of the high level reputations that are needed
 #                     for items, mounts etc.

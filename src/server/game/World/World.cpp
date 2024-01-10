@@ -1046,6 +1046,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_WEATHER] = sConfigMgr->GetBoolDefault("ActivateWeather", true);
 
     m_int_configs[CONFIG_DISABLE_BREATHING] = sConfigMgr->GetIntDefault("DisableWaterBreath", SEC_CONSOLE);
+    m_bool_configs[CONFIG_INSTANT_FISHING] = sConfigMgr->GetBoolDefault("InstantFishing", false);
 
     m_bool_configs[CONFIG_ANTI_FLOOD_LFG] = sConfigMgr->GetBoolDefault("Anti.Flood.on.LFG", false);
     m_bool_configs[CONFIG_ANTI_FLOOD_PM] = sConfigMgr->GetBoolDefault("Anti.Flood.on.PM", false);
