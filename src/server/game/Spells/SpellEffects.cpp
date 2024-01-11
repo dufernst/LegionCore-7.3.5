@@ -7315,14 +7315,16 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
                 case 3: lastSec = 17; break;
             }
 
-            if (sWorld->getIntConfig(CONFIG_FAST_FISHING) == 1)
-                duration = 17;
-            else if (sWorld->getIntConfig(CONFIG_FAST_FISHING) == 2)
-                duration = 1;
-            else
+            switch (sWorld->getIntConfig(CONFIG_FAST_FISHING))
             {
-                // Duration of the fishing bobber can't be higher than the Fishing channeling duration
-                duration = std::min(duration, duration - lastSec * IN_MILLISECONDS + FISHING_BOBBER_READY_TIME * IN_MILLISECONDS);
+                case 2:  // Instant fishing
+                    duration = 0;
+                    break;
+                case 1:  // Faster fishing (fall through to default calculation)
+                    lastSec = 17;
+                default:
+                    // Duration of the fishing bobber can't be higher than the Fishing channeling duration
+                    duration = std::min(duration, duration - lastSec * IN_MILLISECONDS + FISHING_BOBBER_READY_TIME * IN_MILLISECONDS);
             }
             
             break;
