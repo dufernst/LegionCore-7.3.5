@@ -815,6 +815,15 @@ PlayerDump.DisallowOverwrite = 1
 DisableWaterBreath = 1
 
 #
+#    FastFishing
+#        Description: Makes fishing faster, or removes the wait entirely.
+#        Default:     0  - (Disabled)
+#                     1  - (Faster)
+#                     2  - (Instant)
+
+FastFishing = 0
+
+#
 #    PlayerStart.AllReputation
 #        Description: Players will start with most of the high level reputations that are needed
 #                     for items, mounts etc.
