@@ -4879,7 +4879,7 @@ void ObjectMgr::SetHighestGuids()
     if (result = CharacterDatabase.Query("SELECT MAX(guildId) FROM guild"))
         sGuildMgr->SetNextGuildId((*result)[0].GetUInt64()+1);
 
-    if (result = CharacterDatabase.Query("SELECT MAX(guid) FROM groups"))
+    if (result = CharacterDatabase.Query("SELECT MAX(guid) FROM `groups`"))
         sGroupMgr->SetGroupDbStoreSize((*result)[0].GetUInt32()+1);
 
     if (result = CharacterDatabase.Query("SELECT MAX(itemId) from character_void_storage"))
