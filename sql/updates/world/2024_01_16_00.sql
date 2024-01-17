@@ -1,12 +1,17 @@
 -- Fix loot chance for the following quest items
 
+-- 2676 = Shimmerweed
+-- 3084 = Gyromechanic Gear
+-- 3627 = Fang of Vagash
 -- 10005 = Margol's Gigantic Horn
 -- 23217 = Ravager Egg
 -- 23218 = Condensed Voidwalker Essence
 -- 23239 = Plump Buzzard Wing
 -- 23270 = Tainted Helboar Meat
 -- 30157 = Cursed Talisman
+-- 56264 = Dark Iron Attack Plans
 -- 58202 = Stolen Powder Keg
+-- 60496 = Tender Boar Ribs
 -- 62805 = Tempered Flywheel
 -- 62807 = Dark Iron Memo
 -- 62809 = Glassweb Venom
@@ -15,8 +20,11 @@
 -- 63028 = Rasha'krak's Bracers of Binding
 -- 63421 = Obsidian Ashes
 
-DELETE FROM `creature_loot_template` WHERE `item` IN (10005,23217,23218,23239,23270,30157,58202,62805,62807,62809,62914,62916,63028,63421);
+DELETE FROM `creature_loot_template` WHERE `item` IN (2676,3084,3627,10005,23217,23218,23239,23270,30157,56264,58202,60496,62805,62807,62809,62914,62916,63028,63421);
 INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`, `shared`) VALUES
+(41121, 2676, -40, 0, 0, 1, 1, 0),
+(41146, 3084, -100, 0, 0, 1, 1, 0),
+(1388, 3627, -100, 0, 0, 1, 1, 0),
 (5833, 10005, -100, 0, 0, 1, 1, 0),
 
 (16932, 23217, -1, 0, 0, 1, 1, 0),
@@ -46,9 +54,12 @@ INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `l
 (19458, 30157, -15, 0, 0, 1, 1, 0),
 (19459, 30157, -15, 0, 0, 1, 1, 0),
 
+(6124, 56264, -100, 0, 0, 1, 1, 0),
+
 (42221, 58202, -100, 0, 0, 1, 1, 0),
 (42222, 58202, -100, 0, 0, 1, 1, 0),
 
+(1125, 60496, -100, 0, 0, 1, 1, 0),
 (5853, 62805, -100, 0, 0, 2, 4, 0),
 (47270, 62807, -100, 0, 0, 1, 1, 0),
 (5856, 62809, -100, 0, 0, 1, 1, 0),
