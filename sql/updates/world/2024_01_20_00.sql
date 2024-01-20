@@ -9,10 +9,13 @@
 -- 55234 = Dumpy Level
 -- 55988 = Glowerglare's Beard
 -- 56013 = Meaty Crawler Claw
+-- 56087 = Marshy Crocolisk Hide
+-- 56088 = Ironforge Ingot
+-- 56089 = Horrorjaw's Hide
 -- 58779 = Shell of Shadra
 -- 60737 = Stabthistle Seed
 
-DELETE FROM `creature_loot_template` WHERE `item` IN (3618,4503,4515,4516,4517,4522,55234,55988,56013,58779,60737);
+DELETE FROM `creature_loot_template` WHERE `item` IN (3618,4503,4515,4516,4517,4522,55234,55988,56013,56087,56088,56089,58779,60737);
 INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`, `shared`) VALUES
 (1259, 3618, -100, 0, 0, 1, 1, 0),
 
@@ -39,6 +42,12 @@ INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `l
 (41295, 56013, -50, 0, 0, 1, 1, 0),
 (44116, 56013, -50, 0, 0, 1, 1, 0),
 
+(41419, 56087, -100, 0, 0, 1, 1, 0),
+
+(41390, 56088, -80, 0, 0, 1, 1, 0),
+(41391, 56088, -80, 0, 0, 1, 1, 0),
+
+(41420, 56089, -100, 0, 0, 1, 1, 0),
 (42919, 58779, -100, 0, 0, 1, 1, 0),
 (41151, 55988, -100, 0, 0, 1, 1, 0),
 
