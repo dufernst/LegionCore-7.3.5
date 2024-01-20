@@ -6,6 +6,7 @@
 -- 4516 = Otto's Head
 -- 4517 = Falconcrest's Head
 -- 4522 = Witherbark Medicine Pouch
+-- 33126 = Thresher Oil
 -- 55234 = Dumpy Level
 -- 55988 = Glowerglare's Beard
 -- 56013 = Meaty Crawler Claw
@@ -16,7 +17,7 @@
 -- 58779 = Shell of Shadra
 -- 60737 = Stabthistle Seed
 
-DELETE FROM `creature_loot_template` WHERE `item` IN (3618,4503,4515,4516,4517,4522,55234,55988,56013,56083,56087,56088,56089,58779,60737);
+DELETE FROM `creature_loot_template` WHERE `item` IN (3618,4503,4515,4516,4517,4522,33126,55234,55988,56013,56083,56087,56088,56089,58779,60737);
 INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`, `shared`) VALUES
 (1259, 3618, -100, 0, 0, 1, 1, 0),
 
@@ -38,6 +39,7 @@ INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `l
 (2555, 4522, -40, 0, 0, 1, 1, 0),
 (51633, 4522, -40, 0, 0, 1, 1, 0),
 
+(4388, 33126, -75, 0, 0, 1, 1, 0),
 (41145, 55234, -15, 0, 0, 1, 1, 0),
 
 (41295, 56013, -50, 0, 0, 1, 1, 0),
