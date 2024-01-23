@@ -1,5 +1,6 @@
 -- Fix loot chance for the following quest items
 
+-- 6245 = Karnitol's Satchel
 -- 23588 = Kaliri Feather
 -- 23589 = Mag'har Ancestral Beads
 -- 56040 = Ram Haunch
@@ -8,8 +9,11 @@
 -- 56223 = Black Dragon Whelp Filet
 -- 56224 = Blazing Heart of Fire
 
-DELETE FROM `creature_loot_template` WHERE `item` IN (23588,23589,56040,56042,56187,56223,56224);
+DELETE FROM `creature_loot_template` WHERE `item` IN (6245,23588,23589,56040,56042,56187,56223,56224);
 INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`, `shared`) VALUES
+(4716, 6245, -50, 0, 0, 1, 1, 0),
+(4719, 6245, -50, 0, 0, 1, 1, 0),
+
 (17034, 23588, -55, 0, 0, 1, 1, 0),
 (17035, 23588, -35, 0, 0, 1, 1, 0),
 (17039, 23588, -35, 0, 0, 1, 1, 0),
