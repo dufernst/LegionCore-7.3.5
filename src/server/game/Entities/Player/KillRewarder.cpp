@@ -75,7 +75,7 @@ KillRewarder::KillRewarder(Player* killer, Unit* victim, bool isBattleGround)
     _groupRate = 1.0f;
     _maxNotGrayMember = nullptr;
     _count = 0;
-    _countForRep = 0;
+    _aliveSumLevel = 0;
     _sumLevel = 0;
     _maxLevel = 0;
     _xp = 0;
@@ -93,36 +93,41 @@ KillRewarder::KillRewarder(Player* killer, Unit* victim, bool isBattleGround)
 
 inline void KillRewarder::_InitGroupData()
 {
-    if (!_group)
+    if (_group)
     {
-        _count = 1;
-        return;
+        // 2. In case when player is in group, initialize variables necessary for group calculations:
+        for (GroupReference* itr = _group->GetFirstMember(); itr != nullptr; itr = itr->next())
+            if (Player* member = itr->getSource())
+                if (_killer == member || member->IsAtGroupRewardDistance(_victim))
+                {
+                    const uint8 lvl = member->getLevel();
+                    if (member->isAlive())
+                    {
+                        // 2.1. _count - number of alive group members within reward distance;
+                        ++_count;
+                        // 2.2. _aliveSumLevel - sum of levels of alive group members within reward distance;
+                        _aliveSumLevel += lvl;
+                        // 2.3. _maxLevel - maximum level of alive group member within reward distance;
+                        if (_maxLevel < lvl)
+                        {
+                            _maxLevel = lvl;
+                        }
+                        // 2.4. _maxNotGrayMember - maximum level of alive group member within reward distance,
+                        //      for whom victim is not gray;
+                        uint32 grayLevel = Trinity::XP::GetGrayLevel(lvl);
+                        if (_victim->getLevel() > grayLevel && (!_maxNotGrayMember || _maxNotGrayMember->getLevel() < lvl))
+                        {
+                            _maxNotGrayMember = member;
+                        }
+                    }
+                    // 2.5. _sumLevel - sum of levels of group members within reward distance;
+                    _sumLevel += lvl;
+                }
+        // 2.5. _isFullXP - flag identifying that for all group members victim is not gray, so 100% XP will be rewarded (50% otherwise).
+        _isFullXP = _maxNotGrayMember && (_maxLevel == _maxNotGrayMember->getLevel());
     }
-
-    // 2. In case when player is in group, initialize variables necessary for group calculations:
-    for (GroupReference* itr = _group->GetFirstMember(); itr != nullptr; itr = itr->next())
-        if (Player* member = itr->getSource())
-            if (member->IsAtGroupRewardDistance(_victim))
-            {
-                ++_countForRep;
-                if (!member->isAlive())
-                    continue;
-
-                const uint8 lvl = member->getLevel();
-                // 2.1. _count - number of alive group members within reward distance;
-                ++_count;
-                // 2.2. _sumLevel - sum of levels of alive group members within reward distance;
-                _sumLevel += lvl;
-                // 2.3. _maxLevel - maximum level of alive group member within reward distance;
-                if (_maxLevel < lvl)
-                    _maxLevel = lvl;
-                // 2.4. _maxNotGrayMember - maximum level of alive group member within reward distance, for whom victim is not gray;
-                uint32 grayLevel = Trinity::XP::GetGrayLevel(lvl);
-                if (_victim->getLevel() > grayLevel && (!_maxNotGrayMember || _maxNotGrayMember->getLevel() < lvl))
-                    _maxNotGrayMember = member;
-            }
-    // 2.5. _isFullXP - flag identifying that for all group members victim is not gray, so 100% XP will be rewarded (50% otherwise).
-    _isFullXP = _maxNotGrayMember && (_maxLevel == _maxNotGrayMember->getLevel());
+    else
+        _count = 1;
 }
 
 inline void KillRewarder::_InitXP(Player* player)
@@ -132,7 +137,7 @@ inline void KillRewarder::_InitXP(Player* player)
     // * on battlegrounds;
     // * otherwise, not in PvP;
     // * not if killer is on vehicle.
-    if (_isBattleGround || (!_isPvP && !_killer->GetVehicle()))
+    if (_victim && (_isBattleGround || (!_isPvP && !_killer->GetVehicle())))
         _xp = Trinity::XP::Gain(player, _victim);
 }
 
@@ -222,7 +227,7 @@ void KillRewarder::_RewardPlayer(Player* player, bool isDungeon)
     // Give XP only in PvE or in battlegrounds. Give reputation and kill credit only in PvE.
     if (!_isPvP || _isBattleGround)
     {
-        const float rate = _group ? _groupRate * float(player->getLevel()) / _sumLevel : 1.0f;// Group rate depends on summary level. Personal rate is 100%.
+        const float rate = _group ? _groupRate * float(player->getLevel()) / _aliveSumLevel : 1.0f;// Group rate depends on summary level. Personal rate is 100%.
         if (_xp)
             _RewardXP(player, rate);
         if (!_isBattleGround)
@@ -250,8 +255,11 @@ void KillRewarder::_RewardGroup()
         {
             const bool isDungeon = !_isPvP && sMapStore.LookupEntry(_killer->GetMapId())->IsDungeon();
             if (!_isBattleGround)
+            {
                 // 3.1.2. Alter group rate if group is in raid (not for battlegrounds).
-                _groupRate = Trinity::XP::xp_in_group_rate(_countForRep, !_isPvP && sMapStore.LookupEntry(_killer->GetMapId())->IsRaid() && _group->isRaidGroup());
+                const bool isRaid = !_isPvP && sMapStore.LookupEntry(_killer->GetMapId())->IsRaid() && _group->isRaidGroup();
+                _groupRate = Trinity::XP::xp_in_group_rate(_count, isRaid);
+            }
 
             // 3.1.3. Reward each group member (even dead or corpse) within reward distance.
             for (GroupReference* itr = _group->GetFirstMember(); itr != nullptr; itr = itr->next())
@@ -266,7 +274,10 @@ void KillRewarder::Reward()
 {
     // 3. Reward killer (and group, if necessary).
     if (_group)
-        _RewardGroup(); // 3.1. If killer is in group, reward group.
+    {
+        // 3.1. If killer is in group, reward group.
+        _RewardGroup();
+    }
     else
     {
         // 3.2. Reward single killer (not group case).
@@ -276,7 +287,9 @@ void KillRewarder::Reward()
         // proceed only if XP is not ZERO or player is not on battleground
         // (battleground rewards only XP, that's why).
         if (!_isBattleGround || _xp)
-            _RewardPlayer(_killer, false); // 3.2.2. Reward killer.
+            // 3.2.2. Reward killer.
+            if (_killer->IsInMap(_victim)) // pussywizard: killer may be on other map (crashfix), when killing in a group same map is required, so its not a problem
+                _RewardPlayer(_killer, false);
     }
 
     // 5. Credit instance encounter.

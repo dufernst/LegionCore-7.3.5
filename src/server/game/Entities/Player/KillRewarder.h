@@ -47,7 +47,7 @@ private:
     Unit* _victim;
     Group* _group;
     uint32 _count;
-    uint32 _countForRep;
+    uint32 _aliveSumLevel;
     uint32 _sumLevel;
     uint32 _xp;
     float _groupRate;

@@ -2772,6 +2772,48 @@ AuctionHouseBot.Buyer.Recheck.Interval = 20
 
 ###################################################################################################
 #
+# DUNGEON BALANCE SETTINGS
+#
+#     DungeonBalance.Enable
+#        Enable/Disable the DungeonBalance system (applies to dungeons and raids)
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+DungeonBalance.Enable = 0
+
+#
+#     DungeonBalance.Announce
+#        Announce the module on login (only if it is enabled)
+#       Default:     1 - (Enabled)
+#                    0 - (Disabled)
+
+DungeonBalance.Announce = 1
+
+#
+#     DungeonBalance.DungeonScaleDownXP
+#        Decrease individual player's amount of XP gained during a dungeon to match the
+#        amount of XP gained during a full group run. Example: In a 5-man group, you
+#        earn 1/5 of the total XP per kill, but if you solo the dungeon with
+#        DungeonBalance.DungeonScaleDownXP = 0, you will earn 5/5 of the total XP.
+#        With the option enabled, you will earn 1/5.
+#       Default:     1 - (Enabled)
+#                    0 - (Disabled)
+
+DungeonBalance.DungeonScaleDownXP = 1
+
+#
+#     DungeonBalance.PlayerChangeNotify
+#        Set Auto Notifications to all players in Instance that player count has changed.
+#       Default:     1 - (Enabled)
+#                    0 - (Disabled)
+
+DungeonBalance.PlayerChangeNotify = 1
+
+#
+###################################################################################################
+
+###################################################################################################
+#
 #  Logging system options.
 #
 #  Appender config values: Given a appender "name"
@@ -2971,14 +3013,15 @@ Logger.CHALLENGE           = 56,0,Console World Errors
 Logger.PATH_GENERATOR      = 58,0,Console World Errors
 Logger.MMAPS               = 59,0,Console World Errors
 Logger.VMAPS               = 60,0,Console World Errors
+Logger.DUNGEONBALANCE      = 61,5,Console World Errors
 
 #
 #    Loggers
 #        Description: List of Loggers to read from config
 #                     (Using spaces as separator).
-#        Default:     "GENERAL UNITS PETS VEHICLES TSCR DATABASE_AI MAPSCRIPTS NETWORKIO SPELLS_AURAS ACHIEVEMENTSYS CONDITIONSYS POOLSYS AUCTIONHOUSE BATTLEGROUND OUTDOORPVP CHATSYS LFG MAPS PLAYER PLAYER_LOADING PLAYER_ITEMS PLAYER_SKILLS PLAYER_CHATLOG LOOT GUILD TRANSPORTS SQL GMCOMMAND REMOTECOMMAND WARDEN WORLDSERVER GAMEEVENTS CALENDAR CHARACTER SQL_DRIVER SQL_DEV PLAYER_DUMP BATTLEFIELD SERVER_LOADING OPCODES PROC DONATE BATTLEPET PROTOBUF AREATRIGGER GOLD WORLD_QUEST CHALLENGE PATH_GENERATOR MMAPS VMAPS"
+#        Default:     "GENERAL UNITS PETS VEHICLES TSCR DATABASE_AI MAPSCRIPTS NETWORKIO SPELLS_AURAS ACHIEVEMENTSYS CONDITIONSYS POOLSYS AUCTIONHOUSE BATTLEGROUND OUTDOORPVP CHATSYS LFG MAPS PLAYER PLAYER_LOADING PLAYER_ITEMS PLAYER_SKILLS PLAYER_CHATLOG LOOT GUILD TRANSPORTS SQL GMCOMMAND REMOTECOMMAND WARDEN WORLDSERVER GAMEEVENTS CALENDAR CHARACTER SQL_DRIVER SQL_DEV PLAYER_DUMP BATTLEFIELD SERVER_LOADING OPCODES PROC DONATE BATTLEPET PROTOBUF AREATRIGGER GOLD WORLD_QUEST CHALLENGE PATH_GENERATOR MMAPS VMAPS DUNGEONBALANCE"
 
-Loggers=GENERAL UNITS PETS VEHICLES TSCR DATABASE_AI MAPSCRIPTS NETWORKIO SPELLS_AURAS ACHIEVEMENTSYS CONDITIONSYS POOLSYS AUCTIONHOUSE BATTLEGROUND OUTDOORPVP CHATSYS LFG MAPS PLAYER PLAYER_LOADING PLAYER_ITEMS PLAYER_SKILLS PLAYER_CHATLOG LOOT GUILD TRANSPORTS SQL GMCOMMAND REMOTECOMMAND WARDEN WORLDSERVER GAMEEVENTS CALENDAR CHARACTER SQL_DRIVER SQL_DEV PLAYER_DUMP BATTLEFIELD SERVER_LOADING OPCODES PROC DONATE BATTLEPET PROTOBUF AREATRIGGER GOLD WORLD_QUEST CHALLENGE PATH_GENERATOR MMAPS VMAPS
+Loggers=GENERAL UNITS PETS VEHICLES TSCR DATABASE_AI MAPSCRIPTS NETWORKIO SPELLS_AURAS ACHIEVEMENTSYS CONDITIONSYS POOLSYS AUCTIONHOUSE BATTLEGROUND OUTDOORPVP CHATSYS LFG MAPS PLAYER PLAYER_LOADING PLAYER_ITEMS PLAYER_SKILLS PLAYER_CHATLOG LOOT GUILD TRANSPORTS SQL GMCOMMAND REMOTECOMMAND WARDEN WORLDSERVER GAMEEVENTS CALENDAR CHARACTER SQL_DRIVER SQL_DEV PLAYER_DUMP BATTLEFIELD SERVER_LOADING OPCODES PROC DONATE BATTLEPET PROTOBUF AREATRIGGER GOLD WORLD_QUEST CHALLENGE PATH_GENERATOR MMAPS VMAPS DUNGEONBALANCE
 
 #
 #    QuestPOI.DisableErrors

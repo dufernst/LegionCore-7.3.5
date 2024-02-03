@@ -23,6 +23,7 @@
 #include "Common.h"
 #include "Player.h"
 #include "SharedDefines.h"
+#include "Unit.h"
 #include "World.h"
 #include "Weather.h"
 #include "ObjectMgr.h"
@@ -183,6 +184,21 @@ class FormulaScript : public ScriptObject
         virtual void OnGroupRateCalculation(float& /*rate*/, uint32 /*count*/, bool /*isRaid*/) { }
 };
 
+class AllMapScript : public ScriptObject
+{
+protected:
+
+    AllMapScript(std::string name);
+
+public:
+
+    // Called when a player enters any Map
+    virtual void OnPlayerEnterAll(Map* /*map*/, Player* /*player*/) { }
+
+    // Called when a player leave any Map
+    virtual void OnPlayerLeaveAll(Map* /*map*/, Player* /*player*/) { }
+};
+
 namespace Battlepay
 {
     struct Product;
@@ -294,6 +310,33 @@ class ItemScript : public ScriptObject
         virtual bool OnCreate(Player* /*player*/, Item* /*item*/) { return false; }
 };
 
+class UnitScript : public ScriptObject, public UpdatableScript<Unit>
+{
+    protected:
+
+        UnitScript(std::string name);
+
+    public:
+
+        // Called when a unit deals healing to another unit
+        virtual void OnHeal(Unit* healer, Unit* receiver, uint32& gain) { }
+
+        // Called when a unit deals damage to another unit
+        virtual void OnDamage(Unit* attacker, Unit* victim, uint32& damage) { }
+
+        // Called when DoT's Tick Damage is being Dealt
+        virtual void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage) { }
+
+        // Called when Melee Damage is being Dealt
+        virtual void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage) { }
+
+        // Called when Spell Damage is being Dealt
+        virtual void ModifySpellDamageTaken(Unit* target, Unit* attacker, float& damage) { }
+
+        // Called when heal is received
+        virtual void ModifyHealReceived(Unit* /*target*/, Unit* /*attacker*/, uint32& /*amount*/) { }
+};
+
 class CreatureScript : public ScriptObject, public UpdatableScript<Creature>
 {
     protected:
@@ -333,6 +376,9 @@ class CreatureScript : public ScriptObject, public UpdatableScript<Creature>
 
         // Called when a CreatureAI object is needed for the creature.
         virtual CreatureAI* GetAI(Creature* /*creature*/) const { return nullptr; }
+
+        // Called when heal is received
+        virtual void ModifyHealReceived(Unit* target, Unit* attacker, uint32& amount) { }
 };
 
 template<class AI>
@@ -919,6 +965,10 @@ class ScriptMgr
         void OnGainCalculation(uint32& gain, Player* player, Unit* unit);
         void OnGroupRateCalculation(float& rate, uint32 count, bool isRaid);
 
+        /* AllScript */
+        void OnPlayerEnterMapAll(Map* map, Player* player);
+        void OnPlayerLeaveMapAll(Map* map, Player* player);
+
         /* MapScript */
         void OnCreateMap(Map* map);
         void OnDestroyMap(Map* map);
@@ -1079,6 +1129,14 @@ class ScriptMgr
         void OnGroupRemoveMember(Group* group, ObjectGuid const& guid, RemoveMethod method, ObjectGuid const& kicker, const char* reason);
         void OnGroupChangeLeader(Group* group, ObjectGuid const& newLeaderGuid, ObjectGuid const& oldLeaderGuid);
         void OnGroupDisband(Group* group);
+
+        /* UnitScript */
+        void OnHeal(Unit* healer, Unit* receiver, uint32& gain);
+        void OnDamage(Unit* attacker, Unit* victim, uint32& damage);
+        void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage);
+        void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage);
+        void ModifySpellDamageTaken(Unit* target, Unit* attacker, float& damage);
+        void ModifyHealReceived(Unit* target, Unit* attacker, uint32& addHealth);
 
         /* Scheduled scripts */
         uint32 IncreaseScheduledScriptsCount() { return ++_scheduledScripts; }

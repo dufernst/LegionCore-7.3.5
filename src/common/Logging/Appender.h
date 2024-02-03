@@ -80,6 +80,7 @@ enum LogFilterType
     LOG_FILTER_PATH_GENERATOR      = 58, //world
     LOG_FILTER_MMAPS               = 59, //world
     LOG_FILTER_VMAPS               = 60, //world
+    LOG_FILTER_DUNGEONBALANCE      = 61, //world
 
     LOG_FILTER_MAX
 };
