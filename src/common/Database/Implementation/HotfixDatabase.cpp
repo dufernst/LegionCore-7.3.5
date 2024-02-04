@@ -2127,7 +2127,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "Logic1, Logic2, Logic3, Logic4, Logic5 FROM spell_item_enchantment_condition ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // SpellKeyboundOverride.db2
-    PrepareStatement(HOTFIX_SEL_SPELL_KEYBOUND_OVERRIDE, "SELECT ID, Function, Data, Type FROM spell_keybound_override ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_SPELL_KEYBOUND_OVERRIDE, "SELECT ID, `Function`, `Data`, `Type` FROM spell_keybound_override ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_SPELL_KEYBOUND_OVERRIDE, "SELECT ID, Function_lang FROM spell_keybound_override_locale WHERE locale = ?", CONNECTION_SYNCH);
 
     // SpellLabel.db2
