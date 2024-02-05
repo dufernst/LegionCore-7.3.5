@@ -79,7 +79,7 @@ public:
             {
                 TC_LOG_INFO(LOG_FILTER_DUNGEONBALANCE, "Incoming XP of %u for player %s from killing %s.", amount, player->GetName(), victim->GetName());
 
-                int8 maxPlayerCount = map->GetMapMaxPlayers();
+                uint16 maxPlayerCount = map->GetMapMaxPlayers();
 
                 if (maxPlayerCount == 10)
                     maxPlayerCount = 5;
