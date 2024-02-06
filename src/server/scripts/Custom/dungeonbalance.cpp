@@ -71,7 +71,7 @@ public:
 
     void OnGiveXP(Player* player, uint32& amount, Unit* victim) override
     {
-        TC_LOG_INFO(LOG_FILTER_DUNGEONBALANCE, "Incoming XP of %u.", amount);
+        TC_LOG_INFO(LOG_FILTER_DUNGEONBALANCE, "Incoming XP.");
 
         if (dungeonScaleDownXP && player && victim)
         {
