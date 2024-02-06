@@ -71,9 +71,13 @@ public:
 
     void OnGiveXP(Player* player, uint32& amount, Unit* victim) override
     {
+        TC_LOG_INFO(LOG_FILTER_DUNGEONBALANCE, "Incoming XP of %u.", amount);
+
         if (dungeonScaleDownXP && player && victim)
         {
             Map* map = player->GetMap();
+
+            TC_LOG_INFO(LOG_FILTER_DUNGEONBALANCE, "Incoming XP of %u for player %s from killing %s.", amount, player->GetName(), victim->GetName());
             
             if (map->IsDungeon() || map->IsRaidOrHeroicDungeon())
             {
