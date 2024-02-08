@@ -442,3 +442,11 @@ UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -50 WHERE `item` IN 
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -55 WHERE `item` = 23588 AND `entry` = 17034;
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -75 WHERE `item` IN (23589, 56040, 56224);
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` = 56187;
+
+-- Fix loot chance for the following quest items
+
+-- 24280 = Naga Claws
+
+DELETE FROM `creature_loot_template` WHERE `item` = 24280 AND `entry` IN (18122, 18123, 18132, 18154, 18213, 20079, 20090);
+
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` = 24280;  -- Should be 100% for all creatures during quest
