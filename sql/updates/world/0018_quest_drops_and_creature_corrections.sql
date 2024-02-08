@@ -54,14 +54,12 @@ UPDATE `creature_template` SET `minlevel` = 31, `maxlevel` = 32, `ScaleLevelMin`
 
 -- Fix loot chance for the following quest items
 
--- 2797 = Heart of Mokk (should be negative)
 -- 3897 = Dizzy's Eye
 -- 3910 = Snuff
 -- 3919 = Mistvale Giblets
 -- 3932 = Smotts' Chest
 -- 4016 = Zanzil's Mixture
 -- 4029 = Akiris Reed
--- 23681 = Heart of Naias (should be negative)
 -- 58225 = Braddok's Big Brain
 -- 58812 = Supple Tigress Fur
 -- 58813 = Velvety Panther Fur
@@ -70,7 +68,7 @@ UPDATE `creature_template` SET `minlevel` = 31, `maxlevel` = 32, `ScaleLevelMin`
 
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -10 WHERE `item` = 3897;
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` = 3897 AND `entry` = 2551;
-UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` IN (2797, 3932, 23681, 58225, 58812, 58813, 60380);
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` IN (3932, 58225, 58812, 58813, 60380);
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -33 WHERE `item` = 4016;
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -40 WHERE `item` = 3919;
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -50 WHERE `item` = 58901;
@@ -269,16 +267,6 @@ UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -35 WHERE `item` IN 
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -50 WHERE `item` = 11831;
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -75 WHERE `item` = 51778;
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` IN (11477, 11509, 50371, 52281);
-
--- Fix loot chance for the following quest items
-
--- NOTE: These SHOULD be negative but they do not drop for some reason!!!
--- Need to come back to this and figure out why these break when marked as quest only (like they should be).
-
--- 2797 = Heart of Mokk
--- 23681 = Heart of Naias
-
-UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = 100 WHERE `item` IN (2797, 23681);
 
 -- Fix loot chance for the following quest items
 
