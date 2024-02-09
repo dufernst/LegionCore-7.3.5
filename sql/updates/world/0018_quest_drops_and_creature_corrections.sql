@@ -446,7 +446,22 @@ UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` = 
 -- Fix loot chance for the following quest items
 
 -- 24280 = Naga Claws
+-- 24372 = Diaphanous Wing
+-- 25448 = Blacksting's Stinger
+-- 29480 = Parched Hydra Sample
+-- 29481 = Withered Bog Lord Sample
+-- 44863 = Corrupted Tide Crawler Flesh
+-- 58236 = Umboda's Head
+-- Tablet of Shadra
 
 DELETE FROM `creature_loot_template` WHERE `item` = 24280 AND `entry` IN (18122, 18123, 18132, 18154, 18213, 20079, 20090);
+DELETE FROM `creature_loot_template` WHERE `item` = 24372 AND `entry` IN (18086, 18122, 18134, 18135);
+DELETE FROM `creature_loot_template` WHERE `item` = 25448 AND `entry` = 20270;
+DELETE FROM `creature_loot_template` WHERE `item` = 29480 AND `entry` IN (18124, 19402);
+DELETE FROM `creature_loot_template` WHERE `item` = 29481 AND `entry` IN (18124, 20324);
 
-UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` = 24280;  -- Should be 100% for all creatures during quest
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` IN (24280, 25448, 58236);
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -40 WHERE `item` = 24372;
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -50 WHERE `item` = 29480;
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -50 WHERE `item` = 29481;
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -45 WHERE `item` = 44863;
