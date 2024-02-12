@@ -465,3 +465,13 @@ UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -40 WHERE `item` = 2
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -50 WHERE `item` = 29480;
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -50 WHERE `item` = 29481;
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -45 WHERE `item` = 44863;
+
+-- Fix loot chance for the following quest items
+
+-- 51793 = Ocular Crystal
+-- 64586 = Prime Rubble Chunk
+-- 64587 = Fresh-Cut Frostwood
+-- 64664 = Icewhomp's Pristine Horns
+
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` IN (64586, 64587, 64664);
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -75 WHERE `item` = 51793;
