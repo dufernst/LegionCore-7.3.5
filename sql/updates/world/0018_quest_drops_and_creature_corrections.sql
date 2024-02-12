@@ -485,3 +485,9 @@ UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -45 WHERE `item` = 4
 
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` IN (20385, 20394, 20395, 20396, 62918, 63088, 63279, 63522, 63687, 63695, 64586, 64587, 64664);
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -75 WHERE `item` = 51793;
+
+-- Fix loot chance for the following game objects
+
+-- 20378 = Twilight Tablet Fragment
+
+UPDATE `gameobject_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` = 20378;
