@@ -468,10 +468,20 @@ UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -45 WHERE `item` = 4
 
 -- Fix loot chance for the following quest items
 
+-- 20385 = Deathclasp's Pincer
+-- 20394 = Twilight Lexicon - Chapter 1
+-- 20395 = Twilight Lexicon - Chapter 2
+-- 20396 = Twilight Lexicon - Chapter 3
 -- 51793 = Ocular Crystal
+-- 62918 = Cursed Ooze
+-- 63088 = Corrupted Pelt
+-- 63279 = Kitty's Eartag
+-- 63522 = Entropic Essence
+-- 63687 = Kroshius' Infernal Core
+-- 63695 = Drizle's Key
 -- 64586 = Prime Rubble Chunk
 -- 64587 = Fresh-Cut Frostwood
 -- 64664 = Icewhomp's Pristine Horns
 
-UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` IN (64586, 64587, 64664);
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` IN (20385, 20394, 20395, 20396, 62918, 63088, 63279, 63522, 63687, 63695, 64586, 64587, 64664);
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -75 WHERE `item` = 51793;
