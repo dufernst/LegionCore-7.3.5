@@ -491,3 +491,11 @@ UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -75 WHERE `item` = 5
 -- 20378 = Twilight Tablet Fragment
 
 UPDATE `gameobject_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` = 20378;
+
+-- Fix missing quest starter
+
+-- 28782 = A Bird of Legend (Winterspring)
+
+DELETE FROM `creature_queststarter` WHERE `quest` = 28782;
+INSERT INTO `creature_queststarter` (`id`, `quest`) VALUES
+(49537,28782);
