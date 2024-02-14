@@ -468,10 +468,13 @@ UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -45 WHERE `item` = 4
 
 -- Fix loot chance for the following quest items
 
+-- 12829 = Winterfall Crate
+-- 12842 = Crudely-Written Log
 -- 20385 = Deathclasp's Pincer
 -- 20394 = Twilight Lexicon - Chapter 1
 -- 20395 = Twilight Lexicon - Chapter 2
 -- 20396 = Twilight Lexicon - Chapter 3
+-- 24238 = Mushroom Sample
 -- 51793 = Ocular Crystal
 -- 62918 = Cursed Ooze
 -- 63088 = Corrupted Pelt
@@ -479,12 +482,26 @@ UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -45 WHERE `item` = 4
 -- 63522 = Entropic Essence
 -- 63687 = Kroshius' Infernal Core
 -- 63695 = Drizle's Key
+-- 64441 = Memory of Zin-Malor
+-- 64449 = Suspicious Green Sludge
+-- 64463 = Shard of the Spiritspeaker
+-- 64465 = Rimepelt's Heart
 -- 64586 = Prime Rubble Chunk
 -- 64587 = Fresh-Cut Frostwood
 -- 64664 = Icewhomp's Pristine Horns
+-- 65903 = Winterwater
+-- 66052 = Mana-Addled Brain
+-- 74615 = Paint Soaked Brush
 
-UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` IN (20385, 20394, 20395, 20396, 62918, 63088, 63279, 63522, 63687, 63695, 64586, 64587, 64664);
-UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -75 WHERE `item` = 51793;
+DELETE FROM `creature_loot_template` WHERE `item` = 74615 AND NOT `entry` = 55601;
+
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` IN (12829, 20385, 20394, 20395, 20396, 62918, 63088, 63279, 63522, 63687, 63695, 64441, 64463, 64465, 64586, 64587, 64664, 74615);
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` = 24238 AND `entry` = 18159;
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -75 WHERE `item` IN (51793, 64449, 66052);
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -75 WHERE `item` = 65903 AND `entry` = 50251;
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -50 WHERE `item` = 24238 AND `entry` IN (18117, 18118, 20443);
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -50 WHERE `item` = 65903 AND `entry` = 50250;
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = 100 WHERE `item` = 12842;
 
 -- Fix loot chance for the following game objects
 
