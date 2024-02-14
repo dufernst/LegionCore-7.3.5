@@ -35,7 +35,7 @@ AABox::AABox(const Any& a) {
         } else if (a.size() == 2) {
             set(Point3(a[0]), Point3(a[1]));
         } else {
-            a.verify(false, "AABox must recieve exactly 1 or two arguments.");
+            a.verify(false, "AABox must receive exactly 1 or two arguments.");
         }
     }
 }
