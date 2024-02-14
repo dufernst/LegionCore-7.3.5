@@ -33924,6 +33924,13 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
 
     SetGroupUpdateFlag(GROUP_UPDATE_FLAG_SPECIALIZATION_ID);
 
+    AddDelayedEvent(100, [this]() -> void
+    {
+        PhaseUpdateData phaseUdateData;
+        phaseUdateData.AddConditionType(CONDITION_SPEC_ID);
+        GetPhaseMgr().NotifyConditionChanged(phaseUdateData);
+    });
+
     AddDelayedEvent(500, [this]() -> void
     {
         for (uint8 i = INVENTORY_SLOT_ITEM_START; i < GetInventoryEndSlot(); ++i)
