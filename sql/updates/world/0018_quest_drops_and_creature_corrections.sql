@@ -320,6 +320,8 @@ INSERT INTO `disables` (`sourceType`, `entry`, `flags`, `params_0`, `params_1`, 
 -- 63028 = Rasha'krak's Bracers of Binding
 -- 63421 = Obsidian Ashes
 
+DELETE FROM `creature_loot_template` WHERE `item` = 23270 AND `entry` IN (16844, 16857);
+
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -1 WHERE `item` = 23217 AND `entry` = 16932;
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -4 WHERE `item` = 23217 AND `entry` = 19189;
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -10 WHERE `item` = 23270 AND `entry` IN (16844, 16857);
