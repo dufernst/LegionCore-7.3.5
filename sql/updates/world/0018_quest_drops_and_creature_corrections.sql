@@ -1008,3 +1008,31 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (1335390,236,-834.777,2934.65,9.85154,0,0,0,0,0,0,100,0,0),
 (1335390,237,-798.149,2944.98,13.1871,0,0,0,0,0,0,100,0,0),
 (1335390,238,-766.563,2949.09,17.1086,0,0,0,0,0,0,100,0,0);
+
+-- Fix loot chance for the following quest items
+
+-- 10754 = Amulet of Sevine
+-- 10755 = Amulet of Allistarj
+-- 23580 = Avruu's Orb
+-- 27861 = Lathrai's Stolen Goods
+-- 29588 = Burning Legion Missive
+-- 62919 = Claw of Tichondrius
+
+DELETE FROM `creature_loot_template` WHERE `entry` = 18541 AND `item` = 27861;
+DELETE FROM `creature_loot_template` WHERE `entry` IN (17035, 17053) AND `item` = 23580;
+DELETE FROM `creature_loot_template` WHERE `entry` IN (16946, 16947, 16954, 16960) AND `item` = 29588;
+
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = 100 WHERE `item` IN (23580, 29588);
+
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` IN (10754, 10755, 62919);
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -40 WHERE `item` = 27861;
+
+-- Fix fishing dailies
+
+-- "Stocking Up" fishing daily for Lake Whitefish (69912) in Darnassus has incorrect chance and extra record
+-- "Bait Bandits" Blackfin Darter (34865) is incorrectly not marked as a quest item
+
+DELETE FROM `fishing_loot_template` WHERE `entry` = 141 AND `item` = 69912;
+
+UPDATE `fishing_loot_template` SET `ChanceOrQuestChance` = -40 WHERE `entry` = 1657 AND `item` = 69912;
+UPDATE `fishing_loot_template` SET `ChanceOrQuestChance` = -10 WHERE `entry` = 3519 AND `item` = 34865;
