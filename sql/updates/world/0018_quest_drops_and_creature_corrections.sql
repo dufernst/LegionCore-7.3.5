@@ -1060,3 +1060,11 @@ UPDATE `fishing_loot_template` SET `ChanceOrQuestChance` = -10 WHERE `entry` = 3
 -- 25841 = Draenei Vessel
 
 UPDATE `gameobject_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` IN (25638, 25642, 25745, 25841);
+
+-- Remove duplicated quest
+
+-- 26782 = The Mosh'Ogg Bounty
+
+DELETE FROM `disables` WHERE `sourceType` = 1 AND `entry` = 26782;
+INSERT INTO `disables` (`sourceType`, `entry`, `flags`, `params_0`, `params_1`, `comment`) VALUES
+(1, 26782, 0, '', '', 'Duplicate quest: The Mosh''Ogg Bounty');
