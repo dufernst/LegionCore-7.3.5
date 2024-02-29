@@ -1054,12 +1054,19 @@ UPDATE `fishing_loot_template` SET `ChanceOrQuestChance` = -10 WHERE `entry` = 3
 
 -- Fix game object chance
 
+-- 938 = Muddy Journal Pages
 -- 25638 = Eye of Veil Reskk
 -- 25642 = Eye of Veil Shienor
 -- 25745 = Olemba Seed
 -- 25841 = Draenei Vessel
+-- 58205 = Mosh'Ogg Bounty
+-- 58281 = Fang of Shadra
+-- 59524 = Narkk's Handbombs
+-- 60214 = Kurzen Compound Prison Records
+-- 60215 = Kurzen Compound Officers' Dossier
+-- 60295 = Bloodscalp Lore Tablet
 
-UPDATE `gameobject_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` IN (25638, 25642, 25745, 25841);
+UPDATE `gameobject_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` IN (938, 25638, 25642, 25745, 25841, 58205, 58281, 59524, 60214, 60215, 60295);
 
 -- Remove duplicated quest
 
@@ -1068,3 +1075,9 @@ UPDATE `gameobject_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` 
 DELETE FROM `disables` WHERE `sourceType` = 1 AND `entry` = 26782;
 INSERT INTO `disables` (`sourceType`, `entry`, `flags`, `params_0`, `params_1`, `comment`) VALUES
 (1, 26782, 0, '', '', 'Duplicate quest: The Mosh''Ogg Bounty');
+
+-- Fix loot chance for the following quest items
+
+-- 3863 = Jungle Stalker Feather
+
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -50 WHERE `item` IN (3863);
