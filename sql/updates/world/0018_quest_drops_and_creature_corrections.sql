@@ -1098,5 +1098,14 @@ UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` IN
 -- 2605 = Zalas Witherbark (Rare)
 -- 2611 = Fozruk
 -- 2619 = Hammerfall Grunt
+-- 5350 = Qirot
+-- 14661 = Stinglasher
 
 UPDATE `creature_template` SET `minlevel` = 27, `maxlevel` = 27, `ScaleLevelMin` = 25, `ScaleLevelMax` = 60 WHERE `entry` IN (2557, 2573, 2574, 2602, 2605, 2611, 2619);
+UPDATE `creature_template` SET `minlevel` = 35, `maxlevel` = 35, `ScaleLevelMin` = 35, `ScaleLevelMax` = 60 WHERE `entry` IN (5350, 14661);
+
+-- Fix quest that is incorrectly marked as Alliance
+
+-- 26023 = The Forsaken Trollbane
+
+UPDATE `quest_template` SET `AllowableRaces` = 234881970 WHERE `ID` = 26023;
