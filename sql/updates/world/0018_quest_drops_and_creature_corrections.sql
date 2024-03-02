@@ -1037,6 +1037,9 @@ UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -40 WHERE `item` = 2
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -25 WHERE `entry` IN (18476, 18477) AND `item` = 25807;
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -10 WHERE `entry` = 18670 AND `item` = 25807;
 
+UPDATE `creature_template_wdb` SET `QuestItem2` = 25807 WHERE `entry` IN (18476, 18477, 18670);  -- Show that the Timber Worg Tail drops
+UPDATE `creature_template_wdb` SET `QuestItem9` = 0 WHERE `entry` = 18461;  -- Dampscale Basilisk does NOT drop the Prestine Shimmerscale Eel!
+
 -- Arakkoa Feather
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -50 WHERE `item` = 25719;  -- Set all initially to 50%, specific entries follow
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `entry` = 18533 AND `item` = 25719;
