@@ -1099,10 +1099,13 @@ UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` IN
 -- 2611 = Fozruk
 -- 2619 = Hammerfall Grunt
 -- 5350 = Qirot
+-- 5937 = Vile Sting
 -- 14661 = Stinglasher
+-- 51000 = Blackshell the Impenetrable
 
 UPDATE `creature_template` SET `minlevel` = 27, `maxlevel` = 27, `ScaleLevelMin` = 25, `ScaleLevelMax` = 60 WHERE `entry` IN (2557, 2573, 2574, 2602, 2605, 2611, 2619);
 UPDATE `creature_template` SET `minlevel` = 35, `maxlevel` = 35, `ScaleLevelMin` = 35, `ScaleLevelMax` = 60 WHERE `entry` IN (5350, 14661);
+UPDATE `creature_template` SET `minlevel` = 40, `maxlevel` = 40, `ScaleLevelMin` = 40, `ScaleLevelMax` = 60 WHERE `entry` IN (5937, 51000);
 
 -- Fix quest that is incorrectly marked as Alliance
 
