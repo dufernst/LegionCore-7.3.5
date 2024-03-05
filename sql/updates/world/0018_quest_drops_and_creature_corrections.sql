@@ -1113,6 +1113,10 @@ UPDATE `creature_template` SET `minlevel` = 27, `maxlevel` = 27, `ScaleLevelMin`
 UPDATE `creature_template` SET `minlevel` = 35, `maxlevel` = 35, `ScaleLevelMin` = 35, `ScaleLevelMax` = 60 WHERE `entry` IN (5350, 14661);
 UPDATE `creature_template` SET `minlevel` = 40, `maxlevel` = 40, `ScaleLevelMin` = 40, `ScaleLevelMax` = 60 WHERE `entry` IN (5937, 51000, 51017, 51018, 51021);
 
+-- Fix faction on Vorticus
+
+UPDATE `creature_template` SET `faction` = 14 WHERE `entry` = 51021;
+
 -- Add missing rare spawns
 
 -- 51017 = Gezan
