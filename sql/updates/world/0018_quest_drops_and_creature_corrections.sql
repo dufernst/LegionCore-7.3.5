@@ -1101,14 +1101,32 @@ UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` IN
 -- 2605 = Zalas Witherbark (Rare)
 -- 2611 = Fozruk
 -- 2619 = Hammerfall Grunt
--- 5350 = Qirot
+-- 5350 = Qirotm
 -- 5937 = Vile Sting
 -- 14661 = Stinglasher
 -- 51000 = Blackshell the Impenetrable
 
 UPDATE `creature_template` SET `minlevel` = 27, `maxlevel` = 27, `ScaleLevelMin` = 25, `ScaleLevelMax` = 60 WHERE `entry` IN (2557, 2573, 2574, 2602, 2605, 2611, 2619);
 UPDATE `creature_template` SET `minlevel` = 35, `maxlevel` = 35, `ScaleLevelMin` = 35, `ScaleLevelMax` = 60 WHERE `entry` IN (5350, 14661);
-UPDATE `creature_template` SET `minlevel` = 40, `maxlevel` = 40, `ScaleLevelMin` = 40, `ScaleLevelMax` = 60 WHERE `entry` IN (5937, 51000);
+UPDATE `creature_template` SET `minlevel` = 40, `maxlevel` = 40, `ScaleLevelMin` = 40, `ScaleLevelMax` = 60 WHERE `entry` IN (5937, 51000, 51017);
+
+-- Add missing rare spawns
+
+-- 51017 = Gezan
+-- 51018 = Zormus
+-- 51021 = Vorticus
+
+DELETE FROM `creature` WHERE `id` IN (51017, 51018, 51021);
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseId`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `npcflag2`, `unit_flags`, `dynamicflags`, `AiID`, `MovementID`, `MeleeID`, `isActive`, `skipClone`, `personal_size`, `isTeemingSpawn`, `unit_flags3`) VALUES
+(800000,51017,1,361,1767,1,1,'',0,0,5950.87,-1376.14,424.29,0.931421,300,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0),
+(800001,51018,0,3,3,1,1,'',0,0,-6542.26,-3489.44,292.87,3.066898,300,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0),
+(800002,51021,0,3,3,1,1,'',0,0,-6609.88,-2623.53,265.83,3.495167,300,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0);
+
+-- Fix creature location
+
+-- 18648 = Stonegazer
+
+UPDATE `creature` SET `position_x` = -2072.92, `position_y` = 3629.56, `position_z` = -64.28, `orientation` = 3.412601 WHERE `id` = 18648;
 
 -- Fix quest that is incorrectly marked as Alliance
 
