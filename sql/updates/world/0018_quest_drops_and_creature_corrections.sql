@@ -1115,3 +1115,9 @@ UPDATE `creature_template` SET `minlevel` = 40, `maxlevel` = 40, `ScaleLevelMin`
 -- 26023 = The Forsaken Trollbane
 
 UPDATE `quest_template` SET `AllowableRaces` = 234881970 WHERE `ID` = 26023;
+
+-- Update missing quest text
+
+-- 13826 = Nat Pagle, Angler Extreme
+
+UPDATE `quest_template` SET `LogDescription` = 'Well hello there, young $C. Either my memory is failing me, or I forgot to give you this last time we spoke...' WHERE `ID` = 13826;
