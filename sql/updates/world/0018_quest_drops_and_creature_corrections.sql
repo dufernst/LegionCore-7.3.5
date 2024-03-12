@@ -1288,3 +1288,9 @@ UPDATE `quest_template` SET `AllowableRaces` = 234881970 WHERE `ID` IN (11597, 2
 -- 13826 = Nat Pagle, Angler Extreme
 
 UPDATE `quest_template` SET `LogDescription` = 'Well hello there, young $C. Either my memory is failing me, or I forgot to give you this last time we spoke...' WHERE `ID` = 13826;
+
+-- Fix quest previous quest requirement
+
+-- 11672 = Enlistment Day
+
+UPDATE `quest_template_addon` SET `PrevQuestID` = 0 WHERE `ID` = 11672;
