@@ -1065,14 +1065,18 @@ UPDATE `fishing_loot_template` SET `ChanceOrQuestChance` = -10 WHERE `entry` = 3
 -- 25642 = Eye of Veil Shienor
 -- 25745 = Olemba Seed
 -- 25841 = Draenei Vessel
+-- 25911 = Salvaged Wood (Alliance)
+-- 25912 = Salvaged Metal (Alliance)
 -- 58205 = Mosh'Ogg Bounty
 -- 58281 = Fang of Shadra
 -- 59524 = Narkk's Handbombs
 -- 60214 = Kurzen Compound Prison Records
 -- 60215 = Kurzen Compound Officers' Dossier
 -- 60295 = Bloodscalp Lore Tablet
+-- 67419 = Salvaged Metal (Horde)
+-- 67420 = Salvaged Wood (Horde)
 
-UPDATE `gameobject_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` IN (938, 4483, 4484, 4485, 25638, 25642, 25745, 25841, 58205, 58281, 59524, 60214, 60215, 60295);
+UPDATE `gameobject_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` IN (938, 4483, 4484, 4485, 25638, 25642, 25745, 25841, 25911, 25912, 58205, 58281, 59524, 60214, 60215, 60295, 67419, 67420);
 
 -- Remove duplicated quest
 
