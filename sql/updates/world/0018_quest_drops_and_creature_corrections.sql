@@ -1278,9 +1278,10 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 
 -- Fix quest that is incorrectly marked as Alliance
 
+-- 11597 = The Defense of Warsong Hold
 -- 26023 = The Forsaken Trollbane
 
-UPDATE `quest_template` SET `AllowableRaces` = 234881970 WHERE `ID` = 26023;
+UPDATE `quest_template` SET `AllowableRaces` = 234881970 WHERE `ID` IN (11597, 26023);
 
 -- Update missing quest text
 
