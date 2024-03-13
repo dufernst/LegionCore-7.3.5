@@ -1,3 +1,8 @@
+/*
+	New `creature` GUIDs start at 800000
+	New `gameobject` GUIDs start at 800000
+*/
+
 -- Fix loot chance for the following quest items
 
 -- Most of these should be 100%
@@ -1309,3 +1314,25 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (25743,0,0,0,6,0,100,512,0,0,0,0,11,46221,2,0,0,0,0,7,0,0,0,0,0,0,0,'Wooly Mammoth Bull - On Just Died - Cast ''Animal Blood'''),
 (25743,0,1,0,27,0,100,0,0,0,0,0,8,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Wooly Mammoth Bull - On Passenger Boarded - Set ReactState Passive'),
 (25743,0,2,0,28,0,100,0,0,0,0,0,41,1000,0,0,0,0,0,1,0,0,0,0,0,0,0,'Wooly Mammoth Bull - On Passenger Removed - Despawn');
+
+-- Add missing portals in Dalaran
+
+-- 191006 = Dalaran Portal to Darnassus
+-- 191007 = Dalaran Portal to Exodar
+-- 191008 = Dalaran Portal to Ironforge
+-- 191010 = Dalaran Portal to Silvermoon
+-- 191011 = Dalaran Portal to Thunder Bluff
+-- 191012 = Dalaran Portal to Undercity
+-- 191013 = Dalaran Portal to Shattrath (Alliance)
+-- 191014 = Dalaran Portal to Shattrath (Horde)
+
+DELETE FROM `gameobject` WHERE id IN (191006, 191007, 191008, 191010, 191011, 191012, 191013, 191014);
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseId`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `AiID`, `state`, `isActive`, `personal_size`) VALUES
+(800000, 191006, 571, 4395, 4740, 1, 1, '', 5706.16, 730.102, 641.745, -0.820303, 0, 0, 0, 1, 300, 100, 0, 1, 0, 0),
+(800001, 191007, 571, 4395, 4740, 1, 1, '', 5699.58, 735.469, 641.769, 2.02458, 0, 0, 0, 1, 300, 100, 0, 1, 0, 0),
+(800002, 191008, 571, 4395, 4740, 1, 1, '', 5712.68, 724.845, 641.736, 0.890117, 0, 0, 0, 1, 300, 100, 0, 1, 0, 0),
+(800003, 191010, 571, 4395, 4740, 1, 1, '', 5946.98, 568.479, 640.573, 1.6057, 0, 0, 0, 1, 300, 100, 0, 1, 0, 0),
+(800004, 191011, 571, 4395, 4740, 1, 1, '', 5945.81, 577.357, 640.574, 1.79769, 0, 0, 0, 1, 300, 100, 0, 1, 0, 0),
+(800005, 191012, 571, 4395, 4740, 1, 1, '', 5934.66, 590.688, 640.575, -1.6057, 0, 0, 0, 1, 300, 100, 0, 1, 0, 0),
+(800006, 191013, 571, 4395, 4740, 1, 1, '', 5697.49, 744.912, 641.819, -0.663223, 0, 0, 0, 1, 300, 100, 0, 1, 0, 0),
+(800007, 191014, 571, 4395, 4740, 1, 1, '', 5941.66, 584.887, 640.574, 0.331611, 0, 0, 0, 1, 300, 100, 0, 1, 0, 0);
