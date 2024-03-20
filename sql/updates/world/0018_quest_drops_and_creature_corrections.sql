@@ -313,6 +313,7 @@ INSERT INTO `disables` (`sourceType`, `entry`, `flags`, `params_0`, `params_1`, 
 -- 23218 = Condensed Voidwalker Essence
 -- 23239 = Plump Buzzard Wing
 -- 23270 = Tainted Helboar Meat
+-- 23336 = Helboar Blood Sample
 -- 30157 = Cursed Talisman
 -- 56264 = Dark Iron Attack Plans
 -- 58202 = Stolen Powder Keg
@@ -334,6 +335,7 @@ UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -15 WHERE `item` = 3
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -15 WHERE `item` = 30157 AND `entry` = 19442;
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -22 WHERE `item` = 23217 AND `entry` = 16933;
 
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -33 WHERE `item` = 23336;
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -40 WHERE `item` = 2676;
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -50 WHERE `item` = 23239;
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -50 WHERE `item` = 30157 AND `entry` IN (16871, 16873, 16907, 19422, 19424);
@@ -341,6 +343,14 @@ UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -80 WHERE `item` = 2
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -85 WHERE `item` = 62914;
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` = 23270 AND `entry` IN (16863, 16879, 16880);
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` IN (3084, 3627, 10005, 56264, 58202, 60496, 62805, 62807, 62809, 62916, 63028, 63421);
+
+-- Fix "Hulking Helboar" drop table (which will fix the "Helboar Blood Sample" and "Tainted Helboar Meat" quest drops)
+
+DELETE FROM `creature_loot_template` WHERE `entry` = 16880 AND `item` IN (5760, 22573, 23965, 23979, 27674);
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = 82 WHERE `entry` = 16880 AND `item` = 3403;
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = 100 WHERE `entry` = 16880 AND `item` = 25440;  -- should be 1.5% but this will fix quest items!
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = 0.3 WHERE `entry` = 16880 AND `item` = 25442;
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = 16 WHERE `entry` = 16880 AND `item` = 44755;
 
 -- Fix battle pets that should not be green to you
 
