@@ -348,7 +348,7 @@ UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` IN
 
 DELETE FROM `creature_loot_template` WHERE `entry` = 16880 AND `item` IN (5760, 22573, 23965, 23979, 27674);
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = 82 WHERE `entry` = 16880 AND `item` = 3403;
-UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = 100 WHERE `entry` = 16880 AND `item` = 25440;  -- should be 1.5% but this will fix quest items!
+UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = 100 WHERE `entry` = 16880 AND `item` = 25440;  -- TODO: should be 1.5% but this will fix quest items!
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = 0.3 WHERE `entry` = 16880 AND `item` = 25442;
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = 16 WHERE `entry` = 16880 AND `item` = 44755;
 
@@ -427,6 +427,7 @@ UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -0.0187 WHERE `item`
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` = 29795 AND `entry` = 19298;
 
 -- Fix "Young Murk Thresher" drop table (which will fix the "Thresher Oil" quest drop)
+-- TODO Ajdust drop rate of quest item and other items here once the loot system is fixed
 
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = -60 WHERE `entry` = 4388 AND `item` = 33126;
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = 10 WHERE `entry` = 4388 AND `item` = 2608;
