@@ -530,6 +530,10 @@ UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = 100 WHERE `item` = 1
 
 -- 20378 = Twilight Tablet Fragment
 
+DELETE FROM `gameobject_loot_template` WHERE `entry` = 180501 AND `item` = 20378;
+INSERT INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(180501, 20378, -100, 1, 0, 1, 1);
+
 UPDATE `gameobject_loot_template` SET `ChanceOrQuestChance` = -100 WHERE `item` = 20378;
 
 -- Fix missing quest starter
