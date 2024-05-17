@@ -36013,7 +36013,7 @@ bool Player::IsForbiddenMapForLevel(uint32 mapid, uint32 zone)
             break;
         case 870:
             if (getClass() != CLASS_MONK)
-                minLevel = 85;
+                minLevel = 80;
             break;
         case 1116: //Draenor
         case 1265: //Dark Portal
