@@ -63,6 +63,10 @@ include(Macros)
 find_package(PCHSupport)
 find_package(MySQL)
 
+if(NOT WITHOUT_GIT)
+  find_package(Git 1.7)
+endif()
+
 if( UNIX )
   find_package(Readline)
   find_package(ZLIB)
