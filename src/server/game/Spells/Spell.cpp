@@ -6731,7 +6731,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         Player* playerCaster = m_caster->ToPlayer();
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD) && m_caster->HasSpellCooldown(m_spellInfo->Id))
         {
-            if (m_triggeredByAuraSpell)
+            if (IsTriggered() || m_triggeredByAuraSpell)
                 return SPELL_FAILED_DONT_REPORT;
             if(!m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_IGNORE_CD, m_spellInfo))
                 return SPELL_FAILED_NOT_READY;
