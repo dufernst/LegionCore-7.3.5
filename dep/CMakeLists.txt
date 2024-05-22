@@ -8,20 +8,6 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  string(REGEX REPLACE "/W[0-4] " "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-  string(REGEX REPLACE "/W[0-4] " "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-  add_definitions(/W0)
-else()
-  add_definitions(-w)
-endif()
-
-if( CMAKE_COMPILER_IS_GNUCXX )
-  add_definitions(--no-warnings)
-elseif( MSVC )
-  add_definitions(/W0)
-endif()
-
 add_subdirectory(threads)
 add_subdirectory(boost)
 add_subdirectory(process)
