@@ -450,6 +450,10 @@ void WorldSession::HandleCancelAura(WorldPackets::Spells::CancelAura& packet)
     if (!spellInfo->IsPositive() || spellInfo->IsPassive())
         return;
 
+    if (spellInfo->Id == SPELL_MERCENARY_CONTRACT_HORDE || spellInfo->Id == SPELL_MERCENARY_CONTRACT_ALLIANCE)
+        if (_player->InBattlegroundQueue())
+            return;
+
     player->RemoveOwnedAura(packet.SpellID, packet.CasterGUID, 0, AURA_REMOVE_BY_CANCEL);
 }
 

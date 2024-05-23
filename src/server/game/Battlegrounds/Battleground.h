@@ -164,6 +164,11 @@ enum BattlegroundSpells
     SPELL_BG_DESERTER                   = 26013,  // Battleground Deserter Spell
     SPELL_BG_CRAVEN                     = 158263, // Arena Deserter Spell
     SPELL_BG_LEVEL_OF_CRAVEN            = 158950, // Hidden spell for apply diminishing to arena deserter duration
+
+    SPELL_MERCENARY_HORDE_1             = 193864,
+    SPELL_MERCENARY_HORDE_2             = 195838,
+    SPELL_MERCENARY_ALLIANCE_1          = 193863,
+    SPELL_MERCENARY_ALLIANCE_2          = 195843,
 };
 
 static Milliseconds const PositionBroadcastUpdate = Seconds(5);
