@@ -485,8 +485,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellHealPredicti
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData const& spellCastData)
 {
-    data << spellCastData.CasterUnit;
     data << spellCastData.CasterGUID;
+    data << spellCastData.CasterUnit;
     data << spellCastData.CastGuid;
     data << spellCastData.CastGuid2;
 
