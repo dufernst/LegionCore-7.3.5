@@ -30,6 +30,8 @@ EndScriptData */
 #include "GitRevision.h"
 #include "Anticheat.h"
 
+#include <regex>
+
 class server_commandscript : public CommandScript
 {
 public:
@@ -52,12 +54,14 @@ public:
         static std::vector<ChatCommand> serverRestartCommandTable =
         {
             { "cancel",         SEC_ADMINISTRATOR,  true,  &HandleServerShutDownCancelCommand,      ""},
+            { "force",          SEC_ADMINISTRATOR,  true,  &HandleServerForceRestartCommand,        ""},
             { ""   ,            SEC_ADMINISTRATOR,  true,  &HandleServerRestartCommand,             ""}
         };
 
         static std::vector<ChatCommand> serverShutdownCommandTable =
         {
             { "cancel",         SEC_ADMINISTRATOR,  true,  &HandleServerShutDownCancelCommand,      ""},
+            { "force",          SEC_ADMINISTRATOR,  true,  &HandleServerForceShutDownCommand,       ""},
             { ""   ,            SEC_ADMINISTRATOR,  true,  &HandleServerShutDownCommand,            ""}
         };
 
@@ -71,22 +75,22 @@ public:
 
         static std::vector<ChatCommand> serverCommandTable =
         {
-            { "corpses",        SEC_GAMEMASTER,     true,  &HandleServerCorpsesCommand,             ""},
-            { "anticheatReload", SEC_ADMINISTRATOR, true,  &HandleReloadAnticheatCommand,           ""},
-            { "exit",           SEC_CONSOLE,        true,  &HandleServerExitCommand,                ""},
-            { "idlerestart",    SEC_ADMINISTRATOR,  true,  NULL,                                    "", serverIdleRestartCommandTable },
-            { "idleshutdown",   SEC_ADMINISTRATOR,  true,  NULL,                                    "", serverIdleShutdownCommandTable },
-            { "info",           SEC_PLAYER,         true,  &HandleServerInfoCommand,                ""},
-            { "motd",           SEC_PLAYER,         true,  &HandleServerMotdCommand,                ""},
-            { "plimit",         SEC_ADMINISTRATOR,  true,  &HandleServerPLimitCommand,              ""},
-            { "restart",        SEC_ADMINISTRATOR,  true,  NULL,                                    "", serverRestartCommandTable },
-            { "shutdown",       SEC_ADMINISTRATOR,  true,  NULL,                                    "", serverShutdownCommandTable },
-            { "set",            SEC_ADMINISTRATOR,  true,  NULL,                                    "", serverSetCommandTable }
+            { "corpses",         SEC_GAMEMASTER,     true,  &HandleServerCorpsesCommand,             ""},
+            { "anticheatReload", SEC_ADMINISTRATOR,  true,  &HandleReloadAnticheatCommand,           ""},
+            { "exit",            SEC_CONSOLE,        true,  &HandleServerExitCommand,                ""},
+            { "idlerestart",     SEC_ADMINISTRATOR,  true,  nullptr,                                 "", serverIdleRestartCommandTable },
+            { "idleshutdown",    SEC_ADMINISTRATOR,  true,  nullptr,                                 "", serverIdleShutdownCommandTable },
+            { "info",            SEC_PLAYER,         true,  &HandleServerInfoCommand,                ""},
+            { "motd",            SEC_PLAYER,         true,  &HandleServerMotdCommand,                ""},
+            { "plimit",          SEC_ADMINISTRATOR,  true,  &HandleServerPLimitCommand,              ""},
+            { "restart",         SEC_ADMINISTRATOR,  true,  nullptr,                                 "", serverRestartCommandTable },
+            { "shutdown",        SEC_ADMINISTRATOR,  true,  nullptr,                                 "", serverShutdownCommandTable },
+            { "set",             SEC_ADMINISTRATOR,  true,  nullptr,                                 "", serverSetCommandTable }
         };
 
          static std::vector<ChatCommand> commandTable =
         {
-            { "server",         SEC_ADMINISTRATOR,  true,  NULL,                                    "", serverCommandTable }
+            { "server",         SEC_ADMINISTRATOR,  true,  nullptr,                                  "", serverCommandTable }
         };
         return commandTable;
     }
@@ -215,153 +219,57 @@ public:
         return true;
     }
 
-    static bool HandleServerShutDownCancelCommand(ChatHandler* /*handler*/, char const* /*args*/)
+    static bool HandleServerShutDownCancelCommand(ChatHandler* handler, char const* /*args*/)
     {
-        sWorld->ShutdownCancel();
+        if (uint32 timer = sWorld->ShutdownCancel())
+            handler->PSendSysMessage(LANG_SHUTDOWN_CANCELLED, timer);
 
         return true;
     }
 
-    static bool HandleServerShutDownCommand(ChatHandler* /*handler*/, char const* args)
+    static bool IsOnlyUser(WorldSession* mySession)
     {
-        if (!*args)
-            return false;
-
-        char* timeStr = strtok((char*) args, " ");
-        char* exitCodeStr = strtok(NULL, "");
-
-        int32 time = atoi(timeStr);
-
-        // Prevent interpret wrong arg value as 0 secs shutdown time
-        if ((time == 0 && (timeStr[0] != '0' || timeStr[1] != '\0')) || time < 0)
-            return false;
-
-        if (exitCodeStr)
-        {
-            int32 exitCode = atoi(exitCodeStr);
-
-            // Handle atoi() errors
-            if (exitCode == 0 && (exitCodeStr[0] != '0' || exitCodeStr[1] != '\0'))
-                return false;
-
-            // Exit code should be in range of 0-125, 126-255 is used
-            // in many shells for their own return codes and code > 255
-            // is not supported in many others
-            if (exitCode < 0 || exitCode > 125)
-                return false;
-
-            sWorld->ShutdownServ(time, 0, exitCode);
-        }
-        else
-            sWorld->ShutdownServ(time, 0, SHUTDOWN_EXIT_CODE);
-
-        return true;
-    }
-
-    static bool HandleServerRestartCommand(ChatHandler* /*handler*/, char const* args)
-    {
-        if (!*args)
-            return false;
-
-        char* timeStr = strtok((char*) args, " ");
-        char* exitCodeStr = strtok(NULL, "");
-
-        int32 time = atoi(timeStr);
-
-        //  Prevent interpret wrong arg value as 0 secs shutdown time
-        if ((time == 0 && (timeStr[0] != '0' || timeStr[1] != '\0')) || time < 0)
-            return false;
-
-        if (exitCodeStr)
-        {
-            int32 exitCode = atoi(exitCodeStr);
-
-            // Handle atoi() errors
-            if (exitCode == 0 && (exitCodeStr[0] != '0' || exitCodeStr[1] != '\0'))
-                return false;
-
-            // Exit code should be in range of 0-125, 126-255 is used
-            // in many shells for their own return codes and code > 255
-            // is not supported in many others
-            if (exitCode < 0 || exitCode > 125)
-                return false;
-
-            sWorld->ShutdownServ(time, SHUTDOWN_MASK_RESTART, exitCode);
-        }
-        else
-            sWorld->ShutdownServ(time, SHUTDOWN_MASK_RESTART, RESTART_EXIT_CODE);
-
+        // if mySession is null then the shutdown command was issued from console (local or remote), always shutdown in this case
+        if (!mySession)
             return true;
-    }
 
-    static bool HandleServerIdleRestartCommand(ChatHandler* /*handler*/, char const* args)
-    {
-        if (!*args)
-            return false;
-
-        char* timeStr = strtok((char*) args, " ");
-        char* exitCodeStr = strtok(NULL, "");
-
-        int32 time = atoi(timeStr);
-
-        // Prevent interpret wrong arg value as 0 secs shutdown time
-        if ((time == 0 && (timeStr[0] != '0' || timeStr[1] != '\0')) || time < 0)
-            return false;
-
-        if (exitCodeStr)
-        {
-            int32 exitCode = atoi(exitCodeStr);
-
-            // Handle atoi() errors
-            if (exitCode == 0 && (exitCodeStr[0] != '0' || exitCodeStr[1] != '\0'))
+        // check if there is any session connected from a different address
+        std::string myAddr = mySession ? mySession->GetRemoteAddress() : "";
+        SessionMap const& sessions = sWorld->GetAllSessions();
+        for (SessionMap::value_type const& session : sessions)
+            if (session.second && myAddr != session.second->GetRemoteAddress())
                 return false;
-
-            // Exit code should be in range of 0-125, 126-255 is used
-            // in many shells for their own return codes and code > 255
-            // is not supported in many others
-            if (exitCode < 0 || exitCode > 125)
-                return false;
-
-            sWorld->ShutdownServ(time, SHUTDOWN_MASK_RESTART | SHUTDOWN_MASK_IDLE, exitCode);
-        }
-        else
-            sWorld->ShutdownServ(time, SHUTDOWN_MASK_RESTART | SHUTDOWN_MASK_IDLE, RESTART_EXIT_CODE);
         return true;
     }
 
-    static bool HandleServerIdleShutDownCommand(ChatHandler* /*handler*/, char const* args)
+    static bool HandleServerShutDownCommand(ChatHandler* handler, char const* args)
     {
-        if (!*args)
-            return false;
+        return ShutdownServer(handler, args, 0, SHUTDOWN_EXIT_CODE);
+    }
 
-        char* timeStr = strtok((char*) args, " ");
-        char* exitCodeStr = strtok(NULL, "");
+    static bool HandleServerRestartCommand(ChatHandler* handler, char const* args)
+    {
+        return ShutdownServer(handler, args, SHUTDOWN_MASK_RESTART, RESTART_EXIT_CODE);
+    }
 
-        int32 time = atoi(timeStr);
+    static bool HandleServerForceShutDownCommand(ChatHandler* handler, char const* args)
+    {
+        return ShutdownServer(handler, args, SHUTDOWN_MASK_FORCE, SHUTDOWN_EXIT_CODE);
+    }
 
-        // Prevent interpret wrong arg value as 0 secs shutdown time
-        if ((time == 0 && (timeStr[0] != '0' || timeStr[1] != '\0')) || time < 0)
-            return false;
+    static bool HandleServerForceRestartCommand(ChatHandler* handler, char const* args)
+    {
+        return ShutdownServer(handler, args, SHUTDOWN_MASK_FORCE | SHUTDOWN_MASK_RESTART, RESTART_EXIT_CODE);
+    }
 
-        if (exitCodeStr)
-        {
-            int32 exitCode = atoi(exitCodeStr);
+    static bool HandleServerIdleShutDownCommand(ChatHandler* handler, char const* args)
+    {
+        return ShutdownServer(handler, args, SHUTDOWN_MASK_IDLE, SHUTDOWN_EXIT_CODE);
+    }
 
-            // Handle atoi() errors
-            if (exitCode == 0 && (exitCodeStr[0] != '0' || exitCodeStr[1] != '\0'))
-                return false;
-
-            // Exit code should be in range of 0-125, 126-255 is used
-            // in many shells for their own return codes and code > 255
-            // is not supported in many others
-            if (exitCode < 0 || exitCode > 125)
-                return false;
-
-            sWorld->ShutdownServ(time, SHUTDOWN_MASK_IDLE, exitCode);
-        }
-        else
-            sWorld->ShutdownServ(time, SHUTDOWN_MASK_IDLE, SHUTDOWN_EXIT_CODE);
-            return true;
+    static bool HandleServerIdleRestartCommand(ChatHandler* handler, char const* args)
+    {
+        return ShutdownServer(handler, args, SHUTDOWN_MASK_RESTART | SHUTDOWN_MASK_IDLE, RESTART_EXIT_CODE);
     }
 
     // Exit the realm
@@ -407,8 +315,8 @@ public:
             return false;
 
         char* type = strtok((char*)args, " ");
-        char* name = strtok(NULL, " ");
-        char* level = strtok(NULL, " ");
+        char* name = strtok(nullptr, " ");
+        char* level = strtok(nullptr, " ");
 
         if (!type || !name || !level || *name == '\0' || *level == '\0' || (*type != 'a' && *type != 'l'))
             return false;
@@ -433,6 +341,86 @@ public:
 
         sWorld->SetRecordDiffInterval(newTime);
         printf("Record diff every %u ms\n", newTime);
+
+        return true;
+    }
+
+private:
+    static bool ParseExitCode(char const* exitCodeStr, int32& exitCode)
+    {
+        exitCode = atoi(exitCodeStr);
+
+        // Handle atoi() errors
+        if (exitCode == 0 && (exitCodeStr[0] != '0' || exitCodeStr[1] != '\0'))
+            return false;
+
+        // Exit code should be in range of 0-125, 126-255 is used
+        // in many shells for their own return codes and code > 255
+        // is not supported in many others
+        if (exitCode < 0 || exitCode > 125)
+            return false;
+
+        return true;
+    }
+
+    static bool ShutdownServer(ChatHandler* handler, char const* args, uint32 shutdownMask, int32 defaultExitCode)
+    {
+        if (!*args)
+            return false;
+
+        // #delay [#exit_code] [reason]
+        int32 delay = 0;
+        char* delayStr = strtok((char*)args, " ");
+        if (!delayStr)
+            return false;
+
+        if (isNumeric(delayStr))
+        {
+            delay = atoi(delayStr);
+            // Prevent interpret wrong arg value as 0 secs shutdown time
+            if ((delay == 0 && (delayStr[0] != '0' || delayStr[1] != '\0')) || delay < 0)
+                return false;
+        }
+        else
+        {
+            delay = TimeStringToSecs(std::string(delayStr));
+
+            if (delay == 0)
+                return false;
+        }
+
+        char* exitCodeStr = nullptr;
+
+        char reason[256] = { 0 };
+
+        while (char* nextToken = strtok(nullptr, " "))
+        {
+            if (isNumeric(nextToken))
+                exitCodeStr = nextToken;
+            else
+            {
+                strcat(reason, nextToken);
+                if (char* remainingTokens = strtok(nullptr, "\0"))
+                {
+                    strcat(reason, " ");
+                    strcat(reason, remainingTokens);
+                }
+                break;
+            }
+        }
+
+        int32 exitCode = defaultExitCode;
+        if (exitCodeStr)
+            if (!ParseExitCode(exitCodeStr, exitCode))
+                return false;
+
+        if (delay < (int32)sWorld->getIntConfig(CONFIG_FORCE_SHUTDOWN_THRESHOLD) && !(shutdownMask & SHUTDOWN_MASK_FORCE) && !IsOnlyUser(handler->GetSession()))
+        {
+            delay = (int32)sWorld->getIntConfig(CONFIG_FORCE_SHUTDOWN_THRESHOLD);
+            handler->PSendSysMessage(LANG_SHUTDOWN_DELAYED, delay);
+        }
+
+        sWorld->ShutdownServ(delay, shutdownMask, static_cast<uint8>(exitCode),  std::string(reason));
 
         return true;
     }
