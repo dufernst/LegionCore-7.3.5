@@ -551,7 +551,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //487 SPELL_AURA_487
     &AuraEffect::HandleDisableGravity,                            //488 SPELL_AURA_DISABLE_GRAVITY
     &AuraEffect::HandleNULL,                                      //489 SPELL_AURA_FORGET_LANGUAGE
-    &AuraEffect::HandleNULL,                                      //490 SPELL_AURA_SWITCH_TEAM
+    &AuraEffect::HandleSwitchTeam,                                //490 SPELL_AURA_SWITCH_TEAM
     &AuraEffect::HandleNoImmediateEffect,                         //491 SPELL_AURA_SPELL_AURA_MOD_HONOR_POINTS_GAIN
     &AuraEffect::HandleNULL,                                      //492 SPELL_AURA_492
 };
@@ -9739,3 +9739,15 @@ void AuraEffect::HandleModVisibilityRange(AuraApplication const* auraApp, uint8 
     else
         target->SetRWVisibilityRange(0.0f);
 }
+
+void AuraEffect::HandleSwitchTeam(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+
+    if (Player* player = target->ToPlayer())
+        player->SwitchToOppositeTeam(apply);
+}
+

@@ -590,9 +590,21 @@ void Battleground::RewardHonorToTeam(uint32 Honor, uint32 TeamID)
 void Battleground::RewardReputationToTeam(uint32 factionIDAlliance, uint32 factionIDHorde, uint32 reputation, uint32 teamID)
 {
     if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(teamID == ALLIANCE ? factionIDAlliance : factionIDHorde))
+    {
         for (auto const& itr : GetPlayers())
+		{
             if (Player* player = GetPlayerForTeam(teamID, itr, "RewardReputationToTeam"))
+            {
+                if (!player)
+                    continue;
+
+                if (player->GetNativeTeam() != teamID)
+                    continue;
+
                 player->GetReputationMgr().ModifyReputation(factionEntry, reputation);
+            }
+        }
+	}
 }
 
 void Battleground::UpdateWorldState(uint32 variableID, uint32 value, bool hidden /*= false*/)
@@ -1210,6 +1222,9 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
         if (player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
             player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
 
+        player->RemoveAurasByType(SPELL_AURA_SWITCH_TEAM);
+        player->RemoveAurasByType(SPELL_AURA_MOD_FACTION);
+
         if (!player->isAlive())
         {
             player->ResurrectPlayer(1.0f);
@@ -1415,6 +1430,17 @@ void Battleground::AddPlayer(Player* player)
         else
         {
             player->RemoveArenaSpellCooldowns(true);
+        }
+
+        if (player->HasAura(SPELL_MERCENARY_CONTRACT_HORDE))
+        {
+            player->CastSpell(player, SPELL_MERCENARY_HORDE_1, true);
+            player->CastSpell(player, SPELL_MERCENARY_HORDE_2, true);
+        }
+        else if (player->HasAura(SPELL_MERCENARY_CONTRACT_ALLIANCE))
+        {
+            player->CastSpell(player, SPELL_MERCENARY_ALLIANCE_1, true);
+            player->CastSpell(player, SPELL_MERCENARY_ALLIANCE_2, true);
         }
     }
 

@@ -8053,6 +8053,14 @@ void SpellMgr::LoadSpellCustomAttr()
         spellInfo->Effects[EFFECT_2]->Effect = 0;
     });
 
+    // Horde / Alliance
+    ApplySpellFix({ 195838, 195843 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0]->Effect = SPELL_EFFECT_APPLY_AURA;
+        spellInfo->Effects[EFFECT_1]->Effect = SPELL_EFFECT_APPLY_AURA;
+        spellInfo->Effects[EFFECT_2]->Effect = SPELL_EFFECT_APPLY_AURA;
+    });
+
     ApplySpellFix({ 232661 }, [](SpellInfo* spellInfo)
     {
         spellInfo->Misc.Duration.Duration = 3000;

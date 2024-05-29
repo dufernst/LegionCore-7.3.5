@@ -6342,4 +6342,10 @@ constexpr auto AFFIXES_ALL =
 static const int32 Reputation_Cap    =  42000;
 static const int32 Reputation_Bottom = -42000;
 
+enum SpecialSpells : uint32
+{
+    SPELL_MERCENARY_CONTRACT_HORDE      = 193472,
+    SPELL_MERCENARY_CONTRACT_ALLIANCE   = 193475,
+};
+
 #endif
