@@ -1028,8 +1028,8 @@ WorldPacket const* WorldPackets::Spells::PlaySpellVisualKit::Write()
 {
     _worldPacket << Unit;
     _worldPacket << KitType;
-    _worldPacket << Duration;
     _worldPacket << KitRecID;
+    _worldPacket << Duration;
 
     return &_worldPacket;
 }
