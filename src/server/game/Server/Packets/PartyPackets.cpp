@@ -61,7 +61,7 @@ WorldPacket const* WorldPackets::Party::PartyInvite::Write()
     _worldPacket.WriteBit(MustBeBNetFriend);
     _worldPacket.WriteBit(AllowMultipleRoles);
 
-    _worldPacket.WriteBits(InviterName.size(), 6);
+    _worldPacket.WriteBits(InviterName.length(), 6);
 
     _worldPacket << InviterVirtualRealmAddress;
     _worldPacket.WriteBit(IsLocal);
@@ -123,6 +123,7 @@ void WorldPackets::Party::PartyUninvite::Read()
 WorldPacket const* WorldPackets::Party::GroupDecline::Write()
 {
     _worldPacket.WriteBits(Name.length(), 9);
+    _worldPacket.FlushBits();
     _worldPacket.WriteString(Name);
 
     return &_worldPacket;
