@@ -31,7 +31,7 @@ Sphere::Sphere(const Any& a) : radius(0) {
         center = a[0];
         radius = a[1];
     } else {
-        a.verify(false, "Sphere must recieve exactly 1 or two arguments.");
+        a.verify(false, "Sphere must receive exactly 1 or two arguments.");
     }
 }
 
