@@ -16,7 +16,6 @@ CollectSourceFiles(
 
 if (USE_COREPCH)
   set(PRIVATE_PCH_HEADER PrecompiledHeaders/sharedPCH.h)
-  set(PRIVATE_PCH_SOURCE PrecompiledHeaders/sharedPCH.cpp)
 endif()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
@@ -40,6 +39,7 @@ target_include_directories(shared
 
 target_link_libraries(shared
   PRIVATE
+    trinity-core-interface
     process
   PUBLIC
     mysql
@@ -66,5 +66,5 @@ set_target_properties(shared
 
 # Generate precompiled header
 if (USE_COREPCH)
-  add_cxx_pch(shared ${PRIVATE_PCH_HEADER} ${PRIVATE_PCH_SOURCE})
+  add_cxx_pch(shared ${PRIVATE_PCH_HEADER})
 endif ()
