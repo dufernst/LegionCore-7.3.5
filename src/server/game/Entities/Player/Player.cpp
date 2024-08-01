@@ -2561,7 +2561,7 @@ void Player::ZoneTeleport(uint32 zoneId)
     if (InstanceScript* data_s = GetInstanceScript())
         data_s->OnPlayerLeaveForScript(this);
 
-    // UnsummonPetTemporaryIfAny();
+    UnsummonPetTemporaryIfAny();
     UnsummonCurrentBattlePetIfAny(true);
 
     // remove all dyn objects
@@ -2664,12 +2664,12 @@ void Player::ZoneTeleport(uint32 zoneId)
                 {
                     if (!player->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_TAXI_FLIGHT))
                     {
-                        // player->ResummonPetTemporaryUnSummonedIfAny();
                         player->SummonLastSummonedBattlePet();
                         player->RestoreAllControlled();
                     }
                     player->ProcessDelayedOperations();
                     player->ReCreateAreaTriggerObjects();
+                    player->ResummonPetTemporaryUnSummonedIfAny();
                 });
 
                 player->SetLastWorldStateUpdateTime(time_t(0));
