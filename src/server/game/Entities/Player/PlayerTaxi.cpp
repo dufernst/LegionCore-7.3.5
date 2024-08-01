@@ -92,11 +92,14 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
         SetTaximaskNode(213);                               //Shattered Sun Staging Area
 
     // Argus Taxi
-    if (IsTaximaskNodeKnown(1944) || IsTaximaskNodeKnown(1977) || IsTaximaskNodeKnown(1994))
+    if (level >= 110)
     {
-        SetTaximaskNode(1985); // [Hidden] Argus Ground Points Hub (Ground TP out to here, TP to Vindicaar from here)
-        SetTaximaskNode(1986); // [Hidden] Argus Vindicaar Ground Hub (Vindicaar TP out to here, TP to ground from here)
-        SetTaximaskNode(1987); // [Hidden] Argus Vindicaar No Load Hub (Vindicaar No Load transition goes through here)
+        if (IsTaximaskNodeKnown(1944) || IsTaximaskNodeKnown(1977) || IsTaximaskNodeKnown(1994))
+        {
+            SetTaximaskNode(1985); // [Hidden] Argus Ground Points Hub (Ground TP out to here, TP to Vindicaar from here)
+            SetTaximaskNode(1986); // [Hidden] Argus Vindicaar Ground Hub (Vindicaar TP out to here, TP to ground from here)
+            SetTaximaskNode(1987); // [Hidden] Argus Vindicaar No Load Hub (Vindicaar No Load transition goes through here)
+        }
     }
 }
 
