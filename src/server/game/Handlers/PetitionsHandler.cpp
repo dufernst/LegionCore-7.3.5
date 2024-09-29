@@ -90,7 +90,7 @@ void WorldSession::HandlePetitionBuy(WorldPackets::Petition::PetitionBuy& packet
     }
 
     ItemPosCountVec dest;
-    InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, charterid, pProto->VendorStackCount);
+    InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, charterid, pProto->GetBuyCount());
     if (msg != EQUIP_ERR_OK)
     {
         player->SendEquipError(msg, nullptr, nullptr, charterid);

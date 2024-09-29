@@ -19,26 +19,5 @@
 #define SC_SCRIPTLOADER_H
 
 void AddScripts();
-void AddBattlePayScripts();
-void AddSpellScripts();
-void AddCommandScripts();
-void AddWorldScripts();
-void AddKalimdorScripts();
-void AddOutlandScripts();
-void AddNorthrendScripts();
-void AddBattlegroundScripts();
-void AddOutdoorPvPScripts();
-void AddCustomScripts();
-void AddSC_AshranMgr();
-void AddSC_AshranNPCAlliance();
-void AddSC_AshranNPCHorde();
-void AddSC_AshranSpells();
-void AddSC_AshranAreaTrigger();
-void AddSC_AshranNPCNeutral();
-void AddSC_AshranQuest();
-void AddLegionScripts();
-void AddDraenorScripts();
-void AddEasternKingdomsScripts();
-void AddPandarieScripts();
 
 #endif

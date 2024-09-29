@@ -728,6 +728,7 @@ struct ItemTemplate
     int32 GetItemRandomSuffixGroupID() const { return ExtendedData->ItemRandomSuffixGroupID; }
     uint32 GetSpellWeightCategory() const { return ExtendedData->SpellWeightCategory; }
     uint32 GetSpellWeight() const { return ExtendedData->SpellWeight; }
+    uint32 GetBuyCount() const { return std::max<uint32>(ExtendedData->VendorStackCount, 1u); }
     int32 GetBuyPrice() const { return ExtendedData->BuyPrice; }
     uint32 GetSellPrice() const { return ExtendedData->SellPrice; }
     uint32 GetItemNameDescriptionID() const { return ExtendedData->ItemNameDescriptionID; }

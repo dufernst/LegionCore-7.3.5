@@ -199,6 +199,33 @@ static uint8 const CURRENT_EXPANSION = EXPANSION_LEGION;
 static uint16 const START_DK_LEVEL = 55;
 static uint16 const START_DH_LEVEL = 98;
 
+constexpr uint32 GetMaxLevelForExpansion(uint32 expansion)
+{
+    switch (expansion)
+    {
+        case EXPANSION_CLASSIC:
+            return 60;
+        case EXPANSION_THE_BURNING_CRUSADE:
+            return 80;
+        case EXPANSION_WRATH_OF_THE_LICH_KING:
+            return 80;
+        case EXPANSION_CATACLYSM:
+            return 90;
+        case EXPANSION_MISTS_OF_PANDARIA:
+            return 90;
+        case EXPANSION_WARLORDS_OF_DRAENOR:
+            return 100;
+        case EXPANSION_LEGION:
+            return 110;
+        case EXPANSION_BATTLE_FOR_AZEROTH:
+            return 120;
+        default:
+            break;
+    }
+
+    return 0;
+}
+
 enum Gender
 {
     GENDER_UNKNOWN                     = -1,

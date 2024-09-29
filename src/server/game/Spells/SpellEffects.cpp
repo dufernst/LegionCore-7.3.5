@@ -317,7 +317,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectReTrainFollower,                          //233 SPELL_EFFECT_RETRAIN_FOLLOWER
     &Spell::EffectNULL,                                     //234 SPELL_EFFECT_234
     &Spell::EffectNULL,                                     //235 SPELL_EFFECT_RANDOM_REWARD_SKILL_POINTS
-    &Spell::EffectGieveExperience,                          //236 SPELL_EFFECT_GIVE_EXPERIENCE
+    &Spell::EffectGiveExperience,                           //236 SPELL_EFFECT_GIVE_EXPERIENCE
     &Spell::EffectNULL,                                     //237 SPELL_EFFECT_GIVE_RESTED_EXPERIENCE_BONUS
     &Spell::EffectIncreaseSkill,                            //238 SPELL_EFFECT_INCREASE_SKILL
     &Spell::EffectNULL,                                     //239 SPELL_EFFECT_END_GARRISON_BUILDING_CONSTRUCTION
@@ -9046,7 +9046,7 @@ void Spell::EffectUpgradeHeirloom(SpellEffIndex /*effIndex*/)
         collectionMgr->UpgradeHeirloom(m_miscData[0], m_castItemEntry);
 }
 
-void Spell::EffectGieveExperience(SpellEffIndex effIndex)
+void Spell::EffectGiveExperience(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
         return;

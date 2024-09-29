@@ -1,3 +1,5 @@
+SET sql_mode = '';
+
 /*
 SQLyog Community v13.1.5  (64 bit)
 MySQL - 5.6.47 : Database - characters
@@ -832,7 +834,7 @@ CREATE TABLE `character_donate` (
   `count` int(10) unsigned NOT NULL,
   `state` int(11) NOT NULL DEFAULT '0',
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `deletedate` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `deletedate` timestamp NOT NULL DEFAULT '1970-01-01 00:00:01',
   `account` int(11) NOT NULL DEFAULT '0',
   UNIQUE KEY `index` (`owner_guid`,`itemguid`,`type`) USING BTREE,
   KEY `owner_guid` (`owner_guid`) USING BTREE,

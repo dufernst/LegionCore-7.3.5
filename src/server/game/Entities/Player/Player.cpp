@@ -905,7 +905,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
                 if (!iProto)
                     continue;
 
-                uint32 count = iProto->VendorStackCount;
+                uint32 count = iProto->GetBuyCount();
                 if (iProto->GetClass() == ITEM_CLASS_CONSUMABLE && iProto->GetSubClass() == ITEM_SUBCLASS_FOOD_DRINK)
                 {
                     switch (iProto->Effects[0]->SpellCategoryID)
@@ -4695,7 +4695,7 @@ void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResp
 void Player::SendNewMail()
 {
     // deliver undelivered mail
-    WorldPackets::Mail::NotifyRecievedMail notify;
+    WorldPackets::Mail::NotifyReceivedMail notify;
     notify.Delay = 0.0f;
     SendDirectMessage(notify.Write());
 }
@@ -28173,7 +28173,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     // check current item amount if it limited
     if (crItem->maxcount != 0)
     {
-        if (creature->GetVendorItemCurrentCount(crItem) < pProto->VendorStackCount * count)
+        if (creature->GetVendorItemCurrentCount(crItem) < pProto->GetBuyCount() * count)
         {
             SendBuyError(BUY_ERR_ITEM_ALREADY_SOLD, creature, item);
             return false;
@@ -28188,7 +28188,7 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
 
     if (crItem->DonateCost)
     {
-        uint32 stacks = count / pProto->VendorStackCount;
+        uint32 stacks = count / pProto->GetBuyCount();
         if (!HasToken(sWorld->getIntConfig(CONFIG_DONATE_VENDOR_TOKEN_TYPE), crItem->DonateCost * stacks))
         {
             SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS);
@@ -28198,13 +28198,13 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     else if (crItem->ExtendedCost)
     {
         // Can only buy full stacks for extended cost
-        if (pProto->VendorStackCount != count)
+        if (pProto->GetBuyCount() != count)
         {
             SendEquipError(EQUIP_ERR_CANT_BUY_QUANTITY);
             return false;
         }
 
-        uint32 stacks = count / pProto->VendorStackCount;
+        uint32 stacks = count / pProto->GetBuyCount();
         ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);
         if (!iece)
         {
@@ -28305,25 +28305,28 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
             }
         }
     }
-    
+
     uint64 extGold = crItem->Money;
     uint64 price = 0;
-    if (extGold || crItem->IsGoldRequired(pProto) && pProto->GetBuyPrice() > 0) //Assume price cannot be negative (do not know why it is int32)
+    if (extGold || crItem->IsGoldRequired(pProto) && pProto->GetBuyPrice() > 0) // assume price cannot be negative (do not know why it is int32)
     {
-        uint32 maxCount = MAX_MONEY_AMOUNT / (extGold ? extGold : pProto->GetBuyPrice());
-        if ((uint32)count > maxCount)
+        extGold = (extGold ? extGold : pProto->GetBuyPrice());
+
+        double buyPricePerItem = double(extGold) / pProto->GetBuyCount();
+        uint64 maxCount = MAX_MONEY_AMOUNT / buyPricePerItem;
+        if ((uint64)count > maxCount)
         {
-            TC_LOG_ERROR(LOG_FILTER_PLAYER, "Player %s tried to buy %u item id %u, causing overflow", GetName(), (uint32)count, pProto->GetId());
+            TC_LOG_ERROR(LOG_FILTER_PLAYER, "Player::BuyItemFromVendorSlot: Player '%s' (%s) tried to buy item (ItemID: %u, Count: %u), causing overflow",
+                GetName(), GetGUID().ToString(), pProto->GetId(), (uint32)count);
             count = (uint8)maxCount;
         }
-        price = (extGold ? extGold : pProto->GetBuyPrice()) * count; //it should not exceed MAX_MONEY_AMOUNT
+        price = uint64(buyPricePerItem * count); // it should not exceed MAX_MONEY_AMOUNT
 
         // reputation discount
-        price *= double(GetReputationPriceDiscount(creature));
+        price = uint64(floor(price * GetReputationPriceDiscount(creature)));
 
-        //if (int32 priceMod = GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
-            //price -= CalculatePct(price, priceMod);
-
+        if (int32 priceMod = GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
+            price -= CalculatePct(price, priceMod);
             
         if (!HasEnoughMoney(price) && !crItem->DonateCost)
         {
@@ -28334,8 +28337,8 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
     
     if (crItem->DonateCost)
     {
-        //Hack for donate
-        uint32 stacks = count / pProto->VendorStackCount;
+        // hack for donate
+        uint32 stacks = count / pProto->GetBuyCount();
         price = crItem->DonateCost * stacks;
     }
 
@@ -30695,10 +30698,15 @@ float Player::GetReputationPriceDiscount(Creature const* creature) const
         return 1.0f;
 
     ReputationRank rank = GetReputationRank(vendor_faction->Faction);
+
+    // Check if player has 'Best Deals Anywhere' passive (should be goblin only)
+    if (const_cast<Player*>(this)->HasSpell(69044))
+        rank = REP_EXALTED;
+
     if (rank <= REP_NEUTRAL)
         return 1.0f;
 
-    return 1.0f - 0.05f* (rank - REP_NEUTRAL);
+    return 1.0f - 0.05f * (rank - REP_NEUTRAL);
 }
 
 Player* Player::GetTrader() const

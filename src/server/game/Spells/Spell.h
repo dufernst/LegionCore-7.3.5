@@ -334,7 +334,7 @@ class Spell
         void EffectCreateHeirloomItem(SpellEffIndex effIndex);
         void EffectChangeItemBonuses(SpellEffIndex effIndex);
         void EffectUpgradeHeirloom(SpellEffIndex effIndex);
-        void EffectGieveExperience(SpellEffIndex effIndex);
+        void EffectGiveExperience(SpellEffIndex effIndex);
         void EffectRemovePhase(SpellEffIndex effIndex);
         void EffectModAssistantEquipmentLevel(SpellEffIndex effIndex);
         void EffectIncreaseFollowerExperience(SpellEffIndex effIndex);

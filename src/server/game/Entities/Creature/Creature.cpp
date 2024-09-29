@@ -682,7 +682,6 @@ bool Creature::InitEntry(uint32 entry, uint32 /*team*/, const CreatureData* data
     else
         SetObjectScale(cinfo->scale);
 
-
     // checked at loading
     m_defaultMovementType = MovementGeneratorType(cinfo->MovementType);
     if (!m_respawnradius && m_defaultMovementType == RANDOM_MOTION_TYPE)
@@ -1027,6 +1026,11 @@ void Creature::Update(uint32 diff)
         case ALIVE:
         {
             Unit::Update(diff);
+
+            // creature can be dead after Unit::Update call
+            // CORPSE/DEAD state will processed at next tick (in other case death timer will be updated unexpectedly)
+            if (!isAlive())
+                break;
 
             // if creature is charmed, switch to charmed AI (and back)
             if (NeedChangeAI)
@@ -2498,13 +2502,13 @@ void Creature::setDeathState(DeathState s)
 
         if (sWorld->getBoolConfig(CONFIG_RESPAWN_FROM_PLAYER_ENABLED))
         {
-            if (_respawnDelay <= 600 && !GetMap()->Instanceable()) // квестовые мобы и прочий шлак
+            if (_respawnDelay <= 600 && !GetMap()->Instanceable()) // quest mobs and other trash
             {
                 uint32 targetCount = GetPlayerFromArea(m_areaId);
                 if (targetCount)
                 {
                     if (targetCount >= sWorld->getIntConfig(CONFIG_RESPAWN_FROM_PLAYER_COUNT))
-                        _respawnDelay /= targetCount; // грубый рассчет, конечно, но лучше уж..
+                        _respawnDelay /= targetCount; // a rough calculation, of course, but better...
 
                     if (_respawnDelay < 10)
                         _respawnDelay = urand(10, 15);
@@ -2521,11 +2525,6 @@ void Creature::setDeathState(DeathState s)
         SetUInt32Value(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
 
         setActive(false);
-
-        if (!isPet() && GetCreatureTemplate()->SkinLootId)
-            if (LootTemplates_Skinning.HaveLootFor(GetCreatureTemplate()->SkinLootId))
-                if (hasLootRecipient())
-                    SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
 
         if (HasSearchedAssistance())
         {
@@ -3524,13 +3523,13 @@ uint32 Creature::GetVendorItemCurrentCount(VendorItem const* vItem)
         ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(vItem->item);
 
         auto diff = uint32((ptime - vCount->lastIncrementTime)/vItem->incrtime);
-        if ((vCount->count + diff * pProto->VendorStackCount) >= vItem->maxcount)
+        if ((vCount->count + diff * pProto->GetBuyCount()) >= vItem->maxcount)
         {
             m_vendorItemCounts.erase(itr);
             return vItem->maxcount;
         }
 
-        vCount->count += diff * pProto->VendorStackCount;
+        vCount->count += diff * pProto->GetBuyCount();
         vCount->lastIncrementTime = ptime;
     }
 
@@ -3563,8 +3562,8 @@ uint32 Creature::UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 us
         ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(vItem->item);
 
         auto diff = uint32((ptime - vCount->lastIncrementTime)/vItem->incrtime);
-        if ((vCount->count + diff * pProto->VendorStackCount) < vItem->maxcount)
-            vCount->count += diff * pProto->VendorStackCount;
+        if ((vCount->count + diff * pProto->GetBuyCount()) < vItem->maxcount)
+            vCount->count += diff * pProto->GetBuyCount();
         else
             vCount->count = vItem->maxcount;
     }

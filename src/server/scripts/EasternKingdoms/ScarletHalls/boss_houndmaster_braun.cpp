@@ -195,7 +195,7 @@ public:
             if (damage >= me->GetHealth())
             {
                 if (!attacker->ToCreature())
-                    if (attacker->ToPet() ||attacker->ToPlayer())
+                    if (attacker->ToPet() || attacker->ToPlayer())
                         damage = 0;
 
                 if (!DeathEvent)

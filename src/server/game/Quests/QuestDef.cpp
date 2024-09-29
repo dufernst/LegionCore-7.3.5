@@ -269,7 +269,12 @@ uint32 Quest::XPValue(Player* player) const
     if (player)
     {
         int32 playerLevel = std::min(uint32(player->getLevel()), uint32(MaxScalingLevel));
-        int32 questLevel = uint32(Level == -1 ? playerLevel : Level);
+        int32 questLevel = playerLevel;
+
+        // make sure that quest level does not go below the minimum required level for the quest!
+        if (questLevel < Level && Level != -1)
+            questLevel = Level;
+
         auto xpentry = sQuestXPStore.LookupEntry(questLevel);
         if (!xpentry || RewardXPDifficulty >= 10)
             return 0;
@@ -285,14 +290,33 @@ uint32 Quest::XPValue(Player* player) const
             diffFactor = 10;
 
         uint32 xp = diffFactor * xpentry->Difficulty[RewardXPDifficulty] * RewardXPMultiplier / 10 * multiplier;
-        if (xp <= 100)
-            xp = 5 * ((xp + 2) / 5);
-        else if (xp <= 500)
-            xp = 10 * ((xp + 5) / 10);
-        else if (xp <= 1000)
-            xp = 25 * ((xp + 12) / 25);
-        else
-            xp = 50 * ((xp + 25) / 50);
+        if (!IsDaily())
+        {
+            uint32 expLevel = GetMaxLevelForExpansion(player->GetMap()->GetEntry()->ExpansionID);
+
+            switch (player->GetZoneId())
+            {
+                // Mount Hyjal
+                case 616:
+                // Twilight Highlands
+                case 4922:
+                // Uldum
+                case 5034:
+                // Deepholm
+                case 5042:
+                // Vashj'ir
+                case 4815:  // Kelp'thar Forest
+                case 5144:  // Shimmering Expanse
+                case 5145:  // Abyssal Depths
+                    expLevel = GetMaxLevelForExpansion(Expansions::EXPANSION_CATACLYSM);
+                    break;
+            }
+
+            if (player->getLevel() > expLevel)
+                xp = uint32(xp / 9.0f);
+        }
+
+        xp = RoundXPValue(xp);
 
         return xp;
     }
@@ -300,12 +324,23 @@ uint32 Quest::XPValue(Player* player) const
     return 0;
 }
 
-uint32 Quest::MoneyValue(uint8 playerLVL) const
+uint32 Quest::MoneyValue(uint8 playerLevel) const
 {
-    if (QuestMoneyRewardEntry const* money = sQuestMoneyRewardStore.LookupEntry(Level == -1 ? playerLVL : Level))
+    if (QuestMoneyRewardEntry const* money = sQuestMoneyRewardStore.LookupEntry(GetScaledQuestLevel(playerLevel)))
         return money->Difficulty[RewardMoneyDifficulty] * RewardMoneyMultiplier;
     
     return 0;
+}
+
+uint32 Quest::GetScaledQuestLevel(uint8 playerLevel) const
+{
+    uint32 scaledLevel = std::min(uint32(playerLevel), uint32(MaxScalingLevel));
+
+    // make sure that quest level does not go below the minimum required level for the quest!
+    if (scaledLevel < Level && Level != -1)
+        scaledLevel = Level;
+
+    return scaledLevel;
 }
 
 void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const
@@ -415,4 +450,16 @@ void Quest::SetObjectiveBuggedState(uint32 objectiveId, bool working)
     for (QuestObjective& objective : Objectives)
         if (objective.ID == objectiveId)
             objective.Bugged = !working;
+}
+
+uint32 Quest::RoundXPValue(uint32 xp)
+{
+    if (xp <= 100)
+        return 5 * ((xp + 2) / 5);
+    else if (xp <= 500)
+        return 10 * ((xp + 5) / 10);
+    else if (xp <= 1000)
+        return 25 * ((xp + 12) / 25);
+    else
+        return 50 * ((xp + 25) / 50);
 }

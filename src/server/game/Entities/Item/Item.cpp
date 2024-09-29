@@ -2437,7 +2437,7 @@ uint32 Item::GetSellPrice()
     if (!classEntry)
         return 0;
 
-    uint32 buyCount = proto->VendorStackCount;
+    uint32 buyCount = proto->GetBuyCount();
 
     if (buyCount < 1)
         buyCount = 1;

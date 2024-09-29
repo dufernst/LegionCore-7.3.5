@@ -7819,8 +7819,12 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster, Spell
     {
         switch (GetSpellInfo()->Id)
         {
-            case 43093: case 31956: case 38801:  // Grievous Wound
-            case 35321: case 38363: case 39215:  // Gushing Wound
+            case 43093:
+            case 31956:
+            case 38801:  // Grievous Wound
+            case 35321:
+            case 38363:
+            case 39215:  // Gushing Wound
             {
                 if (target->IsFullHealth())
                 {
@@ -7958,6 +7962,9 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster, Spell
     }
 
     float dmg = damage;
+
+    // Script Hook For HandlePeriodicDamageAurasTick -- Allow scripts to change the Damage pre class mitigation calculations
+    sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, dmg);
 
     if (lastTick && !m_spellInfo->HasAttribute(SPELL_ATTR10_STACK_DAMAGE_OR_HEAL))
     {
@@ -8151,6 +8158,9 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster, S
     damage += damage_add;
     uint32 damageBeforeHit = damage;
 
+    // Script Hook For HandlePeriodicDamageAurasTick -- Allow scripts to change the Damage pre class mitigation calculations
+    sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);
+
     float crit_chance = 0.0f;
     bool crit = caster->isSpellCrit(target, m_spellInfo, m_spellInfo->GetSchoolMask(), BASE_ATTACK, crit_chance);
     if (crit)
@@ -8306,7 +8316,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster, SpellEf
 
         damage = target->CountPctFromMaxHealth(damage, caster);
         damage = damage * TakenTotalMod;
-        
+
         switch (GetSpellInfo()->Id)
         {
             case 136:
@@ -8468,6 +8478,10 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster, SpellEf
 
     TC_LOG_INFO(LOG_FILTER_SPELLS_AURAS, "PeriodicTick: %s heal of %s for %u health inflicted by %u",
         GetCasterGUID().ToString(), target->GetGUID().ToString(), damage, GetId());
+
+    // Script Hook For HandlePeriodicDamageAurasTick -- Allow scripts to change the Damage pre class mitigation calculations
+    sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);
+    sScriptMgr->ModifyHealReceived(target, caster, damage);
 
     GetBase()->CallScriptEffectChangeTickDamageHandlers(const_cast<AuraEffect const*>(this), damage, target);
 

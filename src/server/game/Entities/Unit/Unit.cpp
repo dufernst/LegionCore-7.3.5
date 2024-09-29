@@ -2052,6 +2052,9 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, float dama
 
     SpellSchoolMask damageSchoolMask = SpellSchoolMask(damageInfo->schoolMask);
 
+    // Script Hook For CalculateSpellDamageTaken -- Allow scripts to change the Damage post class mitigation calculations
+    sScriptMgr->ModifySpellDamageTaken(damageInfo->target, damageInfo->attacker, damage);
+
     if (IsDamageReducedByArmor(damageSchoolMask, spellInfo, effectMask))
         damage = CalcArmorReducedDamage(damageInfo->attacker, victim, damage, spellInfo);
 
@@ -2222,6 +2225,9 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     damage = MeleeDamageBonusDone(damageInfo->target, damage, damageInfo->attackType);
     damageInfo->damageBeforeHit = damage;
     damage = damageInfo->target->MeleeDamageBonusTaken(this, damage, damageInfo->attackType);
+
+    // Script Hook For CalculateMeleeDamage -- Allow scripts to change the Damage pre class mitigation calculations
+    sScriptMgr->ModifyMeleeDamage(damageInfo->target, damageInfo->attacker, damage);
 
     // Calculate armor reduction
     if (IsDamageReducedByArmor(static_cast<SpellSchoolMask>(damageInfo->damageSchoolMask)))
@@ -12521,6 +12527,11 @@ int32 Unit::HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHeal
 {
     uint32 absorb = 0;
     int32 gain = 0;
+
+    float convertedAddHealth = static_cast<float>(addHealth);
+    sScriptMgr->ModifyHealReceived(this, victim, convertedAddHealth);
+    addHealth = static_cast<uint32>(convertedAddHealth);
+
     // calculate heal absorb and reduce healing
     CalcHealAbsorb(victim, spellInfo, addHealth, absorb);
 
@@ -22154,9 +22165,15 @@ void Unit::Kill(Unit* victim, bool durabilityLoss, SpellInfo const* spellProto)
                             unit->SetCombatTimer(0);
             }
             creature->DeleteThreatList();
+
             CreatureTemplate const* cInfo = creature->GetCreatureTemplate();
             if (cInfo && (cInfo->lootid || cInfo->maxgold > 0))
-                creature->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                if (!creature->lootList.empty())
+                    creature->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+
+            if (cInfo->SkinLootId && LootTemplates_Skinning.HaveLootFor(cInfo->SkinLootId))
+                if (creature->hasLootRecipient())
+                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
         }
 
         // Call KilledUnit for creatures, this needs to be called after the lootable flag is set
@@ -27438,6 +27455,56 @@ uint8 Unit::getLevelForTarget(WorldObject const* target) const
         return 1;
     if (level > 123)
         return 123;
+    return uint8(level);
+}
+
+uint8 Unit::getLevelForXPReward(Player const* player) const
+{
+    Creature const* creature = ToCreature();
+    if (!player || !creature)
+        return GetEffectiveLevel();
+
+    uint8 playerLevel = player->getLevel();
+    int32 level = GetEffectiveLevel();
+    int32 levelMin = creature->ScaleLevelMin;
+    int32 levelMax = creature->ScaleLevelMax;
+
+    CreatureTemplate const* cInfo = creature->GetCreatureTemplate();
+
+    if (cInfo)
+    {
+        if (levelMin == 0)
+            levelMin = cInfo->minlevel;
+
+        if (levelMax == 0)
+            levelMax = cInfo->maxlevel;
+    }
+
+    if (levelMin && levelMax)
+    {
+        if (levelMin <= playerLevel && playerLevel <= levelMax)
+        {
+            level = playerLevel;
+            if (creature->isWorldBoss())
+                level += 1;
+        }
+        else if (levelMin >= playerLevel)
+        {
+            level = levelMin;
+            if (creature->isWorldBoss())
+                level += 1;
+        }
+        else if (levelMax <= playerLevel)
+            level = levelMax;
+    }
+
+    level += cInfo->ScaleLevelDelta;
+
+    if (level < 1)
+        return 1;
+    if (level > 123)
+        return 123;
+
     return uint8(level);
 }
 

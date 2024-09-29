@@ -833,6 +833,14 @@ bool ChatHandler::ShowHelpForCommand(std::vector<ChatCommand> const& table, cons
     return ShowHelpForSubCommands(table, "", cmd);
 }
 
+Player* ChatHandler::getPlayer()
+{
+    if (!m_session)
+        return nullptr;
+
+    return m_session->GetPlayer();
+}
+
 Player* ChatHandler::getSelectedPlayer()
 {
     if (!m_session)
@@ -844,6 +852,21 @@ Player* ChatHandler::getSelectedPlayer()
         return m_session->GetPlayer();
 
     return ObjectAccessor::FindPlayer(guid);
+}
+
+Player* ChatHandler::getSelectedPlayerOrSelf()
+{
+    if (!m_session)
+        return nullptr;
+
+    ObjectGuid selected = m_session->GetPlayer()->GetSelection();
+
+    Player* targetPlayer = ObjectAccessor::FindPlayer(selected);
+
+    if (!targetPlayer)
+        targetPlayer = m_session->GetPlayer();
+
+    return targetPlayer;
 }
 
 Unit* ChatHandler::getSelectedUnit()

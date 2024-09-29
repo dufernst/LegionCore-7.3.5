@@ -334,31 +334,60 @@ void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint64 trig
     if (triggerFrom)
         ++count;
 
-    // This will try to spawn the rest of pool, not guaranteed
-    for (int i = 0; i < count; ++i)
+    if (count > 0)
     {
-        PoolObject* obj = RollOne(spawns, triggerFrom);
-        if (!obj)
-            continue;
-        if (obj->guid == lastDespawned)
-            continue;
+        PoolObjectList rolledObjects;
+        rolledObjects.reserve(count);
 
-        if (obj->guid == triggerFrom)
+        // roll objects to be spawned
+        if (!ExplicitlyChanced.empty())
         {
-            ReSpawn1Object(obj);
-            triggerFrom = 0;
-            continue;
-        }
-        spawns.ActivateObject<T>(obj->guid, poolId);
-        Spawn1Object(obj);
+            float roll = (float)rand_chance();
 
-        if (triggerFrom)
-        {
-            // One spawn one despawn no count increase
-            DespawnObject(spawns, triggerFrom);
-            lastDespawned = triggerFrom;
-            triggerFrom = 0;
+            for (PoolObject& obj : ExplicitlyChanced)
+            {
+                roll -= obj.chance;
+
+                // Triggering object is marked as spawned at this time and can be also rolled (respawn case)
+                // so this need explicit check for this case
+                if (roll < 0 && (/*obj.guid == triggerFrom ||*/ !spawns.IsActiveObject<T>(obj.guid)))
+                {
+                    rolledObjects.push_back(obj);
+                    break;
+                }
+            }
         }
+
+        if (!EqualChanced.empty() && rolledObjects.empty())
+        {
+            std::copy_if(EqualChanced.begin(), EqualChanced.end(), std::back_inserter(rolledObjects), [/*triggerFrom, */&spawns](PoolObject const& object)
+                {
+                    return /*object.guid == triggerFrom ||*/ !spawns.IsActiveObject<T>(object.guid);
+                });
+
+            Trinity::Containers::RandomResizeList(rolledObjects, count);
+        }
+
+        // try to spawn rolled objects
+        for (PoolObject& obj : rolledObjects)
+        {
+            if (obj.guid == triggerFrom)
+            {
+                ReSpawn1Object(&obj);
+                triggerFrom = 0;
+            }
+            else
+            {
+                spawns.ActivateObject<T>(obj.guid, poolId);
+                Spawn1Object(&obj);
+            }
+        }
+    }
+
+    // One spawn one despawn no count increase
+    if (triggerFrom)
+    {
+        DespawnObject(spawns, triggerFrom);
     }
 }
 
@@ -524,8 +553,8 @@ template <>
 void PoolGroup<Creature>::ReSpawn1Object(PoolObject* obj)
 {
     if (CreatureData const* data = sObjectMgr->GetCreatureData(obj->guid))
-    if (Creature* creature = ObjectAccessor::GetObjectInWorld(ObjectGuid::Create<HighGuid::Creature>(data->mapid, data->id, obj->guid), (Creature*)nullptr))
-            creature->GetMap()->AddToMapWait(creature);
+        if (Creature* creature = ObjectAccessor::GetObjectInWorld(ObjectGuid::Create<HighGuid::Creature>(data->mapid, data->id, obj->guid), (Creature*)nullptr))
+                creature->GetMap()->AddToMapWait(creature);
 }
 
 // Method that does the respawn job on the specified gameobject
@@ -533,8 +562,8 @@ template <>
 void PoolGroup<GameObject>::ReSpawn1Object(PoolObject* obj)
 {
     if (GameObjectData const* data = sObjectMgr->GetGOData(obj->guid))
-    if (GameObject* pGameobject = ObjectAccessor::GetObjectInWorld(ObjectGuid::Create<HighGuid::GameObject>(data->mapid, data->id, obj->guid), (GameObject*)nullptr))
-            pGameobject->GetMap()->AddToMapWait(pGameobject);
+        if (GameObject* pGameobject = ObjectAccessor::GetObjectInWorld(ObjectGuid::Create<HighGuid::GameObject>(data->mapid, data->id, obj->guid), (GameObject*)nullptr))
+                pGameobject->GetMap()->AddToMapWait(pGameobject);
 }
 
 // Nothing to do for a child Pool
@@ -746,14 +775,18 @@ void PoolMgr::LoadFromDB()
                 {
                     auto it = mPoolTemplate.find(mother_pool_id);
                     if (it == mPoolTemplate.end())
-                    TC_LOG_ERROR(LOG_FILTER_SQL, "`pool_pool` mother_pool id (%u) is out of range compared to max pool id in `pool_template`, skipped.", mother_pool_id);
-                    continue;
+                    {
+                        TC_LOG_ERROR(LOG_FILTER_SQL, "`pool_pool` mother_pool id (%u) is out of range compared to max pool id in `pool_template`, skipped.", mother_pool_id);
+                        continue;
+                    }
                 }
                 {
                     auto it = mPoolTemplate.find(child_pool_id);
                     if (it == mPoolTemplate.end())
-                    TC_LOG_ERROR(LOG_FILTER_SQL, "`pool_pool` included pool_id (%u) is out of range compared to max pool id in `pool_template`, skipped.", child_pool_id);
-                    continue;
+                    {
+                        TC_LOG_ERROR(LOG_FILTER_SQL, "`pool_pool` included pool_id (%u) is out of range compared to max pool id in `pool_template`, skipped.", child_pool_id);
+                        continue;
+                    }
                 }
                 if (mother_pool_id == child_pool_id)
                 {

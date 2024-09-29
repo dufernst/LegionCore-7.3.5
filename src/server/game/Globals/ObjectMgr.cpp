@@ -4240,7 +4240,7 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, Pl
         if ((sTaxiNodesMask[field] & submask) == 0)
             continue;
 
-        float dist2 = (node->Pos.X - x)*(node->Pos.X - x) + (node->Pos.Y - y)*(node->Pos.Y - y) + (node->Pos.Z - z)*(node->Pos.Z - z);
+        float dist2 = (node->Pos.X - x) * (node->Pos.X - x) + (node->Pos.Y - y) * (node->Pos.Y - y) + (node->Pos.Z - z) * (node->Pos.Z - z);
         if (found)
         {
             if (dist2 < dist)
@@ -6642,7 +6642,7 @@ void ObjectMgr::LoadDonateVendors()
     if (sWorld->getBoolConfig(CONFIG_DISABLE_DONATELOADING))
         return;
 
-    // donate venodrs for Tokens    
+    // donate vendors for Tokens    
     uint32 oldMSTime = getMSTime();
     m_donate_waite = true;
     std::lock_guard<std::recursive_mutex> guard(m_donate_lock);

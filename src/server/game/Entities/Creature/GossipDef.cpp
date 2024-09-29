@@ -380,7 +380,7 @@ void PlayerMenu::SendQuestGiverQuestList(uint32 BroadcastTextID, ObjectGuid npcG
             if (QuestTemplateLocale const* ql = sQuestDataStore->GetQuestLocale(questMenuItem.QuestId))
                 ObjectMgr::GetLocaleString(ql->LogTitle, _session->GetSessionDbLocaleIndex(), title);
 
-            questList.GossipTexts.emplace_back(questMenuItem.QuestId, questMenuItem.QuestIcon, quest->Level, quest->MaxScalingLevel, quest->Flags, quest->FlagsEx, quest->IsRepeatable(), title);
+            questList.GossipTexts.emplace_back(questMenuItem.QuestId, questMenuItem.QuestIcon, quest->GetScaledQuestLevel(player->getLevel()), quest->MaxScalingLevel, quest->Flags, quest->FlagsEx, quest->IsRepeatable(), title);
         }
     }
 

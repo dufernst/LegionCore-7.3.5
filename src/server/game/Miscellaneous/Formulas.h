@@ -163,7 +163,7 @@ namespace Trinity
                 gain = 0;
             else
             {
-                gain = BaseGain(player->getLevel(), u->getLevelForTarget(player));
+                gain = BaseGain(player->getLevel(), u->getLevelForXPReward(player));
 
                 if (gain != 0 && u->IsCreature() && creature->isElite())
                 {
@@ -173,7 +173,7 @@ namespace Trinity
 
                     // Elites in instances have a 2.75x XP bonus instead of the regular 2x world bonus.
                     if (u->GetMap() && u->GetMap()->IsDungeon())
-                       gain = uint32(gain * 2.75f);
+                        gain = uint32(gain * 2.75f);
                     else
                         gain *= 2;
                 }

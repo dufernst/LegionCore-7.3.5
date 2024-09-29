@@ -1383,11 +1383,11 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
     if (player->IsInGrid())
         player->RemoveFromGrid();
 
+    sScriptMgr->OnPlayerLeaveMap(this, player);
     if (remove)
     {
         player->SetPreDelete();
         DeleteFromWorld(player);
-        sScriptMgr->OnPlayerLeaveMap(this, player);
     }
 }
 
