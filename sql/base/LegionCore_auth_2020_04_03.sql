@@ -52,7 +52,7 @@ CREATE TABLE `account` (
   KEY `battlenet_index` (`battlenet_index`) USING BTREE,
   KEY `username_idx` (`username`) USING BTREE,
   KEY `hwid` (`hwid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='Account System';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Account System';
 
 /*Data for the table `account` */
 
@@ -71,7 +71,7 @@ CREATE TABLE `account_access` (
   PRIMARY KEY (`id`,`RealmID`) USING BTREE,
   KEY `id` (`id`) USING BTREE,
   KEY `RealmID` (`RealmID`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `account_access` */
 
@@ -94,7 +94,7 @@ CREATE TABLE `account_banned` (
   KEY `bandate` (`bandate`) USING BTREE,
   KEY `unbandate` (`unbandate`) USING BTREE,
   KEY `active` (`active`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='Ban List';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Ban List';
 
 /*Data for the table `account_banned` */
 
@@ -121,7 +121,7 @@ CREATE TABLE `account_character_template` (
   KEY `transferId` (`transferId`) USING BTREE,
   KEY `charGuid` (`charGuid`) USING BTREE,
   KEY `realm` (`realm`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `account_character_template` */
 
@@ -135,7 +135,7 @@ CREATE TABLE `account_flagged` (
   `bannedby` varchar(50) NOT NULL,
   `banreason` varchar(255) NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `account_flagged` */
 
@@ -152,7 +152,7 @@ CREATE TABLE `account_ip_access` (
   `enable` tinyint(1) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `pid_ip` (`pid`,`ip`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `account_ip_access` */
 
@@ -173,7 +173,7 @@ CREATE TABLE `account_last_played_character` (
   KEY `region` (`region`) USING BTREE,
   KEY `battlegroup` (`battlegroup`) USING BTREE,
   KEY `realmId` (`realmId`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `account_last_played_character` */
 
@@ -188,7 +188,7 @@ CREATE TABLE `account_mute` (
   `mutedby` varchar(50) NOT NULL,
   `mutereason` varchar(255) NOT NULL,
   PRIMARY KEY (`guid`,`mutedate`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='mute List';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='mute List';
 
 /*Data for the table `account_mute` */
 
@@ -207,7 +207,7 @@ CREATE TABLE `account_muted` (
   KEY `bandate` (`bandate`) USING BTREE,
   KEY `unbandate` (`unbandate`) USING BTREE,
   KEY `active` (`active`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='Ban List';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Ban List';
 
 /*Data for the table `account_muted` */
 
@@ -221,7 +221,7 @@ CREATE TABLE `account_rates` (
   `realm` int(11) unsigned NOT NULL DEFAULT '0',
   `rate` int(11) unsigned NOT NULL DEFAULT '0',
   UNIQUE KEY `unique` (`account`,`bnet_account`,`realm`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `account_rates` */
 
@@ -241,7 +241,7 @@ CREATE TABLE `battlenet_account_bans` (
   KEY `bandate` (`bandate`) USING BTREE,
   KEY `unbandate` (`unbandate`) USING BTREE,
   KEY `active` (`active`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='Ban List';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Ban List';
 
 /*Data for the table `battlenet_account_bans` */
 
@@ -290,7 +290,7 @@ CREATE TABLE `battlenet_accounts` (
   KEY `recruiter` (`recruiter`) USING BTREE,
   KEY `email_idx` (`email`) USING BTREE,
   KEY `sha_pass_hash` (`sha_pass_hash`(255)) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='Account System';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Account System';
 
 /*Data for the table `battlenet_accounts` */
 
@@ -401,7 +401,7 @@ CREATE TABLE `hwid_penalties` (
   `penalties` int(10) NOT NULL DEFAULT '0',
   `last_reason` varchar(255) NOT NULL,
   PRIMARY KEY (`hwid`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `hwid_penalties` */
 
@@ -419,7 +419,7 @@ CREATE TABLE `ip_banned` (
   KEY `ip` (`ip`) USING BTREE,
   KEY `bandate` (`bandate`) USING BTREE,
   KEY `unbandate` (`unbandate`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='Banned IPs';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Banned IPs';
 
 /*Data for the table `ip_banned` */
 
@@ -434,7 +434,7 @@ CREATE TABLE `logs` (
   `level` int(11) NOT NULL DEFAULT '0',
   `string` text,
   KEY `time` (`time`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `logs` */
 
@@ -448,7 +448,7 @@ CREATE TABLE `online` (
   `diff` int(11) unsigned NOT NULL DEFAULT '0',
   `uptime` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`realmID`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `online` */
 
@@ -463,7 +463,7 @@ CREATE TABLE `realmcharacters` (
   PRIMARY KEY (`realmid`,`acctid`) USING BTREE,
   KEY `acctid` (`acctid`) USING BTREE,
   KEY `realmid` (`realmid`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='Realm Character Tracker';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Realm Character Tracker';
 
 /*Data for the table `realmcharacters` */
 
@@ -491,7 +491,7 @@ CREATE TABLE `realmlist` (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `idx_name` (`name`) USING BTREE,
   KEY `id` (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='Realm System';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Realm System';
 
 /*Data for the table `realmlist` */
 
@@ -514,7 +514,7 @@ CREATE TABLE `store_categories` (
   KEY `enable` (`enable`) USING BTREE,
   KEY `id` (`id`) USING BTREE,
   KEY `sort` (`sort`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `store_categories` */
 
@@ -553,7 +553,7 @@ CREATE TABLE `store_category_locales` (
   `description_it` varchar(255) NOT NULL DEFAULT '',
   `description_ua` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`category`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `store_category_locales` */
 
@@ -570,7 +570,7 @@ CREATE TABLE `store_category_realms` (
   KEY `category` (`category`) USING BTREE,
   KEY `realm` (`realm`) USING BTREE,
   KEY `enable` (`enable`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `store_category_realms` */
 
@@ -588,7 +588,7 @@ CREATE TABLE `store_discounts` (
   `rate` float(5,2) unsigned NOT NULL DEFAULT '0.00',
   `enable` tinyint(1) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `store_discounts` */
 
@@ -626,7 +626,7 @@ CREATE TABLE `store_history` (
   KEY `bnet_account` (`bnet_account`) USING BTREE,
   KEY `status` (`status`) USING BTREE,
   KEY `char_guid` (`char_guid`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `store_history` */
 
@@ -643,7 +643,7 @@ CREATE TABLE `store_level_prices` (
   UNIQUE KEY `unique` (`type`,`realm`,`level`,`token`) USING BTREE,
   KEY `type` (`type`) USING BTREE,
   KEY `realm` (`realm`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `store_level_prices` */
 
@@ -670,7 +670,7 @@ CREATE TABLE `store_product_locales` (
   `ua` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`product`,`type`) USING BTREE,
   UNIQUE KEY `unique` (`product`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `store_product_locales` */
 
@@ -690,7 +690,7 @@ CREATE TABLE `store_product_realms` (
   KEY `product` (`product`) USING BTREE,
   KEY `realm` (`realm`) USING BTREE,
   KEY `enable` (`enable`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `store_product_realms` */
 
@@ -718,7 +718,7 @@ CREATE TABLE `store_products` (
   KEY `id` (`id`) USING BTREE,
   KEY `category` (`category`) USING BTREE,
   KEY `enable` (`enable`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `store_products` */
 
@@ -735,7 +735,7 @@ CREATE TABLE `store_statistics` (
   `buy` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `unique` (`realm`,`product`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `store_statistics` */
 
@@ -776,7 +776,7 @@ CREATE TABLE `transfer_requests` (
   `status` enum('check','test','paid','cancel','4','2','0','reject','payment','verify','new') NOT NULL DEFAULT 'new',
   `parser` tinyint(1) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `transfer_requests` */
 
@@ -803,7 +803,7 @@ CREATE TABLE `transferts` (
   KEY `from` (`from`) USING BTREE,
   KEY `to` (`to`) USING BTREE,
   KEY `state` (`state`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `transferts` */
 
@@ -821,7 +821,7 @@ CREATE TABLE `transferts_logs` (
   `toacc` int(11) NOT NULL DEFAULT '0',
   `newguid` int(11) NOT NULL DEFAULT '0',
   `transferId` int(11) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 /*Data for the table `transferts_logs` */
 
@@ -837,7 +837,7 @@ CREATE TABLE `uptime` (
   `maxplayers` smallint(5) unsigned NOT NULL DEFAULT '0',
   `revision` varchar(255) NOT NULL DEFAULT 'LegionCore',
   PRIMARY KEY (`realmid`,`starttime`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='Uptime system';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Uptime system';
 
 /*Data for the table `uptime` */
 
