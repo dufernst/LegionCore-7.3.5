@@ -12,7 +12,7 @@
 cmake_minimum_required(VERSION 3.9)
 
 # Set projectname (must be done AFTER setting configurationtypes)
-project(LegionCore)
+project(AshenOrderLegionII)
 
 # CMake policies (can not be handled elsewhere)
 cmake_policy(SET CMP0005 OLD)
