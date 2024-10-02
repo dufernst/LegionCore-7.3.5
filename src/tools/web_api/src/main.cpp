@@ -323,7 +323,9 @@ std::string StateToHexBytesString(const T& data, const unsigned char* k, const b
     for (int i = 0; i < crypto_secretbox_NONCEBYTES; i++)
         encryptedV[i] = nonce[i];
 
-    char buffer[onlyDigits ? 4 : 3];
+    char* buffer = 0;
+    buffer = new char[onlyDigits ? 4 : 3];
+    //char buffer[onlyDigits ? 4 : 3];
     std::string result;
     for (const unsigned char byte : encryptedV)
         if (snprintf(buffer, onlyDigits ? 4 : 3, onlyDigits ? "%.3u" : "%.2X", byte) == onlyDigits ? 3 : 2)
