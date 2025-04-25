@@ -815,14 +815,20 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     }
 
     LootTemplate const* tab = store.GetLootFor(lootId);
-
+    
+  static const std::unordered_set<uint32> SILENT_SPELL_LOOTS = {
+  240512,  // Special class spell  特殊职业法术
+  // Additional exception IDs can be added here 可添加其他例外ID
+  };
+    
     if (!tab && !shipmentBuildingType)
     {
         if (objType == 2)
             FillNotNormalLootFor(lootOwner, true);
 
         if (!noEmptyError)
-            TC_LOG_ERROR(LOG_FILTER_SQL, "Table '%s' loot id #%u used but it doesn't have records.", store.GetName(), lootId);
+            if (!SILENT_SPELL_LOOTS.count(lootId))
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Table '%s' loot id #%u used but it doesn't have records.", store.GetName(), lootId);
 
         if (_isLegendaryLoot)
         {
